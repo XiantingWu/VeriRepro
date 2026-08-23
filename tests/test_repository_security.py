@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 from reproagent import repository
+
+_SYMLINK_PRIVILEGE = pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="symlink creation requires elevated privileges on Windows",
+)
 
 
 def test_repository_url_is_canonicalized() -> None:
@@ -83,6 +89,7 @@ def test_clone_uses_hardened_git_protocol_configuration(
     assert commands[1][-1] == "v1.2.3"
 
 
+@_SYMLINK_PRIVILEGE
 def test_host_inspection_ignores_symlinked_dependency_and_manifest(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()
@@ -105,6 +112,7 @@ def test_host_inspection_ignores_symlinked_dependency_and_manifest(tmp_path: Pat
     assert profile.suggested_command == "python reproduce.py"
 
 
+@_SYMLINK_PRIVILEGE
 def test_host_inspection_ignores_symlinked_python_metadata(tmp_path: Path) -> None:
     repo = tmp_path / "repo"
     repo.mkdir()

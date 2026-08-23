@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,11 @@ import reproagent.model_artifacts as model_artifacts_module
 from reproagent.config import ModelArtifactSpec, load_manifest
 from reproagent.experiment import run_in_docker
 from reproagent.model_artifacts import materialize_model_artifacts
+
+_UNIX_SEMANTICS = pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unix uid/gid/chown semantics are unavailable on Windows",
+)
 
 # This file is part of the canonical exact-head gate after the validated runtime
 # patch is promoted; keep it free of branch-only harness assumptions.
@@ -153,6 +159,7 @@ def test_huggingface_model_materialization_uses_model_namespace_and_sanitized_pr
     assert str(tmp_path) not in provenance.read_text(encoding="utf-8")
 
 
+@_UNIX_SEMANTICS
 def test_model_directory_is_mounted_read_only_and_announced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

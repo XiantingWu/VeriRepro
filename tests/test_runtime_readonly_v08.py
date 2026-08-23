@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,11 @@ import reproagent.experiment as experiment_module
 from reproagent.environment import generate_dockerfile
 from reproagent.experiment import run_in_docker
 from reproagent.repository import inspect_repository
+
+_UNIX_SEMANTICS = pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unix uid/gid/chown semantics are unavailable on Windows",
+)
 
 
 class _Process:
@@ -33,6 +39,7 @@ def _capture(monkeypatch: pytest.MonkeyPatch, commands: list[list[str]]) -> None
     monkeypatch.setattr(experiment_module.subprocess, "Popen", fake_popen)
 
 
+@_UNIX_SEMANTICS
 def test_runtime_is_read_only_with_owned_workspace_and_tmp_tmpfs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

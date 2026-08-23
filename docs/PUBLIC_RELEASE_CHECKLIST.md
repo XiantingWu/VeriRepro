@@ -55,9 +55,9 @@ Verify these settings on the public repository before announcing the release:
 - [ ] repository description clearly states the project purpose
 - [ ] relevant repository topics are configured for discoverability
 - [ ] private vulnerability reporting is enabled so `/security/advisories/new` is usable
-- [ ] `main` is protected and requires the public `CI` workflow before merge
+- [ ] `main` is protected with branch protection rules (no GitHub Actions workflows are configured; validation runs manually on a trusted machine)
 - [ ] public fork pull requests cannot execute on self-hosted or credentialed maintainer runners
-- [ ] maintainer-only real-paper/LiteLLM integrations, if enabled, remain manual and isolated from untrusted fork code
+- [ ] real-paper/LiteLLM smoke measurement runs only on a trusted machine controlled by the maintainer
 - [ ] repository About/default-branch links are correct
 - [ ] public README and documentation have no broken internal links or missing exported files
 
@@ -79,7 +79,7 @@ A clean social-preview image is recommended for discoverability but is not a rel
 
 - [ ] confirm `verirepro` package-name availability/ownership directly in PyPI at registration time
 - [ ] create GitHub Environment `pypi` with required manual approval
-- [ ] register PyPI Trusted Publisher for owner `XiantingWu`, repository `VeriRepro`, workflow `publish.yml`, environment `pypi`
+- [ ] configure PyPI publishing for the exact repository identity (Trusted Publishing via restored `publish.yml` workflow, or a short-lived PyPI API token for manual upload)
 - [ ] create signed `v0.8.0` tag from the exact release commit
 - [ ] create a non-prerelease GitHub Release only when stable PyPI publication is intended
 - [ ] review built wheel/sdist before approving the `pypi` deployment

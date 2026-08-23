@@ -39,19 +39,19 @@ A repository cannot self-enable experiment networking or GPU access merely by co
 
 The non-root/read-only runtime applies to the final research-code container. It is not a claim that the Docker daemon, image build, dependency installation, or host process is rootless. `/workspace` and `/tmp` are explicit bounded tmpfs overlays, `/datasets` and `/models` are read-only, and `/repro-output` is either the persistent run-scoped bind or an operator-selected bounded ephemeral tmpfs.
 
-## Public pull requests and CI isolation
+## Public pull requests and validation isolation
 
-The public `CI` workflow runs unit tests, release-tree validation, wheel/sdist construction, Twine checks, and clean-wheel installation on GitHub-hosted `ubuntu-latest` runners. It intentionally references no repository secrets and checks out source with persisted credentials disabled, so external fork pull requests receive automated validation without executing their code on maintainer hardware.
+This repository intentionally ships without GitHub Actions workflows. Unit tests, release-tree validation, wheel/sdist construction, Twine checks, and clean-wheel installation run manually on a trusted machine via the documented release preflight. No automated validation executes repository code on maintainer hardware, and no secrets are exposed to any automated pipeline.
 
-Ordinary fork PR CI intentionally does not require current trusted benchmark evidence or a matching release source fingerprint. A source-changing contribution is expected to differ from the previous release evidence until a maintainer produces fresh trusted evidence. Final `--require-release-evidence` and `release_source_check.py` gates are therefore enforced only in the maintainer release path and the PyPI publish workflow.
+Ordinary contribution validation does not require current trusted benchmark evidence or a matching release source fingerprint. A source-changing contribution is expected to differ from the previous release evidence until a maintainer produces fresh trusted evidence. Final `--require-release-evidence` and `release_source_check.py` gates are therefore enforced manually by the maintainer in the release path.
 
-Networked or credentialed integration workflows are separate. Real-paper discovery and LiteLLM smoke tests are maintainer-dispatched on trusted integration infrastructure; external fork pull requests cannot invoke those workflows as part of normal PR CI.
+Networked or credentialed measurement is separate. Real-paper discovery and LiteLLM smoke tests run only on trusted infrastructure controlled by the maintainer; untrusted pull-request code is never executed there.
 
 Maintainer release validation keeps uploaded evidence deliberately narrow: release-promotable discovery/planning JSON plus the ReproBench manifest, summary, and sanitized result JSON. Temporary PDFs, cloned third-party repositories, experiment workspaces, provider prompts/responses, credentials, and raw logs remain transient state and are not redistributed as release evidence.
 
-A separate GitHub-hosted release-evidence workflow validates already-committed evidence and its measured source fingerprint without secrets or self-hosted execution. Before fresh evidence is promoted, that final integrity gate is expected to fail rather than silently accepting stale measurements.
+Before fresh evidence is promoted, the maintainer runs `scripts/release_source_check.py` on the exact release commit; that final integrity gate is expected to fail rather than silently accepting stale measurements.
 
-Do not move public fork CI onto self-hosted runners and do not add repository secrets to the public `CI` workflow. The release-tree checker and regression tests enforce these boundaries.
+If GitHub Actions workflows are restored in the future, they must remain fork-safe: no self-hosted runners for untrusted pull-request code, no repository secrets in public CI, and persisted credentials disabled at checkout. The release-tree checker and regression tests enforce these boundaries.
 
 ## Important residual risks
 

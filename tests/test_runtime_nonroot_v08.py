@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import sys
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,11 @@ import reproagent.experiment as experiment_module
 from reproagent.environment import generate_dockerfile
 from reproagent.experiment import run_in_docker
 from reproagent.repository import inspect_repository
+
+_UNIX_SEMANTICS = pytest.mark.skipif(
+    sys.platform == "win32",
+    reason="Unix uid/gid/chown semantics are unavailable on Windows",
+)
 
 
 class _Process:
@@ -33,6 +39,7 @@ def _capture(monkeypatch: pytest.MonkeyPatch, commands: list[list[str]]) -> None
     monkeypatch.setattr(experiment_module.subprocess, "Popen", fake_popen)
 
 
+@_UNIX_SEMANTICS
 def test_runtime_maps_nonroot_host_identity_and_preserves_guards(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -49,6 +56,7 @@ def test_runtime_maps_nonroot_host_identity_and_preserves_guards(
     assert "HOME=/tmp" in command
 
 
+@_UNIX_SEMANTICS
 def test_root_host_is_remapped_to_fixed_unprivileged_identity(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -68,6 +76,7 @@ def test_root_host_is_remapped_to_fixed_unprivileged_identity(
     assert commands[0][commands[0].index("--user") + 1] == "65532:65532"
 
 
+@_UNIX_SEMANTICS
 def test_root_host_never_falls_back_to_container_root_when_chown_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -87,6 +96,7 @@ def test_root_host_never_falls_back_to_container_root_when_chown_fails(
         run_in_docker("image", "true", tmp_path / "out", tmp_path / "data", timeout=5)
 
 
+@_UNIX_SEMANTICS
 def test_root_group_is_not_carried_into_container(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

@@ -1,0 +1,14 @@
+# Normalize line endings so release-source fingerprints and evidence
+# SHA-256 digests are stable across platforms. Release-relevant files
+# (Python sources, TOML metadata, release/measurement scripts, and all
+# benchmark evidence JSON) must stay LF in every working tree; Windows
+# checkouts otherwise rewrite them to CRLF and change read_bytes() digests.
+*.py text eol=lf
+*.toml text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.cff text eol=lf
+*.md text eol=lf
+*.sh text eol=lf
+*.csv text eol=lf
