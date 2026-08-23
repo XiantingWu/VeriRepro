@@ -1,0 +1,41 @@
+version: 1
+experiment:
+  command: python reproduce.py
+  network: false
+
+datasets:
+  # Direct URL example:
+  # - name: benchmark
+  #   provider: url
+  #   url: https://example.org/benchmark.zip
+  #   filename: benchmark.zip
+  #   sha256: optional-sha256
+  #   max_bytes: 2147483648
+  #
+  # Hugging Face example:
+  # - name: validation
+  #   provider: huggingface
+  #   repo_id: organization/dataset
+  #   revision: main
+  #   path: data/validation.parquet
+
+metrics:
+  - name: accuracy
+    paper: 0.914
+    tolerance: 0.01
+
+# Reference artifacts live in the research repository. Reproduced paths are
+# relative to VERIREPRO_OUTPUT_DIR. Only declared comparisons affect PASS/FAIL.
+artifacts:
+  - name: Figure 3
+    kind: figure
+    reference: references/figure3.png
+    reproduced: figure3.png
+    threshold: 0.95
+  - name: Table 2
+    kind: table
+    reference: references/table2.csv
+    reproduced: table2.csv
+    threshold: 1.0
+    absolute_tolerance: 0.000001
+    relative_tolerance: 0.01

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "benchmark": "reprobench",
+  "task": {
+    "schema_version": 1,
+    "task_id": "cohomology-wall-smoke-v1",
+    "domain": "computational-algebraic-geometry",
+    "paper": "https://raw.githubusercontent.com/smaniches/cohomology-wall/a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704/paper/tetraquadric_cohomology_wall.pdf",
+    "expected_artifacts": [],
+    "extra_fields": []
+  },
+  "agent": {
+    "name": "VeriRepro",
+    "version": "0.8.0",
+    "report_schema_version": 1
+  },
+  "outcome": "partial",
+  "wall_clock_seconds": 31.579741,
+  "execution_requested": true,
+  "operator_interventions": [
+    "repository_override",
+    "repository_ref_override",
+    "command_override"
+  ],
+  "intervention_count": 3,
+  "measurements": {
+    "verirepro_status": "PARTIAL",
+    "repository": "https://github.com/smaniches/cohomology-wall",
+    "environment_plan_success": true,
+    "repository_commit": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
+    "environment_fingerprint": "ffc89e36886a0aca963fedf956d03e50ad4dc715938c10c9b605728d6e125ee0",
+    "environment_reproducibility_grade": "medium",
+    "dependency_strategy": "requirements",
+    "environment_build_status": "passed",
+    "experiment_execution_status": "passed",
+    "experiment_execution_success": true,
+    "grounded_metric_comparisons": 0,
+    "grounded_metric_passed": 0,
+    "grounded_metric_pass_rate": null,
+    "artifact_comparisons": 0,
+    "artifact_comparisons_passed": 0,
+    "artifact_comparison_pass_rate": null,
+    "output_artifact_count": 0,
+    "expected_artifacts": [],
+    "expected_artifacts_found": [],
+    "expected_artifacts_missing": [],
+    "expected_artifact_rate": 1.0,
+    "model_cost_usd": null,
+    "token_usage": null
+  },
+  "failure_taxonomy": [
+    "insufficient_evidence_or_execution"
+  ],
+  "stages": [
+    {
+      "name": "Paper resolved",
+      "status": "passed"
+    },
+    {
+      "name": "Artifacts discovered",
+      "status": "passed"
+    },
+    {
+      "name": "Paper intelligence",
+      "status": "skipped"
+    },
+    {
+      "name": "Repository found",
+      "status": "passed"
+    },
+    {
+      "name": "Repository inspected",
+      "status": "passed"
+    },
+    {
+      "name": "Scientific contract",
+      "status": "skipped"
+    },
+    {
+      "name": "Environment planned",
+      "status": "passed"
+    },
+    {
+      "name": "Environment diagnostics",
+      "status": "passed"
+    },
+    {
+      "name": "Repository execution planned",
+      "status": "passed"
+    },
+    {
+      "name": "Network policy",
+      "status": "passed"
+    },
+    {
+      "name": "GPU policy",
+      "status": "passed"
+    },
+    {
+      "name": "Datasets downloaded",
+      "status": "skipped"
+    },
+    {
+      "name": "Model artifacts materialized",
+      "status": "skipped"
+    },
+    {
+      "name": "Output policy",
+      "status": "passed"
+    },
+    {
+      "name": "Environment built",
+      "status": "passed"
+    },
+    {
+      "name": "Experiment executed",
+      "status": "passed"
+    },
+    {
+      "name": "Outputs indexed",
+      "status": "skipped"
+    },
+    {
+      "name": "Artifacts compared",
+      "status": "skipped"
+    },
+    {
+      "name": "Results compared",
+      "status": "skipped"
+    }
+  ]
+}

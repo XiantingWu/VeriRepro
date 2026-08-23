@@ -1,0 +1,829 @@
+{
+  "schema_version": 1,
+  "corpus": "benchmarks/real-paper-smoke.json",
+  "corpus_sha256": "c4b1f6004cfcce45b403e3e3d9b8db22b99629f2a5ca807abea15dd184178d09",
+  "corpus_revision_policy": "explicit-arxiv-vN",
+  "mode": {
+    "repository_inspection": false,
+    "max_cases": null
+  },
+  "summary": {
+    "cases": 15,
+    "expected_repository_found": 15,
+    "top1": 15,
+    "evidence_anchored": 15,
+    "found_rate": 1.0,
+    "top1_rate": 1.0,
+    "evidence_anchor_rate": 1.0,
+    "source_evaluable": 15,
+    "algorithm_found_rate": 1.0,
+    "algorithm_top1_rate": 1.0,
+    "algorithm_evidence_anchor_rate": 1.0,
+    "mean_discovery_seconds": 1.8139333333333334,
+    "discovery_status": {
+      "ok": 15
+    },
+    "domains": {
+      "differentiable-physics": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "dynamical-systems": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "generative-vision": {
+        "cases": 2,
+        "evaluable": 2,
+        "found": 2,
+        "top1": 2,
+        "evidence_anchored": 2
+      },
+      "language-modeling": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "nlp-adaptation": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "nlp-pretraining": {
+        "cases": 2,
+        "evaluable": 2,
+        "found": 2,
+        "top1": 2,
+        "evidence_anchored": 2
+      },
+      "object-detection": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "quantum-error-correction": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "quantum-numerical-methods": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "scientific-ml-pde": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "self-supervised-vision": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "vision-backbone": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "vision-language": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      }
+    },
+    "repository_inspection_status": {},
+    "execution_surface": {}
+  },
+  "results": [
+    {
+      "id": "clip",
+      "source": "2103.00020v1",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "domain": "vision-language",
+      "expected_repository": "https://github.com/OpenAI/CLIP",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "e original ResNet-50 on ImageNet zero-shot without needing to use any of the 1.28 million training examples it was trained on. We release our code and pre-trained model weights at https://github.com/OpenAI/CLIP. 1. Introduction and Motivating Work Pre-training methods which learn directly from raw text have revolutionized NLP over the last few years (Dai & Le, 2015; Peters et al., 2018; H"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/OpenAI/CLIP"
+        }
+      ],
+      "discovery_seconds": 3.173,
+      "top_candidate": "https://github.com/OpenAI/CLIP",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/OpenAI/CLIP",
+          "score": 12,
+          "occurrences": 1,
+          "reasons": [
+            "our code",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/facebookresearch/detectron2",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "lora",
+      "source": "2106.09685v2",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "domain": "nlp-adaptation",
+      "expected_repository": "https://github.com/microsoft/LoRA",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "of LoRA. We release a package that facilitates the integration of LoRA with PyTorch models and provide our implementations and model checkpoints for RoBERTa, DeBERTa, and GPT-2 athttps://github.com/microsoft/LoRA. 1 I NTRODUCTION Pretrained Weights \ud835\udc4a \u2208 \u211d\ud835\udc51\u00d7\ud835\udc51 x h \ud835\udc35 = 0 \ud835\udc34 = \ud835\udca9(0, \ud835\udf0e2) \ud835\udc51 \ud835\udc5f Pretrained Weights \ud835\udc4a \u2208 \u211d\ud835\udc51\u00d7\ud835\udc51 x f(x) \ud835\udc51 Figure 1: Our reparametriza- tion. We only trainA andB. Many applicat"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/microsoft/LoRA"
+        }
+      ],
+      "discovery_seconds": 2.892,
+      "top_candidate": "https://github.com/microsoft/LoRA",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/microsoft/LoRA",
+          "score": 7,
+          "occurrences": 1,
+          "reasons": [
+            "implementation",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "albert",
+      "source": "1909.11942v6",
+      "title": "ALBERT: A Lite BERT for Self-supervised Learning of Language Representations",
+      "domain": "nlp-pretraining",
+      "expected_repository": "https://github.com/google-research/ALBERT",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "es new state-of-the-art results on the GLUE, RACE, and SQuAD benchmarks while having fewer param- eters compared to BERT-large. The code and the pretrained models are available at https://github.com/google-research/ALBERT. 1 I NTRODUCTION Full network pre-training (Dai & Le, 2015; Radford et al., 2018; Devlin et al., 2019; Howard & Ruder, 2018) has led to a series of breakthroughs in language repres"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/google-research/ALBERT"
+        }
+      ],
+      "discovery_seconds": 0.402,
+      "top_candidate": "https://github.com/google-research/ALBERT",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/google-research/ALBERT",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/CLUEbenchmark/CLUE",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "guided-diffusion",
+      "source": "2105.05233v4",
+      "title": "Diffusion Models Beat GANs on Image Synthesis",
+      "domain": "generative-vision",
+      "expected_repository": "https://github.com/openai/guided-diffusion",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "\ufb01nd that classi\ufb01er guidance combines well with upsampling diffusion models, further improving FID to 3.94 on ImageNet 256\u00d7256 and 3.85 on ImageNet 512\u00d7512. We release our code at https://github.com/openai/guided-diffusion. 1 Introduction Figure 1: Selected samples from our best ImageNet 512\u00d7512 model (FID 3.85) Over the past few years, generative models have gained the ability to generate human-like"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/openai/guided-diffusion"
+        }
+      ],
+      "discovery_seconds": 3.607,
+      "top_candidate": "https://github.com/openai/guided-diffusion",
+      "candidate_count": 3,
+      "candidates": [
+        {
+          "url": "https://github.com/openai/guided-diffusion",
+          "score": 12,
+          "occurrences": 1,
+          "reasons": [
+            "our code",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/NVlabs/stylegan2",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/Lyken17/pytorch-OpCounter",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "improved-diffusion",
+      "source": "2102.09672v1",
+      "title": "Improved Denoising Diffusion Probabilistic Models",
+      "domain": "generative-vision",
+      "expected_repository": "https://github.com/openai/improved-diffusion",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/openai/improved-diffusion"
+        }
+      ],
+      "discovery_seconds": 1.333,
+      "top_candidate": "https://github.com/openai/improved-diffusion",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/openai/improved-diffusion",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation",
+            "early-page annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "detr",
+      "source": "2005.12872v3",
+      "title": "End-to-End Object Detection with Transformers",
+      "domain": "object-detection",
+      "expected_repository": "https://github.com/facebookresearch/detr",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "ralized to produce panoptic segmentation in a uni\ufb01ed manner. We show that it signi\ufb01cantly outperforms com- petitive baselines. Training code and pretrained models are available at https://github.com/facebookresearch/detr. 1 Introduction The goal of object detection is to predict a set of bounding boxes and category labels for each object of interest. Modern detectors address this set prediction tas"
+        },
+        {
+          "source": "page_text",
+          "page": 8,
+          "context": "ble model, we present results on panoptic segmentation, training only a small extension on a \ufb01xed DETR model. We provide code and pretrained models to reproduce our experiments at https://github.com/facebookresearch/detr. Dataset. We perform experiments on COCO 2017 detection and panoptic seg- mentation datasets [24,18], containing 118k training images and 5k validation images. Each image is annota"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/facebookresearch/detr"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 8,
+          "context": "https://github.com/facebookresearch/detr"
+        }
+      ],
+      "discovery_seconds": 1.026,
+      "top_candidate": "https://github.com/facebookresearch/detr",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/facebookresearch/detr",
+          "score": 7,
+          "occurrences": 2,
+          "reasons": [
+            "available at",
+            "early-paper link"
+          ],
+          "evidence_count": 4
+        },
+        {
+          "url": "https://github.com/facebookresearch/detectron2",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "transformer-xl",
+      "source": "1901.02860v3",
+      "title": "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context",
+      "domain": "language-modeling",
+      "expected_repository": "https://github.com/kimiyoung/transformer-xl",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/kimiyoung/transformer-xl"
+        }
+      ],
+      "discovery_seconds": 0.881,
+      "top_candidate": "https://github.com/kimiyoung/transformer-xl",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/kimiyoung/transformer-xl",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation",
+            "early-page annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "bert",
+      "source": "1810.04805v2",
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "domain": "nlp-pretraining",
+      "expected_repository": "https://github.com/google-research/bert",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "pdf_annotation",
+          "page": 2,
+          "context": "https://github.com/google-research/bert"
+        }
+      ],
+      "discovery_seconds": 0.657,
+      "top_candidate": "https://github.com/google-research/bert",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/google-research/bert",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation",
+            "early-page annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "swin-transformer",
+      "source": "2103.14030v2",
+      "title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "domain": "vision-backbone",
+      "expected_repository": "https://github.com/microsoft/Swin-Transformer",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/microsoft/Swin-Transformer"
+        }
+      ],
+      "discovery_seconds": 0.769,
+      "top_candidate": "https://github.com/microsoft/Swin-Transformer",
+      "candidate_count": 3,
+      "candidates": [
+        {
+          "url": "https://github.com/microsoft/Swin-Transformer",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation",
+            "early-page annotation"
+          ],
+          "evidence_count": 1
+        },
+        {
+          "url": "https://github.com/open-mmlab/mmsegmentation",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        },
+        {
+          "url": "https://github.com/rwightman/pytorch-image-models",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "moby",
+      "source": "2105.04553v2",
+      "title": "Self-Supervised Learning with Swin Transformers",
+      "domain": "self-supervised-vision",
+      "expected_repository": "https://github.com/SwinTransformer/Transformer-SSL",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": ". We hope our results can facilitate more comprehensive evaluation of self-supervised learning methods designed for Transformer architectures. Our code and models are available at https://github.com/SwinTransformer/Transformer-SSL, which will be continually enriched. 1 Introduction The vision \ufb01eld is undergoing two revolutionary trends since about two years ago. The \ufb01rst trend is self-supervised visual repr"
+        },
+        {
+          "source": "page_text",
+          "page": 7,
+          "context": "ate more comprehensive evaluation of self-supervised learning methods designed for Transformer architectures. Our code and models are available and will be continually enriched at https://github.com/SwinTransformer/Transformer-SSL. 7"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/SwinTransformer/Transformer-SSL"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 7,
+          "context": "https://github.com/SwinTransformer/Transformer-SSL"
+        }
+      ],
+      "discovery_seconds": 0.336,
+      "top_candidate": "https://github.com/SwinTransformer/Transformer-SSL",
+      "candidate_count": 3,
+      "candidates": [
+        {
+          "url": "https://github.com/SwinTransformer/Transformer-SSL",
+          "score": 25,
+          "occurrences": 2,
+          "reasons": [
+            "our code",
+            "available at",
+            "early-paper link"
+          ],
+          "evidence_count": 4
+        },
+        {
+          "url": "https://github.com/SwinTransformer/Swin-Transformer-Object-Detection",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/SwinTransformer/Swin-Transformer-Semantic-Segmentation",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "pysindy",
+      "source": "2004.08424v1",
+      "title": "PySINDy: A Python package for the Sparse Identification of Nonlinear Dynamics from Data",
+      "domain": "dynamical-systems",
+      "expected_repository": "https://github.com/dynamicslab/pysindy",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "and demonstration of the features implemented in PySINDy (with code examples), practical advice for users, and a list of potential extensions to PySINDy. Software is available at https://github.com/dynamicslab/pysindy. Keywords\u2013 system identi\ufb01cation, dynamical systems, symbolic regression, open source, python 1 Introduction Scientists have long quanti\ufb01ed empirical observations by developing math"
+        },
+        {
+          "source": "page_text",
+          "page": 4,
+          "context": "odel . fit ( X , t=dt ) model . print ( ) which generates the following output x0\u2019 = -9.999 x0 + 9.999 x1 x1\u2019 = 27.992 x0 + -0.999 x1 + -1.000 x0 x2 x2\u2019 = -2.666 x2 + 1.000 x0 x1 1https://github.com/dynamicslab/pysindy 4"
+        },
+        {
+          "source": "page_text",
+          "page": 6,
+          "context": "x y. A number of other built-in options are available. The o\ufb03cial documentation 2 and examples 3 provide an exhaustive list. 2https://pysindy.readthedocs.io/en/latest/index.html 3https://github.com/dynamicslab/pysindy/tree/master/example 6"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/dynamicslab/pysindy"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 4,
+          "context": "https://github.com/dynamicslab/pysindy"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 6,
+          "context": "https://github.com/dynamicslab/pysindy/tree/master/example"
+        }
+      ],
+      "discovery_seconds": 0.331,
+      "top_candidate": "https://github.com/dynamicslab/pysindy",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/dynamicslab/pysindy",
+          "score": 10,
+          "occurrences": 3,
+          "reasons": [
+            "available at",
+            "early-paper link"
+          ],
+          "evidence_count": 6
+        },
+        {
+          "url": "https://github.com/ohjeah/sparsereg",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "jax-md",
+      "source": "1912.04232v2",
+      "title": "JAX, M.D.: A Framework for Differentiable Physics",
+      "domain": "differentiable-physics",
+      "expected_repository": "https://github.com/google/jax-md",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/google/jax-md/"
+        }
+      ],
+      "discovery_seconds": 8.061,
+      "top_candidate": "https://github.com/google/jax-md",
+      "candidate_count": 3,
+      "candidates": [
+        {
+          "url": "https://github.com/google/jax-md",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation",
+            "early-page annotation"
+          ],
+          "evidence_count": 1
+        },
+        {
+          "url": "https://github.com/google/jax",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/deepmind/dm-haiku",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "adaaf-pinn",
+      "source": "2308.04073v1",
+      "title": "Learning Specialized Activation Functions for Physics-informed Neural Networks",
+      "domain": "scientific-ml-pde",
+      "expected_repository": "https://github.com/LeapLabTHU/AdaAFforPINNs",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "dap- tive activation function can be used to solve different PDE systems in an interpretable way. Its effectiveness is demonstrated on a series of benchmarks. Code is available at https://github.com/LeapLabTHU/AdaAFforPINNs. AMS subject classifications: 65M99, 68T07 Key words: partial differential equations, deep learning, adaptive activation functions, physics- informed neural networks. 1 Introductio"
+        }
+      ],
+      "discovery_seconds": 1.73,
+      "top_candidate": "https://github.com/LeapLabTHU/AdaAFforPINNs",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/LeapLabTHU/AdaAFforPINNs",
+          "score": 14,
+          "occurrences": 1,
+          "reasons": [
+            "code is available",
+            "available at",
+            "early-paper link"
+          ],
+          "evidence_count": 1
+        }
+      ]
+    },
+    {
+      "id": "quantum-hsgpq",
+      "source": "2502.14467v1",
+      "title": "Provable Quantum Algorithm Advantage for Gaussian Process Quadrature",
+      "domain": "quantum-numerical-methods",
+      "expected_repository": "https://github.com/cagalvisf/Quantum_HSGPQ",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "method. Furthermore, we provide a theoretical complexity analysis that shows a polyno- mial advantage over classical Gaussian process quadrature methods. The code is available at https://github.com/cagalvisf/Quantum_HSGPQ. 1 arXiv:2502.14467v1 [stat.CO] 20 Feb 2025"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/cagalvisf/Quantum_HSGPQ"
+        }
+      ],
+      "discovery_seconds": 0.579,
+      "top_candidate": "https://github.com/cagalvisf/Quantum_HSGPQ",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/cagalvisf/Quantum_HSGPQ",
+          "score": 11,
+          "occurrences": 1,
+          "reasons": [
+            "code is available",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    {
+      "id": "tn-decoder-3d",
+      "source": "2310.10722v2",
+      "title": "Tensor Network Decoding Beyond 2D",
+      "domain": "quantum-error-correction",
+      "expected_repository": "https://github.com/ChriPiv/tndecoder3d",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "ow how tensor network decoding can be applied to circuit-level noise and demonstrate that it outperforms the matching decoder on the rotated surface code. Our code is available at https://github.com/ChriPiv/tndecoder3d. 1 Introduction The practical realization of quantum technologies is impeded by the inherent sensitivity of quantum systems to noise. Quantum error correction [1, 2] is generally c"
+        },
+        {
+          "source": "page_text",
+          "page": 2,
+          "context": "l importance for experiments. Finally, we discuss the ample directions for further research in Section 6. Our software implementation of the tensor network decoder is available at https://github.com/ChriPiv/tndecoder3d. 2"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/ChriPiv/tndecoder3d"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 2,
+          "context": "https://github.com/ChriPiv/tndecoder3d"
+        }
+      ],
+      "discovery_seconds": 1.432,
+      "top_candidate": "https://github.com/ChriPiv/tndecoder3d",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/ChriPiv/tndecoder3d",
+          "score": 33,
+          "occurrences": 2,
+          "reasons": [
+            "our code",
+            "code is available",
+            "available at",
+            "early-paper link",
+            "implementation"
+          ],
+          "evidence_count": 4
+        },
+        {
+          "url": "https://github.com/panqec/panqec",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [],
+          "evidence_count": 2
+        }
+      ]
+    }
+  ],
+  "measurement_provenance": {
+    "workflow": "VeriRepro validation",
+    "github_actions_run_id": "32523314161",
+    "head_sha": "16044bec91ac1e94021c5ceace9700ad673463d8"
+  },
+  "release": "0.8.0",
+  "provenance": {
+    "github_actions_run_id": "32523314161",
+    "head_sha": "16044bec91ac1e94021c5ceace9700ad673463d8"
+  }
+}

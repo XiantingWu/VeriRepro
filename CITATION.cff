@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use VeriRepro in research, please cite the software release and the repository."
+title: "VeriRepro: Evidence-grounded computational paper reproduction"
+type: software
+authors:
+  - name: "VeriRepro contributors"
+version: 0.8.0
+license: Apache-2.0
+repository-code: "https://github.com/XiantingWu/VeriRepro"
+url: "https://github.com/XiantingWu/VeriRepro"
+keywords:
+  - reproducibility
+  - computational science
+  - AI agents
+  - research software
+  - paper reproduction

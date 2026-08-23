@@ -1,0 +1,49 @@
+name: Bug report
+description: Report a reproducible VeriRepro defect
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please remove credentials, unpublished paper content, and sensitive dataset URLs before posting.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: VeriRepro version
+      placeholder: "verirepro --version"
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Redact secrets and private URLs.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Paste `verirepro doctor --json` output after checking it for sensitive values.
+      render: json
+  - type: textarea
+    id: report
+    attributes:
+      label: Relevant report excerpt
+      description: Include stage names/statuses or a minimal sanitized report excerpt.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety check
+      options:
+        - label: I removed API keys, access tokens, private repository URLs, and sensitive unpublished data.
+          required: true

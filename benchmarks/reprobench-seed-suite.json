@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "description": "Trusted, repository-owned execution policy for a bounded real VeriRepro ReproBench seed. Task JSON remains untrusted benchmark data; repository/commit/command overrides are explicit operator interventions. Every repository is pinned to an immutable commit.",
+  "cases": [
+    {
+      "task": "benchmarks/reprobench-seed/governed-individuation.json",
+      "repository": "https://github.com/s20sc/governed-individuation",
+      "repository_ref": "010f4d716db5fa0f1defbb2b5f4afa11ab566fe1",
+      "command": "python reproduce.py --no-model",
+      "use_llm": false,
+      "allow_network": false,
+      "trust_repository_contract": false,
+      "timeout_seconds": 900,
+      "release_gate": {
+        "outcome": "partial",
+        "environment_build_status": "passed",
+        "experiment_execution_status": "passed",
+        "intervention_count": 3,
+        "failure_taxonomy": ["insufficient_evidence_or_execution"]
+      }
+    },
+    {
+      "task": "benchmarks/reprobench-seed/cohomology-wall.json",
+      "repository": "https://github.com/smaniches/cohomology-wall",
+      "repository_ref": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
+      "command": "python reproduce.py --smoke",
+      "use_llm": false,
+      "allow_network": false,
+      "trust_repository_contract": false,
+      "timeout_seconds": 900,
+      "release_gate": {
+        "outcome": "partial",
+        "environment_build_status": "passed",
+        "experiment_execution_status": "passed",
+        "intervention_count": 3,
+        "failure_taxonomy": ["insufficient_evidence_or_execution"]
+      }
+    }
+  ]
+}

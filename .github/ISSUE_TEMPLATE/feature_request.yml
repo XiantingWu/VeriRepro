@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a bounded, testable VeriRepro capability
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Reproduction problem
+      description: What concrete reproducibility workflow is blocked today?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Desired evidence contract
+      description: What inputs, deterministic checks, and outputs should make this feature auditable?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Minimal example
+      description: Provide a public paper/repository example if possible.
+  - type: checkboxes
+    id: trust
+    attributes:
+      label: Trust-boundary impact
+      options:
+        - label: I considered whether this expands LLM execution authority, host networking, filesystem access, or secret exposure.
+          required: true

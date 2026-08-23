@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security report
+    url: https://github.com/XiantingWu/VeriRepro/security/advisories/new
+    about: Do not disclose credentials, sandbox escapes, SSRF, or other security-sensitive findings in a public issue.

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "description": "Curated networked corpus for deterministic paper-to-repository discovery and planning measurements. Every arXiv source is pinned to an explicit revision. Cases do not claim full experiment reproduction.",
+  "cases": [
+    {
+      "id": "clip",
+      "source": "2103.00020v1",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "domain": "vision-language",
+      "expected_repository": "https://github.com/OpenAI/CLIP",
+      "evidence_url": "https://arxiv.org/abs/2103.00020v1"
+    },
+    {
+      "id": "lora",
+      "source": "2106.09685v2",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "domain": "nlp-adaptation",
+      "expected_repository": "https://github.com/microsoft/LoRA",
+      "evidence_url": "https://arxiv.org/abs/2106.09685v2"
+    },
+    {
+      "id": "albert",
+      "source": "1909.11942v6",
+      "title": "ALBERT: A Lite BERT for Self-supervised Learning of Language Representations",
+      "domain": "nlp-pretraining",
+      "expected_repository": "https://github.com/google-research/ALBERT",
+      "evidence_url": "https://arxiv.org/abs/1909.11942v6"
+    },
+    {
+      "id": "guided-diffusion",
+      "source": "2105.05233v4",
+      "title": "Diffusion Models Beat GANs on Image Synthesis",
+      "domain": "generative-vision",
+      "expected_repository": "https://github.com/openai/guided-diffusion",
+      "evidence_url": "https://arxiv.org/abs/2105.05233v4"
+    },
+    {
+      "id": "improved-diffusion",
+      "source": "2102.09672v1",
+      "title": "Improved Denoising Diffusion Probabilistic Models",
+      "domain": "generative-vision",
+      "expected_repository": "https://github.com/openai/improved-diffusion",
+      "evidence_url": "https://arxiv.org/abs/2102.09672v1"
+    },
+    {
+      "id": "detr",
+      "source": "2005.12872v3",
+      "title": "End-to-End Object Detection with Transformers",
+      "domain": "object-detection",
+      "expected_repository": "https://github.com/facebookresearch/detr",
+      "evidence_url": "https://arxiv.org/abs/2005.12872v3"
+    },
+    {
+      "id": "transformer-xl",
+      "source": "1901.02860v3",
+      "title": "Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context",
+      "domain": "language-modeling",
+      "expected_repository": "https://github.com/kimiyoung/transformer-xl",
+      "evidence_url": "https://arxiv.org/abs/1901.02860v3"
+    },
+    {
+      "id": "bert",
+      "source": "1810.04805v2",
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "domain": "nlp-pretraining",
+      "expected_repository": "https://github.com/google-research/bert",
+      "evidence_url": "https://arxiv.org/abs/1810.04805v2"
+    },
+    {
+      "id": "swin-transformer",
+      "source": "2103.14030v2",
+      "title": "Swin Transformer: Hierarchical Vision Transformer using Shifted Windows",
+      "domain": "vision-backbone",
+      "expected_repository": "https://github.com/microsoft/Swin-Transformer",
+      "evidence_url": "https://arxiv.org/abs/2103.14030v2"
+    },
+    {
+      "id": "moby",
+      "source": "2105.04553v2",
+      "title": "Self-Supervised Learning with Swin Transformers",
+      "domain": "self-supervised-vision",
+      "expected_repository": "https://github.com/SwinTransformer/Transformer-SSL",
+      "evidence_url": "https://arxiv.org/abs/2105.04553v2"
+    },
+    {
+      "id": "pysindy",
+      "source": "2004.08424v1",
+      "title": "PySINDy: A Python package for the Sparse Identification of Nonlinear Dynamics from Data",
+      "domain": "dynamical-systems",
+      "expected_repository": "https://github.com/dynamicslab/pysindy",
+      "evidence_url": "https://arxiv.org/abs/2004.08424v1"
+    },
+    {
+      "id": "jax-md",
+      "source": "1912.04232v2",
+      "title": "JAX, M.D.: A Framework for Differentiable Physics",
+      "domain": "differentiable-physics",
+      "expected_repository": "https://github.com/google/jax-md",
+      "evidence_url": "https://arxiv.org/abs/1912.04232v2"
+    },
+    {
+      "id": "adaaf-pinn",
+      "source": "2308.04073v1",
+      "title": "Learning Specialized Activation Functions for Physics-informed Neural Networks",
+      "domain": "scientific-ml-pde",
+      "expected_repository": "https://github.com/LeapLabTHU/AdaAFforPINNs",
+      "evidence_url": "https://arxiv.org/abs/2308.04073v1"
+    },
+    {
+      "id": "quantum-hsgpq",
+      "source": "2502.14467v1",
+      "title": "Provable Quantum Algorithm Advantage for Gaussian Process Quadrature",
+      "domain": "quantum-numerical-methods",
+      "expected_repository": "https://github.com/cagalvisf/Quantum_HSGPQ",
+      "evidence_url": "https://arxiv.org/abs/2502.14467v1"
+    },
+    {
+      "id": "tn-decoder-3d",
+      "source": "2310.10722v2",
+      "title": "Tensor Network Decoding Beyond 2D",
+      "domain": "quantum-error-correction",
+      "expected_repository": "https://github.com/ChriPiv/tndecoder3d",
+      "evidence_url": "https://arxiv.org/abs/2310.10722v2"
+    }
+  ]
+}

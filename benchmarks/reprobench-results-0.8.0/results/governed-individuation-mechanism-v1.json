@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "benchmark": "reprobench",
+  "task": {
+    "schema_version": 1,
+    "task_id": "governed-individuation-mechanism-v1",
+    "domain": "agent-governance",
+    "paper": "2607.04613v1",
+    "expected_artifacts": [],
+    "extra_fields": []
+  },
+  "agent": {
+    "name": "VeriRepro",
+    "version": "0.8.0",
+    "report_schema_version": 1
+  },
+  "outcome": "partial",
+  "wall_clock_seconds": 51.476977,
+  "execution_requested": true,
+  "operator_interventions": [
+    "repository_override",
+    "repository_ref_override",
+    "command_override"
+  ],
+  "intervention_count": 3,
+  "measurements": {
+    "verirepro_status": "PARTIAL",
+    "repository": "https://github.com/s20sc/governed-individuation",
+    "environment_plan_success": true,
+    "repository_commit": "010f4d716db5fa0f1defbb2b5f4afa11ab566fe1",
+    "environment_fingerprint": "a2e9bc499ee9506da0ff47efe7a7b0d85c0c6aff7968bc30e30473afe165dced",
+    "environment_reproducibility_grade": "medium",
+    "dependency_strategy": "requirements",
+    "environment_build_status": "passed",
+    "experiment_execution_status": "passed",
+    "experiment_execution_success": true,
+    "grounded_metric_comparisons": 0,
+    "grounded_metric_passed": 0,
+    "grounded_metric_pass_rate": null,
+    "artifact_comparisons": 0,
+    "artifact_comparisons_passed": 0,
+    "artifact_comparison_pass_rate": null,
+    "output_artifact_count": 0,
+    "expected_artifacts": [],
+    "expected_artifacts_found": [],
+    "expected_artifacts_missing": [],
+    "expected_artifact_rate": 1.0,
+    "model_cost_usd": null,
+    "token_usage": null
+  },
+  "failure_taxonomy": [
+    "insufficient_evidence_or_execution"
+  ],
+  "stages": [
+    {
+      "name": "Paper resolved",
+      "status": "passed"
+    },
+    {
+      "name": "Artifacts discovered",
+      "status": "passed"
+    },
+    {
+      "name": "Paper intelligence",
+      "status": "skipped"
+    },
+    {
+      "name": "Repository found",
+      "status": "passed"
+    },
+    {
+      "name": "Repository inspected",
+      "status": "passed"
+    },
+    {
+      "name": "Scientific contract",
+      "status": "skipped"
+    },
+    {
+      "name": "Environment planned",
+      "status": "passed"
+    },
+    {
+      "name": "Environment diagnostics",
+      "status": "passed"
+    },
+    {
+      "name": "Repository execution planned",
+      "status": "passed"
+    },
+    {
+      "name": "Network policy",
+      "status": "passed"
+    },
+    {
+      "name": "GPU policy",
+      "status": "passed"
+    },
+    {
+      "name": "Datasets downloaded",
+      "status": "skipped"
+    },
+    {
+      "name": "Model artifacts materialized",
+      "status": "skipped"
+    },
+    {
+      "name": "Output policy",
+      "status": "passed"
+    },
+    {
+      "name": "Environment built",
+      "status": "passed"
+    },
+    {
+      "name": "Experiment executed",
+      "status": "passed"
+    },
+    {
+      "name": "Outputs indexed",
+      "status": "skipped"
+    },
+    {
+      "name": "Artifacts compared",
+      "status": "skipped"
+    },
+    {
+      "name": "Results compared",
+      "status": "skipped"
+    }
+  ]
+}

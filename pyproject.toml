@@ -1,0 +1,59 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "verirepro"
+version = "0.8.0"
+description = "Evidence-grounded agent for verifiable computational paper reproduction"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["reproducibility", "ai-agent", "research", "arxiv", "scientific-computing", "paper-reproduction"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = [
+  "packaging>=24,<27",
+  "Pillow>=10,<13",
+  "pypdf>=5.0,<7",
+  "PyYAML>=6.0,<7",
+  "requests>=2.32,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2,<2",
+  "pytest>=8.0,<9",
+  "twine>=6,<7",
+]
+
+[project.urls]
+Homepage = "https://github.com/XiantingWu/VeriRepro"
+Repository = "https://github.com/XiantingWu/VeriRepro"
+Issues = "https://github.com/XiantingWu/VeriRepro/issues"
+Documentation = "https://github.com/XiantingWu/VeriRepro/tree/main/docs"
+Changelog = "https://github.com/XiantingWu/VeriRepro/blob/main/CHANGELOG.md"
+Security = "https://github.com/XiantingWu/VeriRepro/security"
+
+[project.scripts]
+verirepro = "verirepro.cli:main"
+verirepro-reprobench = "reproagent.reprobench_adapter:main"
+verirepro-reprobench-summary = "reproagent.reprobench_summary:main"
+reproagent = "reproagent.cli:main"
+
+[tool.hatch.build.targets.sdist]
+core-metadata-version = "2.4"
+
+[tool.hatch.build.targets.wheel]
+core-metadata-version = "2.4"
+packages = ["src/verirepro", "src/reproagent"]
