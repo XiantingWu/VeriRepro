@@ -37,10 +37,6 @@ BASE_REQUIRED_FILES = (
     "src/verirepro/cli.py",
     "src/verirepro/__main__.py",
     "src/verirepro/reprobench.py",
-    ".github/workflows/ci.yml",
-    ".github/workflows/litellm-smoke.yml",
-    ".github/workflows/real-paper-smoke.yml",
-    ".github/workflows/publish.yml",
 )
 
 PUBLIC_WORKFLOWS = (

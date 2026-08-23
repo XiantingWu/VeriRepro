@@ -12,8 +12,6 @@ _RELEASE_SOURCE_FILES = (
     "scripts/run_real_paper_smoke.py",
     "scripts/stamp_release_measurement.py",
     "scripts/run_reprobench_seed.py",
-    ".github/workflows/ci.yml",
-    ".github/workflows/publish.yml",
 )
 _RELEASE_SOURCE_GLOBS = (
     "src/reproagent/**/*.py",

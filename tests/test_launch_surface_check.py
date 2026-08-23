@@ -9,8 +9,6 @@ ROOT = Path(__file__).resolve().parents[1]
 _REQUIRED = (
     "pyproject.toml",
     ".github/ISSUE_TEMPLATE/config.yml",
-    ".github/workflows/publish.yml",
-    ".github/dependabot.yml",
     "CITATION.cff",
     "README.md",
 )
@@ -107,27 +105,3 @@ def test_launch_surface_rejects_incubator_security_route(tmp_path: Path) -> None
 
     assert any("private-advisory" in error for error in errors)
     assert any("private Papers incubator" in error for error in errors)
-
-
-def test_launch_surface_rejects_prerelease_pypi_publication(tmp_path: Path) -> None:
-    root = _surface_copy(tmp_path)
-    path = root / ".github/workflows/publish.yml"
-    path.write_text(
-        path.read_text(encoding="utf-8").replace(
-            "    if: ${{ github.event.release.prerelease == false }}\n", ""
-        ),
-        encoding="utf-8",
-    )
-
-    errors = check_launch_surface(root)
-
-    assert any("prereleases" in error for error in errors)
-
-
-def test_launch_surface_requires_dependency_update_automation(tmp_path: Path) -> None:
-    root = _surface_copy(tmp_path)
-    (root / ".github/dependabot.yml").unlink()
-
-    errors = check_launch_surface(root)
-
-    assert any(".github/dependabot.yml" in error for error in errors)

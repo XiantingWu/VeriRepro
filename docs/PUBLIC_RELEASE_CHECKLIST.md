@@ -43,7 +43,7 @@ Maintainer checklist for publishing VeriRepro. Source-code checks are versioned 
 - [x] version-matched two-case ReproBench seed evidence committed with immutable external repository refs and explicit interventions
 - [x] ReproBench keeps successful process execution distinct from scientific PASS when independent evidence is insufficient
 - [x] discovery, planning, and ReproBench evidence share trusted measurement provenance
-- [x] evidence is bound to deterministic release-source fingerprint `8409c3728eda27e3c1583482b576b3304a027b0901169dee1f48ecad0b4c8047`
+- [x] evidence is bound to deterministic release-source fingerprint `e25cacde58e3d0dcc56a8e38e23a4f71d1c94b87ee38c29364b7949460c56128`
 - [x] `release_check.py --require-release-evidence` and `release_source_check.py` fail closed on stale or mutated release-relevant bytes
 - [ ] final release commit has green release-evidence and full canonical validation after all documentation/export polish
 

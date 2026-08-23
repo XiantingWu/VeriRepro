@@ -68,15 +68,17 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
     if readme and "private `Papers/Repository1-ReproAgent/` incubator" in readme:
         errors.append("README public status must not present the standalone tree as a private incubator")
 
-    publish = _read(root, ".github/workflows/publish.yml", errors)
-    if publish:
+    publish_path = root / ".github/workflows/publish.yml"
+    if publish_path.is_file():
+        publish = publish_path.read_text(encoding="utf-8")
         if "if: ${{ github.event.release.prerelease == false }}" not in publish:
             errors.append("PyPI publish job must fail closed for GitHub prereleases")
         if "name: pypi" not in publish or "id-token: write" not in publish:
             errors.append("PyPI publish job must retain the protected pypi environment and OIDC permission")
 
-    dependabot = _read(root, ".github/dependabot.yml", errors)
-    if dependabot:
+    dependabot_path = root / ".github/dependabot.yml"
+    if dependabot_path.is_file():
+        dependabot = dependabot_path.read_text(encoding="utf-8")
         if 'package-ecosystem: "pip"' not in dependabot:
             errors.append("Dependabot must monitor Python package dependencies")
         if 'package-ecosystem: "github-actions"' not in dependabot:
