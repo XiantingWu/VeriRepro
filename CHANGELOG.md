@@ -2,7 +2,7 @@
 
 Notable user-facing changes are recorded here. Internal CI incidents and one-off maintainer infrastructure details are intentionally omitted from public release notes.
 
-## 0.8.0 — hardened runtime and reproducible external inputs
+## 0.8.0 — hardened runtime, verification, and release engineering
 
 - add lock-aware environment realization for uv, Poetry, conda-lock, and Pipenv while reporting unlocked solve paths as potentially drift-prone;
 - add explicit GPU double authorization: repository request plus independent operator `--allow-gpu`; CUDA hints never grant devices;
@@ -12,8 +12,21 @@ Notable user-facing changes are recorded here. Internal CI incidents and one-off
 - add checksum-bound model/checkpoint declarations with hardened host retrieval, public Hugging Face/Zenodo resolution, sanitized provenance, and read-only `/models` mounts;
 - add optional bounded ephemeral `/repro-output` tmpfs for less-trusted output writers while retaining persistent run-scoped output as the compatibility default;
 - add `verirepro doctor --strict` and optional `--require-llm` for secretless machine-actionable readiness checks;
+- split the reproduction pipeline into orchestration, deterministic policy, execution, verification, and reporting layers while preserving the public `reproduce()` contract;
+- split release validation into package/public, workflow/publishing, benchmark/provenance, and security policy layers behind the stable `check_release_tree()` entry point;
+- add direct unit-test surfaces for datasets, environment, discovery, experiment, metrics, intelligence, and pipeline layers plus a systematic failure matrix for malformed/timeout inputs, repository/dataset/runtime failures, malformed model output, and missing/mismatched result evidence;
+- add branch-coverage measurement, exact-SHA certification, Ruff/mypy checks, release/launch gates, distribution build, Twine validation, and clean-wheel installation on GitHub-hosted runners;
+- run external/fork pull requests only on GitHub-hosted ephemeral runners with read-only permissions and no secrets;
+- require every CI, validation, and certification job to run on GitHub-hosted runners only; no workflow may use self-hosted runners, private runner labels, or runner groups;
+- declare the preferred `verirepro` package as PEP 561 typed and verify the installed wheel carries `py.typed`;
+- make `verirepro` the explicitly tested long-term public API while retaining `reproagent` as the 0.x compatibility/implementation namespace;
 - add canonical standalone package/repository metadata, public launch-surface validation, dependency-update automation, and stable-only PyPI publication through Trusted Publishing/OIDC;
-- refresh version-matched release evidence for the pinned 15-paper discovery corpus, bounded 3-repository environment planning, and ReproBench seed cases;
+- require fresh version-matched discovery, environment-planning, and ReproBench evidence from the final release-source identity; historical 0.8 measurements cannot certify a source or release-policy tree changed after measurement;
+- bind runtime/package code, release-policy layers, typing marker, and trusted certification/publish workflows into release-source provenance so stale evidence fails closed after release-relevant changes;
+- bind an exact maintainer certification dependency snapshot and sanitized resolved-environment record into release provenance while retaining compatible end-user dependency ranges;
+- add benchmark-owned host scientific artifact contracts, SHA-256-bound references, and selected-column table comparison so third-party repositories cannot self-authorize scientific success;
+- require 0.8+ release evidence to include at least one grounded scientific ReproBench success while preserving evidence-limited `PARTIAL` outcomes;
+- keep the sealed repository template read-only while restoring owner-only write permission on the ephemeral runtime workspace copy, allowing legitimate experiments to update tracked result files without weakening non-root/read-only-root isolation;
 - preserve default-deny experiment networking, dropped capabilities, `no-new-privileges`, PID/CPU/memory limits, bounded logs/output processing, and scientific evidence-authority separation;
 - document remaining limits explicitly: NVIDIA hardware is not yet release-certified, Git checkout has no hard transfer/working-tree byte quota, persistent output has no portable hard write quota, and hostile dependency/image builds require stronger isolation than the final Docker runtime boundary.
 
@@ -32,7 +45,7 @@ Notable user-facing changes are recorded here. Internal CI incidents and one-off
 - keep successful process execution distinct from scientific PASS when independent scientific evidence is absent;
 - bind release evidence to exact suite/task/result/summary bytes and the deterministic release-source fingerprint;
 - require version-matched discovery/planning/ReproBench evidence for the release rather than reusing prior-version measurements after source changes;
-- add standalone export symlink protection, hosted public-fork CI isolation, and final committed-evidence/source-fingerprint release gates.
+- add standalone export symlink protection and final committed-evidence/source-fingerprint release gates.
 
 ## 0.6.0 — pinned real-paper corpus and planning evidence
 

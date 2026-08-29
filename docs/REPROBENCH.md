@@ -203,11 +203,18 @@ python scripts/run_reprobench_seed.py \
   --output .verirepro/benchmarks/reprobench-seed
 ```
 
-The 0.8 seed is intentionally bounded to CPU-capable public repositories pinned to immutable 40-character Git commit SHAs. Repository, ref, and command overrides remain explicit operator interventions. Runtime networking and repository-authored scientific contracts remain disabled for the current seed cases.
+The 0.8 seed is intentionally bounded to CPU-capable public repositories pinned to immutable 40-character Git commit SHAs. Repository, ref, and command overrides remain explicit operator interventions. Runtime networking remains disabled, and `trust_repository_contract=false` for both canonical cases.
 
 The gate asks a narrower question than “was the whole paper scientifically reproduced?” It requires that VeriRepro can resolve the paper, inspect the pinned repository, construct the environment, run the selected reproduction command through the normal Docker boundary, and report the result without inventing scientific evidence.
 
-A case may therefore be an expected `partial` even when environment build and experiment execution both pass. This is deliberate: **program exit success is not promoted into scientific PASS without independently authorized metric/artifact evidence.**
+The two canonical cases deliberately exercise both honest outcomes:
+
+- `governed-individuation-mechanism-v1` executes successfully but has no independently authorized scientific metric/artifact comparison, so its expected ReproBench outcome remains `partial`;
+- `cohomology-wall-smoke-v1` receives a **benchmark-owned, host-authorized** table contract whose reference is stored under `benchmarks/reprobench-reference/`. The third-party repository still cannot authorize its own scientific truth. Its reproduction generates `verification_table.csv`, and VeriRepro compares only the explicitly selected rank/defect columns against the SHA-256-bound Section 7 reference. The canonical release expects this case to be `success`.
+
+Thus both canonical **release gates** can pass while the aggregate scientific outcomes remain one `success` plus one intentional `partial`. This is deliberate: **program exit success is not promoted into scientific PASS without independently authorized metric/artifact evidence.**
+
+For 0.8, final release evidence must contain at least one grounded scientific `success`. The release checker verifies the benchmark-owned reference hashes and refuses a scientific success that lacks that independent reference binding.
 
 The seed suite must remain bounded and versioned. Future growth should add scientifically diverse cases without weakening pinning, intervention accounting, trust boundaries, or verdict semantics.
 
@@ -239,7 +246,7 @@ The ReproBench manifest binds evidence to:
 - the trusted workflow/run provenance;
 - each case's declared release gate and whether it passed.
 
-`python scripts/release_check.py --require-release-evidence` independently requires version-matched discovery, planning, and ReproBench evidence; recomputes committed hashes; revalidates every result's outcome/failure-taxonomy relationship; and recomputes aggregate outcome rates.
+`python scripts/release_check.py --require-release-evidence` independently requires version-matched discovery, planning, ReproBench, and certification-environment evidence; recomputes committed hashes; revalidates every result's outcome/failure-taxonomy relationship; and recomputes aggregate outcome rates.
 
 `python scripts/release_source_check.py` separately recomputes the deterministic release-source fingerprint and refuses publication if release-relevant source changed after trusted evidence was produced.
 

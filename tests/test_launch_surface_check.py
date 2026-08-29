@@ -104,4 +104,4 @@ def test_launch_surface_rejects_incubator_security_route(tmp_path: Path) -> None
     errors = check_launch_surface(root)
 
     assert any("private-advisory" in error for error in errors)
-    assert any("non-canonical GitHub repositories" in error for error in errors)
+    assert any("non-canonical GitHub repository" in error for error in errors)
