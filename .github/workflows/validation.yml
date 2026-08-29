@@ -14,7 +14,6 @@ jobs:
     env:
       VERIREPRO_RELEASE_VERSION: 0.8.0
       VERIREPRO_SOURCE_SHA: ${{ github.sha }}
-      VERIREPRO_WORK: ${{ runner.temp }}/verirepro-validation
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -32,7 +31,7 @@ jobs:
           python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
           python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
           python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
-          mkdir -p "$VERIREPRO_WORK"
+          mkdir -p "$RUNNER_TEMP/verirepro-validation"
       - name: Static quality gates
         run: |
           set -euo pipefail
@@ -47,19 +46,19 @@ jobs:
           python scripts/history_scan.py --ref origin/main --include-tree HEAD
           python scripts/release_check.py
           python scripts/launch_surface_check.py
-          verirepro doctor --strict --json > "$VERIREPRO_WORK/doctor.json"
+          verirepro doctor --strict --json > "$RUNNER_TEMP/verirepro-validation/doctor.json"
       - name: Certification environment
         run: |
           set -euo pipefail
           python scripts/certification_environment_check.py \
             --constraints "$PIP_CONSTRAINT" \
-            --output "$VERIREPRO_WORK/certification-environment.json" \
+            --output "$RUNNER_TEMP/verirepro-validation/certification-environment.json" \
             --run-id "$GITHUB_RUN_ID" \
             --head-sha "$VERIREPRO_SOURCE_SHA"
       - name: Measure 15-paper discovery gate
         run: |
           set -euo pipefail
-          OUT="$VERIREPRO_WORK/discovery.json"
+          OUT="$RUNNER_TEMP/verirepro-validation/discovery.json"
           python scripts/run_real_paper_smoke.py \
             --output "$OUT" \
             --require-top1 \
@@ -69,7 +68,7 @@ jobs:
       - name: Measure bounded environment-planning gate
         run: |
           set -euo pipefail
-          OUT="$VERIREPRO_WORK/planning.json"
+          OUT="$RUNNER_TEMP/verirepro-validation/planning.json"
           python scripts/run_real_paper_smoke.py \
             --output "$OUT" \
             --require-top1 \
@@ -82,13 +81,13 @@ jobs:
       - name: Measure ReproBench seed execution
         run: |
           set -euo pipefail
-          python scripts/run_reprobench_seed.py --output "$VERIREPRO_WORK/reprobench"
+          python scripts/run_reprobench_seed.py --output "$RUNNER_TEMP/verirepro-validation/reprobench"
       - name: Stage sanitized evidence bundle
         run: |
           set -euo pipefail
           python scripts/record_release_evidence.py \
-            --discovery "$VERIREPRO_WORK/discovery.json" \
-            --planning "$VERIREPRO_WORK/planning.json" \
+            --discovery "$RUNNER_TEMP/verirepro-validation/discovery.json" \
+            --planning "$RUNNER_TEMP/verirepro-validation/planning.json" \
             --release "$VERIREPRO_RELEASE_VERSION" \
             --run-id "$GITHUB_RUN_ID" \
             --head-sha "$VERIREPRO_SOURCE_SHA"
@@ -96,10 +95,10 @@ jobs:
           DEST="benchmarks/reprobench-results-${VERIREPRO_RELEASE_VERSION}"
           rm -rf "$DEST"
           mkdir -p "$DEST/results"
-          cp "$VERIREPRO_WORK/reprobench/manifest.json" "$DEST/manifest.json"
-          cp "$VERIREPRO_WORK/reprobench/summary.json" "$DEST/summary.json"
-          cp "$VERIREPRO_WORK/reprobench/results/"*.json "$DEST/results/"
-          cp "$VERIREPRO_WORK/certification-environment.json" \
+          cp "$RUNNER_TEMP/verirepro-validation/reprobench/manifest.json" "$DEST/manifest.json"
+          cp "$RUNNER_TEMP/verirepro-validation/reprobench/summary.json" "$DEST/summary.json"
+          cp "$RUNNER_TEMP/verirepro-validation/reprobench/results/"*.json "$DEST/results/"
+          cp "$RUNNER_TEMP/verirepro-validation/certification-environment.json" \
             "benchmarks/certification-environment-${VERIREPRO_RELEASE_VERSION}.json"
       - name: Verify evidence against exact source
         run: |
