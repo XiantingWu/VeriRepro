@@ -12,3 +12,5 @@ build/
 !.env.example
 .dev.vars
 .coverage
+coverage.json
+reprobench-result.json
