@@ -48,7 +48,7 @@ Status: **engineering-ready, not yet released.** The stable GitHub Release/PyPI 
 
 ## Final quality target
 
-- [x] 747 tests; statement 86.4%; branch 79.9%
+- [x] 765 tests; statement 86.4%; branch 79.9%
 - [x] build / Twine / clean-wheel install PASS
 - [x] native history scan PASS; Gitleaks/TruffleHog to be re-run at final audit
 - [x] public launch surface PASS (`scripts/launch_surface_check.py`)

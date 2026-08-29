@@ -90,7 +90,7 @@ The current `0.8.0` release-candidate source is being certified on **GitHub-host
 | Gate | Current measured result |
 | --- | --- |
 | Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
-| Tests / coverage | 747 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
+| Tests / coverage | 765 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
 | Release-source commit | `84fcc6f24610d13124fc204055166b2b069c8297` |
 | Release-source SHA-256 | `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2` |
 | Validation run | GitHub-hosted `VeriRepro validation` run `33276158764` |
@@ -246,7 +246,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. For reproductio
 - General figure comparison is visual/pixel-based, not semantic plot understanding.
 - Automatic PDF Figure/Table crop-to-output matching is incomplete.
 - Environment reconstruction cannot make unavailable or underspecified upstream dependencies reproducible.
-- NVIDIA/CUDA hardware execution is not yet release-certified on a matching NVIDIA-capable trusted runner.
+- NVIDIA/CUDA hardware execution is not currently part of the public GitHub-hosted release-certification matrix.
 - Repository checkout does not currently have a hard transfer/working-tree byte quota.
 - Persistent experiment output has no portable hard filesystem quota; `--output-backend ephemeral` is available for less-trusted writers.
 - Dependency/image builds interact with the Docker daemon before the final non-root research-runtime boundary; hostile builds require stronger isolation.
