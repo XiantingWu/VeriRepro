@@ -41,8 +41,8 @@ Status: **engineering-ready, not yet released.** The stable GitHub Release/PyPI 
 
 ## Evidence
 
-- [ ] pending: fresh Xianting-native certification (15-paper discovery, 3-repository planning, 2-case ReproBench) on GitHub-hosted validation
-- [x] historical/imported evidence is labelled historical only; not cited as current certification
+- [x] fresh Xianting-native certification completed on GitHub-hosted validation (run 33276158764, source 84fcc6f, fingerprint ef02b937…): discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures
+- [x] historical/imported evidence is labelled historical only; current Xianting-native certification (run 33276158764) is the authority
 - [x] historical evidence for the older measured source only; current Xianting-native certification replaces it
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
