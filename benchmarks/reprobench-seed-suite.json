@@ -16,25 +16,45 @@
         "environment_build_status": "passed",
         "experiment_execution_status": "passed",
         "intervention_count": 3,
-        "failure_taxonomy": ["insufficient_evidence_or_execution"]
+        "failure_taxonomy": [
+          "insufficient_evidence_or_execution"
+        ]
       }
     },
     {
       "task": "benchmarks/reprobench-seed/cohomology-wall.json",
       "repository": "https://github.com/smaniches/cohomology-wall",
       "repository_ref": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
-      "command": "python reproduce.py --smoke",
+      "command": "python scripts/verify_rank_formula.py && mkdir -p /repro-output && cp results/verification_table.csv /repro-output/verification_table.csv",
       "use_llm": false,
       "allow_network": false,
       "trust_repository_contract": false,
       "timeout_seconds": 900,
       "release_gate": {
-        "outcome": "partial",
+        "outcome": "success",
         "environment_build_status": "passed",
         "experiment_execution_status": "passed",
-        "intervention_count": 3,
-        "failure_taxonomy": ["insufficient_evidence_or_execution"]
-      }
+        "intervention_count": 4,
+        "failure_taxonomy": []
+      },
+      "scientific_artifacts": [
+        {
+          "name": "section7-rank-defect-table",
+          "kind": "table",
+          "reference": "cohomology-wall-section7.csv",
+          "reproduced": "verification_table.csv",
+          "threshold": 1,
+          "absolute_tolerance": 0,
+          "relative_tolerance": 0,
+          "columns": [
+            "a1",
+            "a2",
+            "a3",
+            "meas_rank",
+            "meas_defect"
+          ]
+        }
+      ]
     }
   ]
 }

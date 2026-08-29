@@ -54,6 +54,7 @@ def test_release_seed_suite_is_bounded_real_and_commit_pinned() -> None:
     cases = suite["cases"]
     assert 2 <= len(cases) <= 10
     assert len({case["task"] for case in cases}) == len(cases)
+    scientific_successes = 0
     for case in cases:
         assert re.fullmatch(r"[0-9a-f]{40}", case["repository_ref"])
         assert case["use_llm"] is False
@@ -61,21 +62,33 @@ def test_release_seed_suite_is_bounded_real_and_commit_pinned() -> None:
         assert case["trust_repository_contract"] is False
         assert case["release_gate"]["environment_build_status"] == "passed"
         assert case["release_gate"]["experiment_execution_status"] == "passed"
-        assert case["release_gate"]["intervention_count"] == 3
+        if case.get("scientific_artifacts"):
+            scientific_successes += 1
+            assert case["release_gate"]["outcome"] == "success"
+            assert case["release_gate"]["failure_taxonomy"] == []
+            assert case["release_gate"]["intervention_count"] == 4
+            for artifact in case["scientific_artifacts"]:
+                assert artifact["kind"] in {"table", "figure", "file"}
+                assert artifact["reference"]
+                assert artifact["reproduced"]
+        else:
+            assert case["release_gate"]["intervention_count"] == 3
+    assert scientific_successes >= 1
 
 
 def test_release_check_07_requires_version_matched_front_half_and_reprobench() -> None:
     root = Path(__file__).parents[1]
-    release_check = (root / "scripts/release_check.py").read_text(encoding="utf-8")
-    assert "def _front_half_evidence_version" in release_check
-    assert "return version" in release_check
-    assert "real-paper-smoke-results-{evidence_version}.json" in release_check
-    assert "environment-planning-results-{evidence_version}.json" in release_check
-    assert "_check_reprobench_release_evidence" in release_check
-    assert "reprobench-results-{version}" in release_check
-    assert "suite_sha256" in release_check
-    assert "result_sha256" in release_check
-    assert "summary_sha256" in release_check
-    assert "github_actions_run_id" in release_check
-    assert '"api_key"' in release_check
-    assert '"workspace"' in release_check
+    surface = (root / "scripts/release_checks/benchmark_surface.py").read_text(encoding="utf-8")
+    common = (root / "scripts/release_checks/common.py").read_text(encoding="utf-8")
+    assert "def front_half_evidence_version" in surface
+    assert "return version" in surface
+    assert "real-paper-smoke-results-{evidence_version}.json" in surface
+    assert "environment-planning-results-{evidence_version}.json" in surface
+    assert "_check_reprobench_release_evidence" in surface
+    assert "reprobench-results-{version}" in surface
+    assert "suite_sha256" in surface
+    assert "result_sha256" in surface
+    assert "summary_sha256" in surface
+    assert "github_actions_run_id" in surface
+    assert '"api_key"' in common
+    assert '"workspace"' in common

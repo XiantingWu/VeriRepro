@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import io
-import sys
 from pathlib import Path
 
 import pytest
@@ -10,11 +9,6 @@ import reproagent.experiment as experiment_module
 from reproagent.environment import generate_dockerfile
 from reproagent.experiment import run_in_docker
 from reproagent.repository import inspect_repository
-
-_UNIX_SEMANTICS = pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="Unix uid/gid/chown semantics are unavailable on Windows",
-)
 
 
 class _Process:
@@ -40,7 +34,6 @@ def _capture(monkeypatch: pytest.MonkeyPatch, commands: list[list[str]]) -> None
     monkeypatch.setattr(experiment_module.subprocess, "Popen", fake_popen)
 
 
-@_UNIX_SEMANTICS
 def test_runtime_is_read_only_with_owned_workspace_and_tmp_tmpfs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -66,6 +59,18 @@ def test_runtime_is_read_only_with_owned_workspace_and_tmp_tmpfs(
         "verirepro-runtime",
         "python reproduce.py",
     ]
+
+
+def test_runtime_bootstrap_makes_only_ephemeral_workspace_owner_writable() -> None:
+    assert "cp -R /opt/verirepro-repository/. /workspace/" in experiment_module._RUNTIME_BOOTSTRAP
+    assert "chmod -R u+rwX /workspace" in experiment_module._RUNTIME_BOOTSTRAP
+    assert "chmod -R a+rwX /workspace" not in experiment_module._RUNTIME_BOOTSTRAP
+    assert (
+        "chmod"
+        not in experiment_module._RUNTIME_BOOTSTRAP.split(
+            "cp -R /opt/verirepro-repository/. /workspace/;"
+        )[0]
+    )
 
 
 def test_invalid_runtime_tmpfs_budget_fails_before_docker(

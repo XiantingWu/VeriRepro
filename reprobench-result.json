@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "benchmark": "reprobench",
+  "task": {
+    "schema_version": 1,
+    "task_id": "case-0001",
+    "domain": "ml",
+    "paper": "2401.00001",
+    "expected_artifacts": [],
+    "extra_fields": []
+  },
+  "agent": {
+    "name": "VeriRepro",
+    "version": "0.8.0",
+    "report_schema_version": 1
+  },
+  "outcome": "success",
+  "wall_clock_seconds": 4.6e-05,
+  "execution_requested": false,
+  "operator_interventions": [
+    "repository_override",
+    "repository_ref_override",
+    "command_override",
+    "network_authorization",
+    "scientific_contract_authorization"
+  ],
+  "intervention_count": 5,
+  "measurements": {
+    "verirepro_status": "PASS",
+    "repository": "https://github.com/example/repo",
+    "environment_plan_success": true,
+    "repository_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "environment_fingerprint": "fp-1",
+    "environment_reproducibility_grade": "gold",
+    "dependency_strategy": "requirements",
+    "environment_build_status": "passed",
+    "experiment_execution_status": "passed",
+    "experiment_execution_success": true,
+    "grounded_metric_comparisons": 1,
+    "grounded_metric_passed": 1,
+    "grounded_metric_pass_rate": 1.0,
+    "artifact_comparisons": 0,
+    "artifact_comparisons_passed": 0,
+    "artifact_comparison_pass_rate": null,
+    "output_artifact_count": 1,
+    "expected_artifacts": [],
+    "expected_artifacts_found": [],
+    "expected_artifacts_missing": [],
+    "expected_artifact_rate": 1.0,
+    "model_cost_usd": null,
+    "token_usage": null
+  },
+  "failure_taxonomy": [],
+  "stages": [
+    {
+      "name": "Paper resolved",
+      "status": "passed"
+    },
+    {
+      "name": "Repository found",
+      "status": "passed"
+    },
+    {
+      "name": "Environment built",
+      "status": "passed"
+    },
+    {
+      "name": "Experiment executed",
+      "status": "passed"
+    },
+    {
+      "name": "Outputs indexed",
+      "status": "passed"
+    }
+  ]
+}
