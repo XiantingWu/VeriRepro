@@ -27,9 +27,7 @@ def _reject_constant(value: str) -> None:
 
 def _load_json(path: Path) -> dict[str, Any]:
     try:
-        payload = json.loads(
-            path.read_text(encoding="utf-8"), parse_constant=_reject_constant
-        )
+        payload = json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_constant)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise EvidencePromotionError(f"could not read evidence JSON {path}: {exc}") from exc
     if not isinstance(payload, dict):
@@ -59,12 +57,22 @@ def _validate_discovery(payload: dict[str, Any], *, root: Path, release: str) ->
     digest = _corpus_digest(root)
     if payload.get("schema_version") != 1:
         raise EvidencePromotionError("discovery evidence schema_version must be 1")
-    if payload.get("corpus") != _CORPUS.as_posix() and (_version_tuple(release) or (0, 0, 0)) >= (0, 7, 0):
-        raise EvidencePromotionError("0.7+ discovery evidence must contain only the canonical relative corpus path")
+    if payload.get("corpus") != _CORPUS.as_posix() and (_version_tuple(release) or (0, 0, 0)) >= (
+        0,
+        7,
+        0,
+    ):
+        raise EvidencePromotionError(
+            "0.7+ discovery evidence must contain only the canonical relative corpus path"
+        )
     if payload.get("corpus_sha256") != digest:
-        raise EvidencePromotionError("discovery evidence corpus SHA-256 does not match committed corpus")
+        raise EvidencePromotionError(
+            "discovery evidence corpus SHA-256 does not match committed corpus"
+        )
     if payload.get("corpus_revision_policy") != "explicit-arxiv-vN":
-        raise EvidencePromotionError("discovery evidence must use explicit-arxiv-vN revision policy")
+        raise EvidencePromotionError(
+            "discovery evidence must use explicit-arxiv-vN revision policy"
+        )
     # The five-paper corpus is historical 0.5 evidence only. 0.6+ uses the
     # pinned 15-paper corpus, including 0.7 where discovery/runtime source has
     # changed and must be measured again instead of borrowing 0.6 evidence.
@@ -88,14 +96,24 @@ def _validate_discovery(payload: dict[str, Any], *, root: Path, release: str) ->
                 f"discovery evidence requires summary.{key}={expected!r}, got {summary.get(key)!r}"
             )
     if len(results) != expected_cases:
-        raise EvidencePromotionError(f"discovery evidence must contain {expected_cases} per-case results")
+        raise EvidencePromotionError(
+            f"discovery evidence must contain {expected_cases} per-case results"
+        )
     for item in results:
         if not isinstance(item, dict):
             raise EvidencePromotionError("discovery evidence result must be an object")
         if item.get("discovery_status") != "ok":
-            raise EvidencePromotionError(f"discovery case is not source-evaluable: {item.get('id')}")
-        if item.get("found") is not True or item.get("rank") != 1 or item.get("evidence_anchored") is not True:
-            raise EvidencePromotionError(f"discovery case did not pass found/top1/evidence gate: {item.get('id')}")
+            raise EvidencePromotionError(
+                f"discovery case is not source-evaluable: {item.get('id')}"
+            )
+        if (
+            item.get("found") is not True
+            or item.get("rank") != 1
+            or item.get("evidence_anchored") is not True
+        ):
+            raise EvidencePromotionError(
+                f"discovery case did not pass found/top1/evidence gate: {item.get('id')}"
+            )
         if not _PINNED_ARXIV_SOURCE.fullmatch(str(item.get("source") or "")):
             raise EvidencePromotionError(f"discovery case source is not pinned: {item.get('id')}")
 
@@ -106,23 +124,41 @@ def _validate_planning(payload: dict[str, Any], *, root: Path, release: str) -> 
     digest = _corpus_digest(root)
     if payload.get("schema_version") != 1:
         raise EvidencePromotionError("environment-planning evidence schema_version must be 1")
-    if payload.get("corpus") != _CORPUS.as_posix() and (_version_tuple(release) or (0, 0, 0)) >= (0, 7, 0):
-        raise EvidencePromotionError("0.7+ planning evidence must contain only the canonical relative corpus path")
+    if payload.get("corpus") != _CORPUS.as_posix() and (_version_tuple(release) or (0, 0, 0)) >= (
+        0,
+        7,
+        0,
+    ):
+        raise EvidencePromotionError(
+            "0.7+ planning evidence must contain only the canonical relative corpus path"
+        )
     if payload.get("corpus_sha256") != digest:
-        raise EvidencePromotionError("environment-planning corpus SHA-256 does not match committed corpus")
+        raise EvidencePromotionError(
+            "environment-planning corpus SHA-256 does not match committed corpus"
+        )
     if summary.get("cases") != 3:
-        raise EvidencePromotionError("environment-planning evidence must contain the bounded 3-case gate")
+        raise EvidencePromotionError(
+            "environment-planning evidence must contain the bounded 3-case gate"
+        )
     statuses = summary.get("repository_inspection_status") or {}
     if statuses.get("planned") != 3:
-        raise EvidencePromotionError("environment-planning evidence requires 3/3 planned repositories")
+        raise EvidencePromotionError(
+            "environment-planning evidence requires 3/3 planned repositories"
+        )
     if len(results) != 3:
-        raise EvidencePromotionError("environment-planning evidence must contain 3 per-case results")
+        raise EvidencePromotionError(
+            "environment-planning evidence must contain 3 per-case results"
+        )
     for item in results:
         inspection = (item or {}).get("repository_inspection") if isinstance(item, dict) else None
         if not isinstance(inspection, dict) or inspection.get("status") != "planned":
-            raise EvidencePromotionError(f"environment-planning case did not plan: {(item or {}).get('id') if isinstance(item, dict) else None}")
+            raise EvidencePromotionError(
+                f"environment-planning case did not plan: {(item or {}).get('id') if isinstance(item, dict) else None}"
+            )
         if not inspection.get("commit_sha"):
-            raise EvidencePromotionError(f"environment-planning case lacks pinned commit: {item.get('id')}")
+            raise EvidencePromotionError(
+                f"environment-planning case lacks pinned commit: {item.get('id')}"
+            )
 
 
 def _provenance(
@@ -150,7 +186,9 @@ def _provenance(
     if artifact_digest is not None:
         normalized_digest = artifact_digest.strip().lower()
         if not _SHA256_DIGEST.fullmatch(normalized_digest):
-            raise EvidencePromotionError("artifact digest must be sha256 followed by 64 hexadecimal characters")
+            raise EvidencePromotionError(
+                "artifact digest must be sha256 followed by 64 hexadecimal characters"
+            )
         provenance["artifact_digest"] = normalized_digest
     return provenance
 
@@ -167,7 +205,9 @@ def _measurement_provenance(payload: dict[str, Any], *, label: str) -> dict[str,
             f"{label} measurement_provenance workflow must be 'VeriRepro validation'"
         )
     if not _DECIMAL_ID.fullmatch(run_id):
-        raise EvidencePromotionError(f"{label} measurement run id must be a positive decimal integer")
+        raise EvidencePromotionError(
+            f"{label} measurement run id must be a positive decimal integer"
+        )
     if not _SHA40.fullmatch(head_sha):
         raise EvidencePromotionError(f"{label} measurement head SHA must be a 40-character Git SHA")
     return {
@@ -219,9 +259,7 @@ def promote_evidence(
 
     version = _version_tuple(release)
     if version is not None and version >= (0, 7, 0):
-        discovery_measurement = _measurement_provenance(
-            discovery, label="discovery evidence"
-        )
+        discovery_measurement = _measurement_provenance(discovery, label="discovery evidence")
         planning_measurement = _measurement_provenance(
             planning, label="environment-planning evidence"
         )

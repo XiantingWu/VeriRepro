@@ -47,13 +47,22 @@ def validate_repository_url(url: str) -> str:
             "v0.5 repository cloning accepts only HTTPS github.com repository URLs"
         )
     if parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise RepositorySecurityError("repository URL must not contain credentials, query, or fragment")
+        raise RepositorySecurityError(
+            "repository URL must not contain credentials, query, or fragment"
+        )
     parts = [part for part in parsed.path.split("/") if part]
     if len(parts) != 2:
-        raise RepositorySecurityError("repository URL must be exactly https://github.com/<owner>/<repo>")
+        raise RepositorySecurityError(
+            "repository URL must be exactly https://github.com/<owner>/<repo>"
+        )
     owner, repo = parts
     repo = repo.removesuffix(".git")
-    if not owner or not repo or not _GITHUB_PART.fullmatch(owner) or not _GITHUB_PART.fullmatch(repo):
+    if (
+        not owner
+        or not repo
+        or not _GITHUB_PART.fullmatch(owner)
+        or not _GITHUB_PART.fullmatch(repo)
+    ):
         raise RepositorySecurityError("repository owner/name contains unsupported characters")
     return f"https://github.com/{owner}/{repo}"
 
@@ -103,7 +112,9 @@ def clone_repository(url: str, destination: Path, ref: str | None = None) -> Pat
         raise RuntimeError(f"git clone failed: {process.stderr.strip()}")
     if safe_ref:
         fetch = subprocess.run(
-            _git_command("-C", str(destination), "fetch", "--depth", "1", "--no-tags", "origin", safe_ref),
+            _git_command(
+                "-C", str(destination), "fetch", "--depth", "1", "--no-tags", "origin", safe_ref
+            ),
             capture_output=True,
             text=True,
             timeout=180,
@@ -147,7 +158,7 @@ def _read_text(path: Path, limit: int = 500_000, *, root: Path | None = None) ->
         return ""
 
 
-def _hash_file_into(digest: "hashlib._Hash", path: Path) -> None:
+def _hash_file_into(digest: hashlib._Hash, path: Path) -> None:
     try:
         with path.open("rb") as handle:
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
@@ -356,7 +367,9 @@ def _warnings(
 ) -> tuple[str, ...]:
     warnings: list[str] = []
     if not dependency_files:
-        warnings.append("No dependency specification was found; environment reconstruction is heuristic.")
+        warnings.append(
+            "No dependency specification was found; environment reconstruction is heuristic."
+        )
     if strategy == "conda":
         warnings.append(
             "Conda environment.yml requires a fresh dependency solve; exact rebuilds may drift. "

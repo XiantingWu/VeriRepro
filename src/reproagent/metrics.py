@@ -21,8 +21,7 @@ _KNOWN = {
 
 def _normalize(name: str, value: float, percent: bool = False) -> float:
     if percent or (
-        name.lower() in {"accuracy", "f1", "auc", "precision", "recall"}
-        and 1 < value <= 100
+        name.lower() in {"accuracy", "f1", "auc", "precision", "recall"} and 1 < value <= 100
     ):
         return round(value / 100.0, 12)
     return value

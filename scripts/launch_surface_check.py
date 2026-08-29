@@ -53,9 +53,13 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
     issue_config = _read(root, ".github/ISSUE_TEMPLATE/config.yml", errors)
     if issue_config:
         if SECURITY_ADVISORY not in issue_config:
-            errors.append("issue template security contact must use the standalone private-advisory URL")
+            errors.append(
+                "issue template security contact must use the standalone private-advisory URL"
+            )
         if "github.com/findwoods/Papers" in issue_config:
-            errors.append("issue template must not route public security reports to the private Papers incubator")
+            errors.append(
+                "issue template must not route public security reports to the private Papers incubator"
+            )
 
     citation = _read(root, "CITATION.cff", errors)
     if citation:
@@ -66,7 +70,9 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
 
     readme = _read(root, "README.md", errors)
     if readme and "private `Papers/Repository1-ReproAgent/` incubator" in readme:
-        errors.append("README public status must not present the standalone tree as a private incubator")
+        errors.append(
+            "README public status must not present the standalone tree as a private incubator"
+        )
 
     publish_path = root / ".github/workflows/publish.yml"
     if publish_path.is_file():
@@ -74,7 +80,9 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
         if "if: ${{ github.event.release.prerelease == false }}" not in publish:
             errors.append("PyPI publish job must fail closed for GitHub prereleases")
         if "name: pypi" not in publish or "id-token: write" not in publish:
-            errors.append("PyPI publish job must retain the protected pypi environment and OIDC permission")
+            errors.append(
+                "PyPI publish job must retain the protected pypi environment and OIDC permission"
+            )
 
     dependabot_path = root / ".github/dependabot.yml"
     if dependabot_path.is_file():

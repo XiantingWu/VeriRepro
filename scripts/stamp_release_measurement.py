@@ -36,9 +36,7 @@ def _load_json(path: Path) -> dict[str, Any]:
             f"measurement evidence exceeds {_MAX_EVIDENCE_BYTES} byte safety limit ({size} bytes)"
         )
     try:
-        payload = json.loads(
-            path.read_text(encoding="utf-8"), parse_constant=_reject_constant
-        )
+        payload = json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_constant)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise MeasurementStampError(f"could not parse measurement evidence: {exc}") from exc
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:

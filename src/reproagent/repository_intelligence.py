@@ -80,7 +80,16 @@ def _read_repo_text(repo: Path, path: Path, limit: int) -> str:
 
 def _candidate_entrypoints(repo: Path, limit: int = 120) -> tuple[str, ...]:
     candidates: list[str] = []
-    preferred_tokens = ("repro", "eval", "test", "infer", "train", "experiment", "benchmark", "main")
+    preferred_tokens = (
+        "repro",
+        "eval",
+        "test",
+        "infer",
+        "train",
+        "experiment",
+        "benchmark",
+        "main",
+    )
     scanned = 0
     for pattern in ("*.py", "*.ipynb"):
         for path in repo.rglob(pattern):
@@ -158,7 +167,9 @@ def _verify_command_documented(repo: Path, filename: str | None, safe_command: s
     return _normalize(safe_command) in content
 
 
-def _validate_command(command: str | None, entrypoint: str | None, candidates: tuple[str, ...]) -> str | None:
+def _validate_command(
+    command: str | None, entrypoint: str | None, candidates: tuple[str, ...]
+) -> str | None:
     if not command or not entrypoint or entrypoint not in candidates:
         return None
     # The validated string is ultimately passed to `sh -lc` inside the container.
@@ -212,9 +223,13 @@ def plan_repository_execution(
         client = OpenAICompatibleClient(config)
         resolved_model = config.model
     else:
-        resolved_model = getattr(getattr(client, "config", None), "model", None) or model or "custom"
+        resolved_model = (
+            getattr(getattr(client, "config", None), "model", None) or model or "custom"
+        )
 
-    paper_block = json.dumps(paper_intelligence.to_dict(), indent=2) if paper_intelligence else "null"
+    paper_block = (
+        json.dumps(paper_intelligence.to_dict(), indent=2) if paper_intelligence else "null"
+    )
     payload = client.complete_json(
         system=_SYSTEM_PROMPT,
         user=(
@@ -231,7 +246,9 @@ def plan_repository_execution(
     evidence_quote = str(payload.get("evidence_quote") or "").strip() or None
     verification = _verify_file_quote(repo, evidence_file, evidence_quote)
     safe_command = _validate_command(command, entrypoint, candidates)
-    if verification != "verified" or not _verify_command_documented(repo, evidence_file, safe_command):
+    if verification != "verified" or not _verify_command_documented(
+        repo, evidence_file, safe_command
+    ):
         safe_command = None
 
     return RepositoryPlan(

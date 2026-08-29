@@ -76,7 +76,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="Python minor version or 'auto' (default: infer from repository)",
     )
     run.add_argument("--timeout", type=int, default=1800, help="build/run timeout in seconds")
-    run.add_argument("--no-execute", action="store_true", help="resolve and plan without Docker execution")
+    run.add_argument(
+        "--no-execute", action="store_true", help="resolve and plan without Docker execution"
+    )
     run.add_argument("--no-llm", action="store_true", help="disable LiteLLM paper intelligence")
     run.add_argument("--model", dest="llm_model", help="override the configured LiteLLM model")
     run.add_argument(
@@ -115,7 +117,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--json", action="store_true", help="print the final report as JSON")
 
-    doctor = subparsers.add_parser("doctor", help="check local Git, Docker, and LiteLLM configuration")
+    doctor = subparsers.add_parser(
+        "doctor", help="check local Git, Docker, and LiteLLM configuration"
+    )
     doctor.add_argument("--json", action="store_true", help="print secretless diagnostics as JSON")
     doctor.add_argument(
         "--strict",
@@ -308,6 +312,8 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
 
 def main() -> None:
     args = build_parser().parse_args()
+    if hasattr(args, "paper") and not str(getattr(args, "paper", "")).strip():
+        raise SystemExit("verirepro: error: paper reference must be a non-empty identifier")
     if args.subcommand == "plan":
         print(json.dumps(build_reproduction_plan(args.paper).to_dict(), indent=2))
         return

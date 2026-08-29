@@ -396,9 +396,13 @@ def analyze_paper(
         client = OpenAICompatibleClient(config)
         resolved_model = config.model
     else:
-        resolved_model = getattr(getattr(client, "config", None), "model", None) or model or "custom"
+        resolved_model = (
+            getattr(getattr(client, "config", None), "model", None) or model or "custom"
+        )
 
-    repository_block = "\n".join(f"- {url}" for url in candidate_repositories) or "(none found deterministically)"
+    repository_block = (
+        "\n".join(f"- {url}" for url in candidate_repositories) or "(none found deterministically)"
+    )
     user_prompt = (
         "Candidate GitHub repositories found verbatim in the paper, ranked best-first:\n"
         f"{repository_block}\n\n"
@@ -416,7 +420,9 @@ def analyze_paper(
         quote = str(item.get("quote") or "").strip()
         value = str(item.get("value") or "").strip()
         verification = _verify_quote(pages, page, quote)
-        if verification in {"verified", "approximate"} and not _quote_supports_evidence_value(value, quote):
+        if verification in {"verified", "approximate"} and not _quote_supports_evidence_value(
+            value, quote
+        ):
             verification = "unverified"
         evidence.append(
             EvidenceAnchor(
@@ -445,7 +451,9 @@ def analyze_paper(
         page = _safe_page(item.get("page"))
         quote = str(item.get("quote") or "").strip()
         verification = _verify_quote(pages, page, quote)
-        if verification in {"verified", "approximate"} and not _quote_supports_metric_value(name, value, quote):
+        if verification in {"verified", "approximate"} and not _quote_supports_metric_value(
+            name, value, quote
+        ):
             verification = "unverified"
         metrics.append(
             MetricClaim(
@@ -467,7 +475,9 @@ def analyze_paper(
                 field=_canonical_field(str(item.get("field") or "unknown")),
                 issue=str(item.get("issue") or "unspecified").strip(),
                 severity=str(item.get("severity") or "medium").lower(),
-                recommendation=str(item.get("recommendation") or "inspect the paper/code manually").strip(),
+                recommendation=str(
+                    item.get("recommendation") or "inspect the paper/code manually"
+                ).strip(),
             )
         )
     ambiguities = _complete_ambiguity_audit(evidence, ambiguities)

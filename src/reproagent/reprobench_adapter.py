@@ -10,6 +10,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 from . import __version__
+from .config import ArtifactSpec
 from .llm import capture_model_usage
 from .models import REPORT_SCHEMA_VERSION, ReproductionReport
 from .pipeline import reproduce
@@ -24,7 +25,9 @@ _TASK_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$")
 _ARXIV_SOURCE = re.compile(r"^(?:arxiv:)?\d{4}\.\d{4,5}(?:v\d+)?$", re.IGNORECASE)
 _DOI_SOURCE = re.compile(r"^(?:doi:)?10\.\d{4,9}/\S+$", re.IGNORECASE)
 _WINDOWS_DRIVE = re.compile(r"^[A-Za-z]:/")
-_CORE_TASK_FIELDS = frozenset({"schema_version", "task_id", "domain", "paper", "expected_artifacts"})
+_CORE_TASK_FIELDS = frozenset(
+    {"schema_version", "task_id", "domain", "paper", "expected_artifacts"}
+)
 
 
 class ReproBenchContractError(ValueError):
@@ -221,9 +224,7 @@ def parse_reprobench_task(payload: dict[str, Any]) -> ReproBenchTask:
 def load_reprobench_task(path: Path) -> ReproBenchTask:
     _regular_task_file(path)
     try:
-        payload = json.loads(
-            path.read_text(encoding="utf-8"), parse_constant=_reject_json_constant
-        )
+        payload = json.loads(path.read_text(encoding="utf-8"), parse_constant=_reject_json_constant)
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         raise ReproBenchContractError(f"invalid benchmark task JSON: {exc}") from exc
     return parse_reprobench_task(payload)
@@ -280,6 +281,11 @@ def _failure_taxonomy(report: ReproductionReport, missing_expected: list[str]) -
         failures.append("insufficient_evidence_or_execution")
     elif report.status == "FAIL" and not failures:
         failures.append("unclassified_verirepro_failure")
+    elif report.status not in ("PASS", "PARTIAL", "FAIL"):
+        # Unknown statuses must stay non-passing AND remain summarizable as a
+        # declared-partial outcome instead of tripping the summary contract.
+        if "insufficient_evidence_or_execution" not in failures:
+            failures.append("insufficient_evidence_or_execution")
     return tuple(dict.fromkeys(failures))
 
 
@@ -302,7 +308,9 @@ def build_reprobench_result(
     operator_interventions: tuple[str, ...] = (),
     model_usage: tuple[dict[str, Any], ...] = (),
 ) -> ReproBenchResult:
-    expected_found, expected_missing = _expected_artifact_measurement(task.expected_artifacts, report)
+    expected_found, expected_missing = _expected_artifact_measurement(
+        task.expected_artifacts, report
+    )
     metric_passed = sum(item.passed for item in report.comparisons)
     artifact_passed = sum(item.passed for item in report.artifact_comparisons)
     experiment_status = _stage(report, "Experiment executed")
@@ -326,7 +334,11 @@ def build_reprobench_result(
         "environment_build_status": environment_build_status,
         "experiment_execution_status": experiment_status,
         "experiment_execution_success": (
-            True if experiment_status == "passed" else False if experiment_status == "failed" else None
+            True
+            if experiment_status == "passed"
+            else False
+            if experiment_status == "failed"
+            else None
         ),
         "grounded_metric_comparisons": len(report.comparisons),
         "grounded_metric_passed": metric_passed,
@@ -345,9 +357,7 @@ def build_reprobench_result(
         "expected_artifacts_found": expected_found,
         "expected_artifacts_missing": expected_missing,
         "expected_artifact_rate": (
-            len(expected_found) / len(task.expected_artifacts)
-            if task.expected_artifacts
-            else 1.0
+            len(expected_found) / len(task.expected_artifacts) if task.expected_artifacts else 1.0
         ),
         "model_cost_usd": model_cost_usd,
         "token_usage": token_usage,
@@ -394,6 +404,8 @@ def run_reprobench_task(
     llm_model: str | None = None,
     allow_network: bool = False,
     trust_repository_contract: bool | None = None,
+    trusted_artifact_contract: tuple[ArtifactSpec, ...] = (),
+    trusted_reference_root: Path | None = None,
 ) -> ReproBenchResult:
     interventions: list[str] = []
     if repository_url:
@@ -406,6 +418,8 @@ def run_reprobench_task(
         interventions.append("network_authorization")
     if trust_repository_contract:
         interventions.append("scientific_contract_authorization")
+    if trusted_artifact_contract:
+        interventions.append("host_scientific_artifact_contract")
 
     started = time.monotonic()
     with capture_model_usage() as captured_usage:
@@ -422,6 +436,8 @@ def run_reprobench_task(
             llm_model=llm_model,
             allow_network=allow_network,
             trust_repository_contract=trust_repository_contract,
+            trusted_artifact_contract=trusted_artifact_contract,
+            trusted_reference_root=trusted_reference_root,
         )
     elapsed = time.monotonic() - started
     return build_reprobench_result(

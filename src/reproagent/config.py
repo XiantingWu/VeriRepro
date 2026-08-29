@@ -43,7 +43,9 @@ class _StrictManifestLoader(yaml.SafeLoader):
             try:
                 duplicate = key in mapping
             except TypeError as exc:
-                raise ValueError("repository manifest mapping keys must be scalar/hashable") from exc
+                raise ValueError(
+                    "repository manifest mapping keys must be scalar/hashable"
+                ) from exc
             if duplicate:
                 raise ValueError(f"repository manifest contains duplicate mapping key: {key!r}")
             mapping[key] = self.construct_object(value_node, deep=deep)
@@ -98,6 +100,7 @@ class ArtifactSpec:
     threshold: float = 0.95
     absolute_tolerance: float = 1e-6
     relative_tolerance: float = 0.01
+    columns: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -290,7 +293,9 @@ def load_manifest(
     try:
         data = yaml.load(path.read_text(encoding="utf-8"), Loader=_StrictManifestLoader) or {}
     except (yaml.YAMLError, RecursionError) as exc:
-        raise ValueError("repository manifest YAML is invalid or exceeds parser safety limits") from exc
+        raise ValueError(
+            "repository manifest YAML is invalid or exceeds parser safety limits"
+        ) from exc
     if not isinstance(data, dict):
         raise ValueError("verirepro.yaml must contain a mapping")
 
@@ -346,6 +351,16 @@ def load_manifest(
         )
         if absolute_tolerance < 0 or relative_tolerance < 0:
             raise ValueError("artifact tolerances must be non-negative")
+        raw_columns = item.get("columns", [])
+        if not isinstance(raw_columns, list) or len(raw_columns) > 128:
+            raise ValueError("artifact columns must be a list with at most 128 entries")
+        columns = tuple(str(value).strip() for value in raw_columns)
+        if any(not value or len(value) > 200 for value in columns):
+            raise ValueError("artifact columns must contain bounded non-empty names")
+        if len(set(columns)) != len(columns):
+            raise ValueError("artifact columns must not contain duplicates")
+        if columns and kind != "table":
+            raise ValueError("artifact columns are supported only for table comparisons")
         declared_artifacts.append(
             ArtifactSpec(
                 name=str(item["name"]),
@@ -355,6 +370,7 @@ def load_manifest(
                 threshold=threshold,
                 absolute_tolerance=absolute_tolerance,
                 relative_tolerance=relative_tolerance,
+                columns=columns,
             )
         )
 

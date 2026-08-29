@@ -72,11 +72,7 @@ def _workflow_uses_lines(text: str) -> list[str]:
 
 
 def _workflow_runs_on_lines(text: str) -> list[str]:
-    return [
-        line.strip()
-        for line in text.splitlines()
-        if re.match(r"^\s*runs-on\s*:", line)
-    ]
+    return [line.strip() for line in text.splitlines() if re.match(r"^\s*runs-on\s*:", line)]
 
 
 def _version_tuple(version: str) -> tuple[int, int, int] | None:
@@ -175,9 +171,7 @@ def _check_real_paper_evidence(
             f"real-paper release evidence must show {expected_cases}/{expected_cases} expected repositories ranked top-1"
         )
     if len(results) != expected_cases or any(
-        not isinstance(item, dict)
-        or item.get("found") is not True
-        or item.get("rank") != 1
+        not isinstance(item, dict) or item.get("found") is not True or item.get("rank") != 1
         for item in results
     ):
         errors.append("every real-paper release evidence case must be found at rank 1")
@@ -186,7 +180,9 @@ def _check_real_paper_evidence(
         if summary.get("source_evaluable") != expected_cases:
             errors.append("0.6+ front-half evidence must show every pinned source was evaluable")
         if summary.get("evidence_anchored") != expected_cases:
-            errors.append("0.6+ front-half evidence must anchor every expected repository to paper evidence")
+            errors.append(
+                "0.6+ front-half evidence must anchor every expected repository to paper evidence"
+            )
         for key in (
             "algorithm_found_rate",
             "algorithm_top1_rate",
@@ -217,9 +213,7 @@ def _check_real_paper_evidence(
 
     provenance = evidence.get("provenance") or {}
     if not provenance.get("github_actions_run_id") or not provenance.get("head_sha"):
-        errors.append(
-            "real-paper release evidence must include GitHub Actions run/head provenance"
-        )
+        errors.append("real-paper release evidence must include GitHub Actions run/head provenance")
 
 
 def _check_environment_planning_evidence(
@@ -246,9 +240,7 @@ def _check_environment_planning_evidence(
     if evidence.get("schema_version") != 1:
         errors.append("environment-planning evidence must declare schema_version 1")
     if evidence.get("release") != evidence_version:
-        errors.append(
-            "environment-planning evidence version must match its evidence baseline"
-        )
+        errors.append("environment-planning evidence version must match its evidence baseline")
     if summary.get("cases") != 3:
         errors.append("environment-planning evidence must contain the bounded 3-case gate")
     statuses = summary.get("repository_inspection_status") or {}
@@ -306,16 +298,12 @@ def _check_reprobench_outcome_taxonomy(
         )
         return str(outcome)
     if outcome == "success" and taxonomy:
-        errors.append(
-            f"ReproBench result {task_id} success must not declare failure taxonomy"
-        )
+        errors.append(f"ReproBench result {task_id} success must not declare failure taxonomy")
     elif outcome == "partial" and taxonomy != [_SOFT_PARTIAL_TAXONOMY]:
         errors.append(
             f"ReproBench result {task_id} partial must declare exactly {_SOFT_PARTIAL_TAXONOMY!r}"
         )
-    elif outcome == "failure" and (
-        not taxonomy or _SOFT_PARTIAL_TAXONOMY in taxonomy
-    ):
+    elif outcome == "failure" and (not taxonomy or _SOFT_PARTIAL_TAXONOMY in taxonomy):
         errors.append(
             f"ReproBench result {task_id} failure must declare hard failure taxonomy only"
         )
@@ -340,9 +328,7 @@ def _check_reprobench_release_evidence(
         )
         return
 
-    manifest = _json_object(
-        manifest_path, label="ReproBench release manifest", errors=errors
-    )
+    manifest = _json_object(manifest_path, label="ReproBench release manifest", errors=errors)
     if manifest is None:
         return
 
@@ -375,15 +361,11 @@ def _check_reprobench_release_evidence(
         if not _GIT_SHA.fullmatch(head_sha):
             errors.append("ReproBench provenance head_sha must be a 40-character Git SHA")
         if provenance.get("workflow") != "VeriRepro validation":
-            errors.append(
-                "ReproBench provenance workflow must be 'VeriRepro validation'"
-            )
+            errors.append("ReproBench provenance workflow must be 'VeriRepro validation'")
 
     cases = manifest.get("cases")
     if not isinstance(cases, list) or not 2 <= len(cases) <= 10:
-        errors.append(
-            "ReproBench 0.7 release evidence must contain a bounded 2-10 case seed suite"
-        )
+        errors.append("ReproBench 0.7 release evidence must contain a bounded 2-10 case seed suite")
         return
 
     task_ids: set[str] = set()
@@ -425,22 +407,21 @@ def _check_reprobench_release_evidence(
                 continue
             digest = _sha256(path)
             declared_digest = case.get(digest_field)
-            if not isinstance(declared_digest, str) or not _SHA256.fullmatch(
-                declared_digest
-            ):
+            if not isinstance(declared_digest, str) or not _SHA256.fullmatch(declared_digest):
                 errors.append(f"{task_id}.{digest_field} must be a SHA-256 digest")
             elif declared_digest != digest:
                 errors.append(f"{task_id}.{digest_field} does not match committed bytes")
             if field == "result_file":
                 result_digests[path.name] = digest
-                payload = _json_object(
-                    path, label=f"ReproBench result {task_id}", errors=errors
-                )
+                payload = _json_object(path, label=f"ReproBench result {task_id}", errors=errors)
                 if payload is not None:
                     task = payload.get("task") or {}
                     agent = payload.get("agent") or {}
                     measurements = payload.get("measurements") or {}
-                    if payload.get("schema_version") != 1 or payload.get("benchmark") != "reprobench":
+                    if (
+                        payload.get("schema_version") != 1
+                        or payload.get("benchmark") != "reprobench"
+                    ):
                         errors.append(f"ReproBench result {task_id} has an unsupported schema")
                     if task.get("task_id") != task_id:
                         errors.append(f"ReproBench result {task_id} task_id mismatch")
@@ -482,23 +463,20 @@ def _check_reprobench_release_evidence(
     summary_digest = _sha256(summary_path)
     if manifest.get("summary_sha256") != summary_digest:
         errors.append("ReproBench release summary SHA-256 does not match committed bytes")
-    summary_payload = _json_object(
-        summary_path, label="ReproBench release summary", errors=errors
-    )
+    summary_payload = _json_object(summary_path, label="ReproBench release summary", errors=errors)
     if summary_payload is None:
         return
-    if summary_payload.get("schema_version") != 1 or summary_payload.get("benchmark") != "reprobench":
+    if (
+        summary_payload.get("schema_version") != 1
+        or summary_payload.get("benchmark") != "reprobench"
+    ):
         errors.append("ReproBench release summary has an unsupported schema")
     summary = summary_payload.get("summary") or {}
     if summary.get("cases") != len(task_ids):
         errors.append("ReproBench release summary case count must match the manifest")
-    expected_outcomes = {
-        key: value for key, value in result_outcomes.items() if value > 0
-    }
+    expected_outcomes = {key: value for key, value in result_outcomes.items() if value > 0}
     if summary.get("outcomes") != expected_outcomes:
-        errors.append(
-            "ReproBench release summary outcomes must match committed result evidence"
-        )
+        errors.append("ReproBench release summary outcomes must match committed result evidence")
     case_count = len(task_ids)
     if case_count:
         for outcome, rate_key in (
@@ -548,9 +526,7 @@ def check_release_tree(
     build_system = pyproject.get("build-system") or {}
     build_requires = [str(item) for item in build_system.get("requires") or []]
     if not any(item.startswith("hatchling>=1.27") for item in build_requires):
-        errors.append(
-            "build-system must require hatchling>=1.27 for PEP 639 license metadata"
-        )
+        errors.append("build-system must require hatchling>=1.27 for PEP 639 license metadata")
 
     project = pyproject.get("project") or {}
     version = str(project.get("version") or "")
@@ -562,9 +538,7 @@ def check_release_tree(
         errors.append("project.license must be Apache-2.0")
     if "LICENSE" not in (project.get("license-files") or []):
         errors.append("project.license-files must include LICENSE")
-    if any(
-        str(item).startswith("License ::") for item in project.get("classifiers") or []
-    ):
+    if any(str(item).startswith("License ::") for item in project.get("classifiers") or []):
         errors.append(
             "PEP 639 license expression must not be combined with deprecated License :: classifiers"
         )
@@ -573,35 +547,25 @@ def check_release_tree(
     dev_dependencies = [str(item).lower() for item in optional.get("dev") or []]
     for required in ("build", "pytest", "twine"):
         if not any(
-            item == required
-            or item.startswith(required + ">")
-            or item.startswith(required + "=")
+            item == required or item.startswith(required + ">") or item.startswith(required + "=")
             for item in dev_dependencies
         ):
             errors.append(f"dev dependencies must include {required}")
 
     scripts = project.get("scripts") or {}
     if scripts.get("verirepro") != "verirepro.cli:main":
-        errors.append(
-            "preferred verirepro console script must use the public verirepro namespace"
-        )
+        errors.append("preferred verirepro console script must use the public verirepro namespace")
     if scripts.get("reproagent") != "reproagent.cli:main":
         errors.append("legacy reproagent console script alias is missing")
     if _is_at_least(version, (0, 7, 0)):
         if scripts.get("verirepro-reprobench") != "reproagent.reprobench_adapter:main":
             errors.append("0.7+ release must expose the verirepro-reprobench CLI")
-        if (
-            scripts.get("verirepro-reprobench-summary")
-            != "reproagent.reprobench_summary:main"
-        ):
+        if scripts.get("verirepro-reprobench-summary") != "reproagent.reprobench_summary:main":
             errors.append("0.7+ release must expose the verirepro-reprobench-summary CLI")
 
-    targets = (
-        (((pyproject.get("tool") or {}).get("hatch") or {}).get("build") or {}).get(
-            "targets"
-        )
-        or {}
-    )
+    targets = (((pyproject.get("tool") or {}).get("hatch") or {}).get("build") or {}).get(
+        "targets"
+    ) or {}
     wheel_packages = (targets.get("wheel") or {}).get("packages") or []
     for package_path in ("src/verirepro", "src/reproagent"):
         if package_path not in wheel_packages:
@@ -618,24 +582,18 @@ def check_release_tree(
         if not match:
             errors.append("could not locate reproagent.__version__")
         elif match.group(1) != version:
-            errors.append(
-                f"version mismatch: package={match.group(1)} pyproject={version}"
-            )
+            errors.append(f"version mismatch: package={match.group(1)} pyproject={version}")
 
     public_init_path = root / "src/verirepro/__init__.py"
     if public_init_path.is_file():
         public_init = public_init_path.read_text(encoding="utf-8")
         if "from reproagent import __version__" not in public_init:
-            errors.append(
-                "public verirepro namespace must expose the canonical package version"
-            )
+            errors.append("public verirepro namespace must expose the canonical package version")
         if (
             "from reproagent import ReproductionPlan, build_reproduction_plan, reproduce"
             not in public_init
         ):
-            errors.append(
-                "public verirepro namespace must expose the stable public API"
-            )
+            errors.append("public verirepro namespace must expose the stable public API")
 
     citation_path = root / "CITATION.cff"
     if citation_path.is_file():
@@ -661,9 +619,7 @@ def check_release_tree(
         if "verirepro.yaml" not in readme:
             errors.append("README must document the preferred verirepro.yaml manifest name")
         if "run_real_paper_smoke.py" not in readme:
-            errors.append(
-                "README must document the bounded real-paper discovery smoke"
-            )
+            errors.append("README must document the bounded real-paper discovery smoke")
         if "import verirepro" not in readme:
             errors.append("README must document the public Python import namespace")
         if _is_at_least(version, (0, 7, 0)) and "verirepro-reprobench" not in readme:
@@ -671,9 +627,7 @@ def check_release_tree(
 
     corpus = root / "benchmarks/real-paper-smoke.json"
     if corpus.is_file():
-        corpus_payload = _json_object(
-            corpus, label="real-paper smoke corpus", errors=errors
-        )
+        corpus_payload = _json_object(corpus, label="real-paper smoke corpus", errors=errors)
         if corpus_payload is not None:
             if corpus_payload.get("schema_version") != 1:
                 errors.append("real-paper smoke corpus must declare schema_version 1")
@@ -685,20 +639,14 @@ def check_release_tree(
                     )
                 if any(
                     not isinstance(item, dict)
-                    or not _PINNED_ARXIV_SOURCE.fullmatch(
-                        str(item.get("source") or "")
-                    )
+                    or not _PINNED_ARXIV_SOURCE.fullmatch(str(item.get("source") or ""))
                     for item in cases
                 ):
-                    errors.append(
-                        "every 0.6+ corpus source must pin an explicit arXiv vN revision"
-                    )
+                    errors.append("every 0.6+ corpus source must pin an explicit arXiv vN revision")
 
     if require_release_evidence:
         front_half_version = _front_half_evidence_version(version)
-        _check_real_paper_evidence(
-            root, evidence_version=front_half_version, errors=errors
-        )
+        _check_real_paper_evidence(root, evidence_version=front_half_version, errors=errors)
         _check_environment_planning_evidence(
             root, evidence_version=front_half_version, errors=errors
         )
@@ -710,20 +658,14 @@ def check_release_tree(
         runs_on = _workflow_runs_on_lines(ci)
         if not runs_on or not all("ubuntu-latest" in line for line in runs_on):
             errors.append("every public CI job must run on GitHub-hosted ubuntu-latest")
-        if any(
-            "self-hosted" in line or "experiments" in line for line in runs_on
-        ):
-            errors.append(
-                "public CI must not execute untrusted PR code on a self-hosted runner"
-            )
+        if any("self-hosted" in line or "experiments" in line for line in runs_on):
+            errors.append("public CI must not execute untrusted PR code on a self-hosted runner")
         if "secrets." in ci:
             errors.append("public fork-safe CI must not reference repository secrets")
         if "pull_request:" not in ci:
             errors.append("public CI must validate pull requests")
         if "persist-credentials: false" not in ci:
-            errors.append(
-                "public CI checkout must not persist repository credentials"
-            )
+            errors.append("public CI checkout must not persist repository credentials")
 
     smoke_workflows = (
         ".github/workflows/litellm-smoke.yml",
@@ -770,24 +712,19 @@ def check_release_tree(
         )
         for fragment in required_fragments:
             if fragment not in publish:
-                errors.append(
-                    f"publish workflow missing release safety requirement: {fragment!r}"
-                )
+                errors.append(f"publish workflow missing release safety requirement: {fragment!r}")
         forbidden = ("PYPI_API_TOKEN", "password:", "username:")
         for fragment in forbidden:
             if fragment in publish:
                 errors.append(
-                    "publish workflow must not contain long-lived credential input: "
-                    f"{fragment!r}"
+                    f"publish workflow must not contain long-lived credential input: {fragment!r}"
                 )
 
     return errors
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Validate the VeriRepro public-release tree."
-    )
+    parser = argparse.ArgumentParser(description="Validate the VeriRepro public-release tree.")
     parser.add_argument(
         "--require-release-evidence",
         action="store_true",

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 _PUBLIC_MODEL_USAGE_FIELDS = (
     "request_model",
@@ -30,10 +31,12 @@ def _safe_nonnegative_int(value: Any) -> int | None:
     if isinstance(value, bool):
         return None
     try:
-        parsed = int(value)
+        number = float(value)
     except (TypeError, ValueError):
         return None
-    return parsed if parsed >= 0 else None
+    if not math.isfinite(number) or number < 0:
+        return None
+    return int(number)
 
 
 def _safe_nonnegative_float(value: Any) -> float | None:
@@ -80,9 +83,7 @@ def aggregate_model_usage(
         return None, None
 
     costs = [
-        value
-        for item in snapshots
-        if isinstance((value := item.get("cost_usd")), (int, float))
+        value for item in snapshots if isinstance((value := item.get("cost_usd")), (int, float))
     ]
     cost_total = round(sum(float(value) for value in costs), 10) if costs else None
 

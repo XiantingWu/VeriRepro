@@ -217,7 +217,9 @@ def _extract_pdf_annotation_links(reader: PdfReader) -> list[dict[str, object]]:
             if len(results) >= _MAX_PDF_ANNOTATION_LINKS:
                 return results
             try:
-                annotation = reference.get_object() if hasattr(reference, "get_object") else reference
+                annotation = (
+                    reference.get_object() if hasattr(reference, "get_object") else reference
+                )
                 action = annotation.get("/A") if hasattr(annotation, "get") else None
                 if hasattr(action, "get_object"):
                     action = action.get_object()

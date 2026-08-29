@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import verirepro
 import reproagent
+import verirepro
 
 
 def test_public_namespace_matches_legacy_api() -> None:

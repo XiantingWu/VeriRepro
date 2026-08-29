@@ -53,7 +53,7 @@ def test_manifest_gpu_request_is_strict_boolean(tmp_path: Path) -> None:
 
 def test_manifest_gpu_request_is_configuration_not_authorization(tmp_path: Path) -> None:
     path = tmp_path / "verirepro.yaml"
-    path.write_text('version: 1\nexperiment:\n  gpu: true\n', encoding="utf-8")
+    path.write_text("version: 1\nexperiment:\n  gpu: true\n", encoding="utf-8")
     manifest = load_manifest(path)
     assert manifest.gpu is True
     assert _effective_gpu(manifest.gpu, False) is False
@@ -85,7 +85,9 @@ def test_runtime_adds_gpu_devices_only_when_explicitly_enabled(
     assert command[command.index("--network") + 1] == "none"
 
 
-def test_runtime_cpu_default_has_no_gpu_flag(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_runtime_cpu_default_has_no_gpu_flag(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     commands: list[list[str]] = []
 
     def fake_popen(command, **kwargs):

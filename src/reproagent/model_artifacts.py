@@ -87,9 +87,13 @@ def _write_provenance(
     raw_records: list[dict[str, object]],
 ) -> None:
     if path.is_symlink():
-        raise DatasetSecurityError("model artifact provenance destination must not be a symbolic link")
+        raise DatasetSecurityError(
+            "model artifact provenance destination must not be a symbolic link"
+        )
     if len(raw_records) != len(specs):
-        raise RuntimeError("model artifact provenance count does not match materialized declarations")
+        raise RuntimeError(
+            "model artifact provenance count does not match materialized declarations"
+        )
 
     records: list[dict[str, object]] = []
     for spec, raw in zip(specs, raw_records, strict=True):

@@ -69,7 +69,9 @@ def _nearest_repository_index(position: int, centers: list[int]) -> int:
     return min(candidates, key=lambda index: (abs(position - centers[index]), index))
 
 
-def _rank_repositories(text: str, matches: list[tuple[str, int, int]]) -> tuple[RepositoryCandidate, ...]:
+def _rank_repositories(
+    text: str, matches: list[tuple[str, int, int]]
+) -> tuple[RepositoryCandidate, ...]:
     by_url: dict[str, dict[str, object]] = {}
     lowered = text.lower()
     centers = [(start + end) // 2 for _, start, end in matches]
@@ -84,7 +86,7 @@ def _rank_repositories(text: str, matches: list[tuple[str, int, int]]) -> tuple[
         for phrase, _ in _CONTEXT_RULES
     }
 
-    for occurrence_index, (url, start, end) in enumerate(matches):
+    for occurrence_index, (url, start, _end) in enumerate(matches):
         record = by_url.setdefault(
             url,
             {"score": 0, "occurrences": 0, "reasons": [], "first": start},
@@ -207,7 +209,9 @@ def _context_snippet(text: str, start: int, end: int) -> str:
     return re.sub(r"\s+", " ", text[left:right]).strip()
 
 
-def _evidence_for_repository(paper: PaperDocument, repository: str) -> tuple[RepositoryEvidence, ...]:
+def _evidence_for_repository(
+    paper: PaperDocument, repository: str
+) -> tuple[RepositoryEvidence, ...]:
     evidence: list[RepositoryEvidence] = []
     seen: set[tuple[str, int | None, str]] = set()
 

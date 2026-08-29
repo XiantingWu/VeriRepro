@@ -90,17 +90,15 @@ def _tmpfs_spec(path: str, runtime_user: str, size_bytes: int) -> str:
         raise RuntimeError("invalid runtime UID:GID for tmpfs ownership") from exc
     if uid <= 0 or gid <= 0:
         raise RuntimeError("runtime tmpfs ownership must be fully non-root")
-    return (
-        f"{path}:rw,nosuid,nodev,exec,size={size_bytes},mode=0700,"
-        f"uid={uid},gid={gid}"
-    )
+    return f"{path}:rw,nosuid,nodev,exec,size={size_bytes},mode=0700,uid={uid},gid={gid}"
 
 
 _RUNTIME_BOOTSTRAP = (
     "set -eu; "
     "cp -R /opt/verirepro-repository/. /workspace/; "
+    "chmod -R u+rwX /workspace; "
     "cd /workspace; "
-    "exec sh -lc \"$1\""
+    'exec sh -lc "$1"'
 )
 
 
@@ -132,7 +130,7 @@ def _drain_bounded(stream: BinaryIO, limit: int, sink: list[bytes]) -> None:
         marker = (
             f"[VeriRepro log truncated: retained final {limit} of {total} bytes; "
             "raise VERIREPRO_MAX_EXPERIMENT_LOG_BYTES explicitly if needed]\n"
-        ).encode("utf-8")
+        ).encode()
         retained = bytearray(marker) + retained
     sink.append(bytes(retained))
 
@@ -288,9 +286,7 @@ def run_in_docker(
         docker_command.extend(["--network", "none"])
     if gpu:
         docker_command.extend(["--gpus", "all"])
-    docker_command.extend(
-        [image, "sh", "-lc", _RUNTIME_BOOTSTRAP, "verirepro-runtime", command]
-    )
+    docker_command.extend([image, "sh", "-lc", _RUNTIME_BOOTSTRAP, "verirepro-runtime", command])
 
     started = time.monotonic()
     process = subprocess.Popen(
@@ -342,7 +338,9 @@ def run_in_docker(
     if stdout_thread.is_alive() or stderr_thread.is_alive():
         cleaned = _force_remove_container(container_name)
         _stop_client(process)
-        detail = "container force-cleaned" if cleaned else "container cleanup could not be confirmed"
+        detail = (
+            "container force-cleaned" if cleaned else "container cleanup could not be confirmed"
+        )
         raise RuntimeError(f"experiment log capture did not terminate cleanly; {detail}")
 
     return ExperimentResult(

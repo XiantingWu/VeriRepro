@@ -1,7 +1,8 @@
-"""VeriRepro public package.
+"""Legacy VeriRepro compatibility and implementation namespace.
 
-The Python import path remains ``reproagent`` for backward compatibility while
-public packaging and the preferred CLI use the VeriRepro name.
+New integrations should import :mod:`verirepro`. The ``reproagent`` import and
+CLI remain compatibility aliases during the 0.x series; their documented public
+symbols are contract-tested against the preferred namespace.
 """
 
 from .core import ReproductionPlan, build_reproduction_plan

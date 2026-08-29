@@ -88,7 +88,9 @@ def _inspection_error_kind(exc: Exception) -> str:
 
 
 def _source_error_kind(exc: Exception) -> str:
-    if isinstance(exc, (SourceResolutionError, requests.RequestException, TimeoutError, ConnectionError)):
+    if isinstance(
+        exc, (SourceResolutionError, requests.RequestException, TimeoutError, ConnectionError)
+    ):
         return "source_infrastructure_error"
     text = str(exc).lower()
     if any(
@@ -174,7 +176,9 @@ def evaluate_case(
         "evidence_anchored": bool(evidence),
         "expected_repository_evidence": evidence,
         "discovery_seconds": discovery_seconds,
-        "top_candidate": discovery.github_repositories[0] if discovery.github_repositories else None,
+        "top_candidate": discovery.github_repositories[0]
+        if discovery.github_repositories
+        else None,
         "candidate_count": len(discovery.github_repositories),
         "candidates": [
             {
@@ -284,7 +288,9 @@ def run_corpus(
         for item in results
         if item.get("repository_inspection")
     )
-    discovery_times = [float(item["discovery_seconds"]) for item in evaluable if "discovery_seconds" in item]
+    discovery_times = [
+        float(item["discovery_seconds"]) for item in evaluable if "discovery_seconds" in item
+    ]
     payload = {
         "schema_version": 1,
         "corpus": str(corpus_path),
@@ -308,7 +314,9 @@ def run_corpus(
             "algorithm_evidence_anchor_rate": (
                 evaluable_anchored / evaluable_count if evaluable_count else None
             ),
-            "mean_discovery_seconds": sum(discovery_times) / len(discovery_times) if discovery_times else 0.0,
+            "mean_discovery_seconds": sum(discovery_times) / len(discovery_times)
+            if discovery_times
+            else 0.0,
             "discovery_status": dict(sorted(discovery_status.items())),
             "domains": _domain_summary(results),
             "repository_inspection_status": dict(sorted(inspection_status.items())),

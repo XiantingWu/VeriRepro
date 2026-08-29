@@ -50,9 +50,7 @@ def test_reprobench_public_release_surface_is_present_and_independent() -> None:
 
 def test_release_seed_suite_is_bounded_real_and_commit_pinned() -> None:
     root = Path(__file__).parents[1]
-    suite = json.loads(
-        (root / "benchmarks/reprobench-seed-suite.json").read_text(encoding="utf-8")
-    )
+    suite = json.loads((root / "benchmarks/reprobench-seed-suite.json").read_text(encoding="utf-8"))
     cases = suite["cases"]
     assert 2 <= len(cases) <= 10
     assert len({case["task"] for case in cases}) == len(cases)

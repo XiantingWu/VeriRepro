@@ -171,13 +171,9 @@ def _figure_similarity(reference: Path, reproduced: Path) -> tuple[float, str]:
         ref_size = ref_image.size
         rep_size = rep_image.size
         if ref_size[0] * ref_size[1] > pixel_limit:
-            raise ArtifactSecurityError(
-                f"reference figure exceeds host pixel limit {pixel_limit}"
-            )
+            raise ArtifactSecurityError(f"reference figure exceeds host pixel limit {pixel_limit}")
         if rep_size[0] * rep_size[1] > pixel_limit:
-            raise ArtifactSecurityError(
-                f"reproduced figure exceeds host pixel limit {pixel_limit}"
-            )
+            raise ArtifactSecurityError(f"reproduced figure exceeds host pixel limit {pixel_limit}")
         normalized_size = (128, 128)
         ref = ref_image.convert("RGB").resize(normalized_size, Image.Resampling.LANCZOS)
         rep = rep_image.convert("RGB").resize(normalized_size, Image.Resampling.LANCZOS)
@@ -186,7 +182,7 @@ def _figure_similarity(reference: Path, reproduced: Path) -> tuple[float, str]:
 
     squared_error = 0.0
     count = 0
-    for left, right in zip(ref_bytes, rep_bytes):
+    for left, right in zip(ref_bytes, rep_bytes, strict=False):
         squared_error += float(left - right) ** 2
         count += 1
     rmse = math.sqrt(squared_error / max(count, 1))
@@ -226,15 +222,53 @@ def _number(value: str) -> float | None:
         return None
 
 
+def _project_table_columns(
+    rows: list[list[str]],
+    columns: tuple[str, ...],
+    *,
+    label: str,
+) -> list[list[str]]:
+    if not columns:
+        return rows
+    if not rows:
+        raise ArtifactSecurityError(f"{label} table is empty; cannot select columns")
+    header = [value.strip() for value in rows[0]]
+    indices: list[int] = []
+    for column in columns:
+        matches = [index for index, value in enumerate(header) if value == column]
+        if len(matches) != 1:
+            raise ArtifactSecurityError(
+                f"{label} table must contain exactly one column named {column!r}"
+            )
+        indices.append(matches[0])
+    projected: list[list[str]] = [list(columns)]
+    for row_number, row in enumerate(rows[1:], start=2):
+        if any(index >= len(row) for index in indices):
+            raise ArtifactSecurityError(
+                f"{label} table row {row_number} is shorter than the selected columns"
+            )
+        projected.append([row[index] for index in indices])
+    return projected
+
+
 def _table_similarity(
     reference: Path,
     reproduced: Path,
     *,
     absolute_tolerance: float,
     relative_tolerance: float,
+    columns: tuple[str, ...] = (),
 ) -> tuple[float, str]:
-    ref_rows = _read_table(reference, label="reference")
-    rep_rows = _read_table(reproduced, label="reproduced")
+    ref_rows = _project_table_columns(
+        _read_table(reference, label="reference"),
+        columns,
+        label="reference",
+    )
+    rep_rows = _project_table_columns(
+        _read_table(reproduced, label="reproduced"),
+        columns,
+        label="reproduced",
+    )
     max_rows = max(len(ref_rows), len(rep_rows))
     total = 0
     matches = 0
@@ -252,7 +286,9 @@ def _table_similarity(
             left_number = _number(left)
             right_number = _number(right)
             if left_number is not None and right_number is not None:
-                tolerance = absolute_tolerance + relative_tolerance * max(abs(left_number), abs(right_number))
+                tolerance = absolute_tolerance + relative_tolerance * max(
+                    abs(left_number), abs(right_number)
+                )
                 if abs(left_number - right_number) <= tolerance:
                     matches += 1
             elif left == right:
@@ -265,6 +301,7 @@ def _table_similarity(
         f"cell agreement={matches}/{total} ({score:.4f}); "
         f"reference_shape={ref_shape[0]}x{ref_shape[1]}, "
         f"reproduced_shape={rep_shape[0]}x{rep_shape[1]}"
+        + (f"; selected_columns={','.join(columns)}" if columns else "")
     )
     return score, detail
 
@@ -304,6 +341,7 @@ def compare_artifact(spec: ArtifactSpec, repository: Path, output_dir: Path) -> 
             reproduced,
             absolute_tolerance=spec.absolute_tolerance,
             relative_tolerance=spec.relative_tolerance,
+            columns=spec.columns,
         )
     elif kind == "file":
         _guard_compare_file(reference, label="reference file")

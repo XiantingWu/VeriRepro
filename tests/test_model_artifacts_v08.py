@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import io
 import json
-import sys
 from pathlib import Path
 
 import pytest
@@ -12,11 +11,6 @@ import reproagent.model_artifacts as model_artifacts_module
 from reproagent.config import ModelArtifactSpec, load_manifest
 from reproagent.experiment import run_in_docker
 from reproagent.model_artifacts import materialize_model_artifacts
-
-_UNIX_SEMANTICS = pytest.mark.skipif(
-    sys.platform == "win32",
-    reason="Unix uid/gid/chown semantics are unavailable on Windows",
-)
 
 # This file is part of the canonical exact-head gate after the validated runtime
 # patch is promoted; keep it free of branch-only harness assumptions.
@@ -138,7 +132,9 @@ def test_huggingface_model_materialization_uses_model_namespace_and_sanitized_pr
         sha256=digest,
     )
     provenance = tmp_path / "model-provenance.json"
-    downloaded = materialize_model_artifacts((spec,), tmp_path / "models", provenance_path=provenance)
+    downloaded = materialize_model_artifacts(
+        (spec,), tmp_path / "models", provenance_path=provenance
+    )
 
     assert downloaded[0].name == "weights.bin"
     adapted = captured[0]
@@ -159,7 +155,6 @@ def test_huggingface_model_materialization_uses_model_namespace_and_sanitized_pr
     assert str(tmp_path) not in provenance.read_text(encoding="utf-8")
 
 
-@_UNIX_SEMANTICS
 def test_model_directory_is_mounted_read_only_and_announced(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -188,11 +183,12 @@ def test_model_directory_is_mounted_read_only_and_announced(
 
 
 def test_pipeline_materializes_models_before_docker_execution() -> None:
-    pipeline = (
-        Path(__file__).resolve().parents[1] / "src" / "reproagent" / "pipeline.py"
-    ).read_text(encoding="utf-8")
+    root = Path(__file__).resolve().parents[1]
+    pipeline = (root / "src" / "reproagent" / "pipeline.py").read_text(encoding="utf-8")
+    execution = (root / "src" / "reproagent" / "pipeline_execution.py").read_text(encoding="utf-8")
     materialize = pipeline.index("materialize_model_artifacts(")
-    execute = pipeline.index("result = run_in_docker(")
-    assert materialize < execute
+    execute_call = pipeline.index("execute_experiment(")
+    assert materialize < execute_call
     assert 'tuple(getattr(manifest, "model_artifacts", ()))' in pipeline
     assert "model_dir if model_artifacts else None" in pipeline
+    assert "result = run_in_docker(" in execution

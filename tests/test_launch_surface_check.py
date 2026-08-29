@@ -79,9 +79,7 @@ def test_launch_surface_rejects_incubator_project_urls(tmp_path: Path) -> None:
     root = _surface_copy(tmp_path)
     path = root / "pyproject.toml"
     path.write_text(
-        path.read_text(encoding="utf-8").replace(
-            REPOSITORY, "https://github.com/findwoods/Papers"
-        ),
+        path.read_text(encoding="utf-8").replace(REPOSITORY, "https://github.com/findwoods/Papers"),
         encoding="utf-8",
     )
 

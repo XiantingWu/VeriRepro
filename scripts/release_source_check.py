@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -8,7 +9,10 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
-from reproagent.release_provenance import release_source_sha256
+from reproagent.release_provenance import (
+    TRUSTED_CERTIFICATION_WORKFLOWS,
+    release_source_sha256,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -38,8 +42,8 @@ def _measurement_identity(
     if not isinstance(provenance, dict):
         errors.append(f"{label} must include measurement_provenance")
         return None
-    if provenance.get("workflow") != "VeriRepro validation":
-        errors.append(f"{label} measurement workflow must be 'VeriRepro validation'")
+    if provenance.get("workflow") not in TRUSTED_CERTIFICATION_WORKFLOWS:
+        errors.append(f"{label} measurement workflow is not an approved certification workflow")
     run_id = str(provenance.get("github_actions_run_id") or "").strip()
     head_sha = str(provenance.get("head_sha") or "").strip().lower()
     if not _DECIMAL_ID.fullmatch(run_id):
@@ -69,15 +73,13 @@ def _promotion_identity(
     return run_id, head_sha
 
 
-def _reprobench_identity(
-    manifest: dict[str, Any], *, errors: list[str]
-) -> tuple[str, str] | None:
+def _reprobench_identity(manifest: dict[str, Any], *, errors: list[str]) -> tuple[str, str] | None:
     provenance = manifest.get("provenance")
     if not isinstance(provenance, dict):
         errors.append("ReproBench release manifest must include trusted provenance")
         return None
-    if provenance.get("workflow") != "VeriRepro validation":
-        errors.append("ReproBench provenance workflow must be 'VeriRepro validation'")
+    if provenance.get("workflow") not in TRUSTED_CERTIFICATION_WORKFLOWS:
+        errors.append("ReproBench provenance workflow is not an approved certification workflow")
     run_id = str(provenance.get("github_actions_run_id") or "").strip()
     head_sha = str(provenance.get("head_sha") or "").strip().lower()
     if not _DECIMAL_ID.fullmatch(run_id):
@@ -113,9 +115,7 @@ def _check_cross_evidence_identity(
     if not discovery_path.is_file() or not planning_path.is_file():
         return
 
-    discovery = _json_object(
-        discovery_path, label="real-paper release evidence", errors=errors
-    )
+    discovery = _json_object(discovery_path, label="real-paper release evidence", errors=errors)
     planning = _json_object(
         planning_path, label="environment-planning release evidence", errors=errors
     )
@@ -136,9 +136,19 @@ def _check_cross_evidence_identity(
     )
     reprobench = _reprobench_identity(manifest, errors=errors)
 
-    if discovery_measurement and planning_measurement and discovery_measurement != planning_measurement:
-        errors.append("discovery and planning measurement provenance must use the same trusted run/head")
-    if discovery_measurement and discovery_promotion and discovery_measurement != discovery_promotion:
+    if (
+        discovery_measurement
+        and planning_measurement
+        and discovery_measurement != planning_measurement
+    ):
+        errors.append(
+            "discovery and planning measurement provenance must use the same trusted run/head"
+        )
+    if (
+        discovery_measurement
+        and discovery_promotion
+        and discovery_measurement != discovery_promotion
+    ):
         errors.append("real-paper promotion provenance must match its measurement-time run/head")
     if planning_measurement and planning_promotion and planning_measurement != planning_promotion:
         errors.append("planning promotion provenance must match its measurement-time run/head")
@@ -158,9 +168,7 @@ def check_release_source(root: Path = ROOT) -> list[str]:
     if not manifest_path.is_file() or manifest_path.is_symlink():
         return [f"missing safe release evidence manifest: {manifest_path.relative_to(root)}"]
 
-    manifest = _json_object(
-        manifest_path, label="release evidence manifest", errors=errors
-    )
+    manifest = _json_object(manifest_path, label="release evidence manifest", errors=errors)
     if manifest is None:
         return errors
 
@@ -189,6 +197,34 @@ def check_release_source(root: Path = ROOT) -> list[str]:
         manifest=manifest,
         errors=errors,
     )
+
+    environment_path = root / f"benchmarks/certification-environment-{version}.json"
+    environment = _json_object(
+        environment_path, label="certification-environment release evidence", errors=errors
+    )
+    if environment is not None:
+        if environment.get("schema_version") != 1:
+            errors.append("certification-environment evidence schema_version must be 1")
+        if environment.get("release_source_sha256") != actual:
+            errors.append(
+                "certification-environment evidence must match the current release-source fingerprint"
+            )
+        constraint_path = root / "constraints/certification.txt"
+        try:
+            expected_constraints = hashlib.sha256(constraint_path.read_bytes()).hexdigest()
+        except OSError as exc:
+            errors.append(f"could not hash certification constraints: {exc}")
+        else:
+            if environment.get("constraints_sha256") != expected_constraints:
+                errors.append(
+                    "certification-environment evidence must match committed certification constraints"
+                )
+        env_identity = _reprobench_identity(environment, errors=errors)
+        repro_identity = _reprobench_identity(manifest, errors=errors)
+        if env_identity and repro_identity and env_identity != repro_identity:
+            errors.append(
+                "certification-environment and ReproBench evidence must come from the same trusted run/head"
+            )
     return errors
 
 

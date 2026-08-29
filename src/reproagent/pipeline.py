@@ -1,46 +1,37 @@
 from __future__ import annotations
 
-import math
-import re
 from pathlib import Path
 
-from .artifacts import compare_artifacts, index_outputs, write_artifact_results
-from .config import MetricSpec, load_manifest
+from .config import ArtifactSpec, MetricSpec, load_manifest
 from .datasets import download_datasets
 from .discovery import discover_paper_artifacts, write_discovery
-from .environment import (
-    DockerUnavailableError,
-    build_image,
-    generate_dockerfile,
-    image_tag,
-    plan_environment,
-    write_environment_plan,
-)
-from .experiment import run_in_docker
+from .environment import generate_dockerfile, plan_environment, write_environment_plan
 from .intelligence import analyze_paper, write_intelligence
 from .llm import LLMUnavailableError
-from .metrics import compare_metrics, extract_output_metrics
 from .model_artifacts import materialize_model_artifacts
 from .models import ReproductionReport, StageResult
-from .reporting import write_report
+from .pipeline_execution import execute_experiment
+from .pipeline_policy import (
+    AUTO_METRIC_TOLERANCE,
+    gpu_policy_detail,
+    network_policy_detail,
+    output_policy_detail,
+)
+from .pipeline_policy import (
+    auto_verdict_metrics as _auto_verdict_metrics,
+)
+from .pipeline_policy import (
+    effective_gpu as _effective_gpu,
+)
+from .pipeline_policy import (
+    effective_network as _effective_network,
+)
+from .pipeline_reporting import write_completed_report, write_failure_report
+from .pipeline_verification import verify_results
 from .repository import clone_repository, inspect_repository
 from .repository_intelligence import plan_repository_execution, write_repository_plan
 from .sources import resolve_paper
 from .workspaces import allocate_workspace
-
-_AUTO_METRIC_TOLERANCE = 0.01
-_AUTO_METRIC_ALIASES: dict[str, tuple[str, ...]] = {
-    "accuracy": ("accuracy", "acc"),
-    "f1": ("f1", "f1_score", "f1-score", "f1 score"),
-    "auc": ("auc", "auroc", "roc auc", "roc-auc"),
-    "precision": ("precision",),
-    "recall": ("recall",),
-}
-_METRIC_CANONICAL = {
-    alias.replace("-", "_").replace(" ", "_"): canonical
-    for canonical, aliases in _AUTO_METRIC_ALIASES.items()
-    for alias in aliases
-}
 
 
 def _discovery_payload(discovery) -> dict[str, object]:
@@ -67,74 +58,6 @@ def _discovery_payload(discovery) -> dict[str, object]:
     }
 
 
-def _canonical_auto_metric(name: str) -> str | None:
-    key = re.sub(r"\s+", "_", name.strip().lower().replace("-", "_"))
-    return _METRIC_CANONICAL.get(key)
-
-
-def _quote_supports_metric_name(canonical: str, quote: str) -> bool:
-    normalized = quote.lower()
-    patterns = {
-        "accuracy": r"\b(?:accuracy|acc\.?)(?:\b|\s)",
-        "f1": r"\bf1(?:[-_ ]?score)?\b",
-        "auc": r"\b(?:auroc|auc|roc[- ]?auc)\b",
-        "precision": r"\bprecision\b",
-        "recall": r"\brecall\b",
-    }
-    pattern = patterns.get(canonical)
-    return bool(pattern and re.search(pattern, normalized))
-
-
-def _auto_verdict_metrics(intelligence) -> tuple[dict[str, float], tuple[MetricSpec, ...], tuple[str, ...]]:
-    """Return only deterministic, unambiguous paper metrics eligible for automatic verdicts.
-
-    LLM-suggested tolerances are never trusted. Only normalized bounded metrics
-    with a metric name supported by the grounded quote are eligible, all using
-    VeriRepro's fixed absolute tolerance. Conflicting grounded values for the
-    same canonical metric are excluded rather than arbitrarily selecting one.
-    """
-    grouped: dict[str, list[float]] = {}
-    excluded: set[str] = set()
-    for item in intelligence.metrics:
-        if item.verification not in {"verified", "approximate"}:
-            continue
-        canonical = _canonical_auto_metric(item.name)
-        if canonical is None:
-            excluded.add(item.name)
-            continue
-        if not _quote_supports_metric_name(canonical, item.quote):
-            excluded.add(canonical)
-            continue
-        grouped.setdefault(canonical, []).append(float(item.value))
-
-    paper_metrics: dict[str, float] = {}
-    specs: list[MetricSpec] = []
-    for canonical, values in grouped.items():
-        first = values[0]
-        if any(not math.isclose(first, other, rel_tol=1e-9, abs_tol=1e-12) for other in values[1:]):
-            excluded.add(canonical)
-            continue
-        paper_metrics[canonical] = first
-        specs.append(
-            MetricSpec(
-                name=canonical,
-                paper=first,
-                tolerance=_AUTO_METRIC_TOLERANCE,
-            )
-        )
-    return paper_metrics, tuple(specs), tuple(sorted(excluded))
-
-
-def _effective_network(manifest_requests_network: bool, user_allows_network: bool) -> bool:
-    """A repository may request network access, but only the user can authorize it."""
-    return bool(manifest_requests_network and user_allows_network)
-
-
-def _effective_gpu(manifest_requests_gpu: bool, user_allows_gpu: bool) -> bool:
-    """Repository GPU requests never grant device access without explicit host authorization."""
-    return bool(manifest_requests_gpu and user_allows_gpu)
-
-
 def reproduce(
     source: str,
     *,
@@ -151,18 +74,22 @@ def reproduce(
     allow_gpu: bool = False,
     output_backend: str = "persistent",
     trust_repository_contract: bool | None = None,
+    trusted_artifact_contract: tuple[ArtifactSpec, ...] = (),
+    trusted_reference_root: Path | None = None,
 ) -> ReproductionReport:
+    """Orchestrate one evidence-grounded reproduction run.
+
+    Policy, third-party execution, scientific verification, and report persistence
+    live in dedicated modules. This function intentionally remains the stage
+    coordinator so the public API has one stable entrypoint without a god module.
+    """
     workspace = allocate_workspace(workspace_root, source)
     stages: list[StageResult] = []
     stacks: tuple[str, ...] = ()
     paper_metrics: dict[str, float] = {}
     reproduced_metrics: dict[str, float] = {}
-    comparisons = []
-    artifact_comparisons = []
-    output_artifacts = []
     chosen_repo: str | None = repository_url
-    experiment_failed = False
-    output_index_failed = False
+    preexecution_failed = False
     intelligence = None
     repository_plan = None
     environment_plan = None
@@ -170,6 +97,16 @@ def reproduce(
 
     if output_backend not in {"persistent", "ephemeral"}:
         raise ValueError("output_backend must be 'persistent' or 'ephemeral'")
+    trusted_artifacts = tuple(trusted_artifact_contract)
+    if trusted_artifacts and trusted_reference_root is None:
+        raise ValueError("trusted_reference_root is required with a trusted host artifact contract")
+    if trusted_reference_root is not None and not trusted_artifacts:
+        raise ValueError(
+            "trusted_reference_root is meaningless without a trusted host artifact contract"
+        )
+    if trusted_reference_root is not None:
+        if trusted_reference_root.is_symlink() or not trusted_reference_root.is_dir():
+            raise ValueError("trusted_reference_root must be a regular host-owned directory")
 
     try:
         paper = resolve_paper(source, workspace / "paper")
@@ -180,18 +117,11 @@ def reproduce(
         stages.append(StageResult("Paper resolved", "passed", detail))
     except Exception as exc:
         stages.append(StageResult("Paper resolved", "failed", str(exc)))
-        return write_report(
-            ReproductionReport(
-                source=source,
-                status="FAIL",
-                repository=chosen_repo,
-                stacks=(),
-                stages=stages,
-                paper_metrics={},
-                reproduced_metrics={},
-                comparisons=[],
-                workspace=workspace,
-            )
+        return write_failure_report(
+            source=source,
+            workspace=workspace,
+            repository=chosen_repo,
+            stages=stages,
         )
 
     discovery = discover_paper_artifacts(paper)
@@ -200,7 +130,8 @@ def reproduce(
     top = discovery.repository_candidates[0] if discovery.repository_candidates else None
     top_detail = (
         f"; top candidate score={top.score} ({', '.join(top.reasons) or 'frequency'})"
-        if top else ""
+        if top
+        else ""
     )
     stages.append(
         StageResult(
@@ -232,9 +163,12 @@ def reproduce(
             else:
                 write_intelligence(intelligence, workspace / "paper-intelligence.json")
                 verified = sum(
-                    item.verification in {"verified", "approximate"} for item in intelligence.evidence
+                    item.verification in {"verified", "approximate"}
+                    for item in intelligence.evidence
                 )
-                unverified = sum(item.verification == "unverified" for item in intelligence.evidence)
+                unverified = sum(
+                    item.verification == "unverified" for item in intelligence.evidence
+                )
                 stages.append(
                     StageResult(
                         "Paper intelligence",
@@ -249,7 +183,13 @@ def reproduce(
         except LLMUnavailableError as exc:
             stages.append(StageResult("Paper intelligence", "skipped", str(exc)))
         except Exception as exc:
-            stages.append(StageResult("Paper intelligence", "skipped", f"analysis failed safely: {exc}"))
+            stages.append(
+                StageResult(
+                    "Paper intelligence",
+                    "skipped",
+                    f"analysis failed safely: {exc}",
+                )
+            )
     else:
         stages.append(StageResult("Paper intelligence", "skipped", "disabled by --no-llm"))
 
@@ -263,20 +203,13 @@ def reproduce(
                 "no GitHub repository was found in the paper; pass --repo explicitly",
             )
         )
-        return write_report(
-            ReproductionReport(
-                source=source,
-                status="FAIL",
-                repository=None,
-                stacks=(),
-                stages=stages,
-                paper_metrics={},
-                reproduced_metrics={},
-                comparisons=[],
-                workspace=workspace,
-                paper_intelligence=intelligence.to_dict() if intelligence else None,
-                artifact_discovery=discovery_payload,
-            )
+        return write_failure_report(
+            source=source,
+            workspace=workspace,
+            repository=None,
+            stages=stages,
+            paper_intelligence=intelligence.to_dict() if intelligence else None,
+            artifact_discovery=discovery_payload,
         )
 
     stages.append(
@@ -306,24 +239,27 @@ def reproduce(
         )
     except Exception as exc:
         stages.append(StageResult("Repository inspected", "failed", str(exc)))
-        return write_report(
-            ReproductionReport(
-                source=source,
-                status="FAIL",
-                repository=chosen_repo,
-                stacks=stacks,
-                stages=stages,
-                paper_metrics={},
-                reproduced_metrics={},
-                comparisons=[],
-                workspace=workspace,
-                paper_intelligence=intelligence.to_dict() if intelligence else None,
-                artifact_discovery=discovery_payload,
-            )
+        return write_failure_report(
+            source=source,
+            workspace=workspace,
+            repository=chosen_repo,
+            stacks=stacks,
+            stages=stages,
+            paper_intelligence=intelligence.to_dict() if intelligence else None,
+            artifact_discovery=discovery_payload,
         )
 
     declared_contract_items = manifest.declared_metric_count + manifest.declared_artifact_count
-    if declared_contract_items and manifest.scientific_contract_trusted:
+    if trusted_artifacts:
+        stages.append(
+            StageResult(
+                "Scientific contract",
+                "passed",
+                f"host supplied {len(trusted_artifacts)} independent artifact comparison(s); "
+                "reference bytes are outside third-party repository authority",
+            )
+        )
+    elif declared_contract_items and manifest.scientific_contract_trusted:
         stages.append(
             StageResult(
                 "Scientific contract",
@@ -410,7 +346,13 @@ def reproduce(
         except LLMUnavailableError as exc:
             stages.append(StageResult("Repository execution planned", "skipped", str(exc)))
         except Exception as exc:
-            stages.append(StageResult("Repository execution planned", "skipped", f"planning failed safely: {exc}"))
+            stages.append(
+                StageResult(
+                    "Repository execution planned",
+                    "skipped",
+                    f"planning failed safely: {exc}",
+                )
+            )
 
     if not run_command and profile.suggested_command:
         run_command = profile.suggested_command
@@ -424,40 +366,34 @@ def reproduce(
                 f"using {command_source}: `{run_command}`",
             )
         )
-    elif not run_command and not any(stage.name == "Repository execution planned" for stage in stages):
-        stages.append(StageResult("Repository execution planned", "skipped", "LLM planning disabled"))
+    elif not run_command and not any(
+        stage.name == "Repository execution planned" for stage in stages
+    ):
+        stages.append(
+            StageResult("Repository execution planned", "skipped", "LLM planning disabled")
+        )
 
     network_enabled = _effective_network(manifest.network, allow_network)
-    if manifest.network and allow_network:
-        network_detail = "repository requested network access and the user explicitly authorized --allow-network"
-    elif manifest.network:
-        network_detail = "repository requested network access, but it was denied because --allow-network was not provided"
-    else:
-        network_detail = "repository did not request network access; Docker networking remains disabled"
-    stages.append(StageResult("Network policy", "passed", network_detail))
+    stages.append(
+        StageResult(
+            "Network policy",
+            "passed",
+            network_policy_detail(manifest.network, allow_network),
+        )
+    )
 
-    # Older internal manifest/plan-like objects may not carry optional GPU fields.
+    # Older internal manifest/plan-like fixtures may not carry optional GPU fields.
     # Absence always means CPU-only; compatibility must never grant device access.
     manifest_requests_gpu = bool(getattr(manifest, "gpu", False))
     gpu_likely = bool(getattr(environment_plan, "gpu_likely", False))
     gpu_enabled = _effective_gpu(manifest_requests_gpu, allow_gpu)
-    if manifest_requests_gpu and allow_gpu:
-        gpu_detail = (
-            "repository requested GPU access and the user explicitly authorized --allow-gpu; "
-            "Docker will request all configured GPU devices"
+    stages.append(
+        StageResult(
+            "GPU policy",
+            "passed",
+            gpu_policy_detail(manifest_requests_gpu, allow_gpu, gpu_likely),
         )
-    elif manifest_requests_gpu:
-        gpu_detail = (
-            "repository requested GPU access, but it was denied because --allow-gpu was not provided"
-        )
-    elif gpu_likely:
-        gpu_detail = (
-            "CUDA/GPU signals were detected, but the repository manifest did not request GPU access; "
-            "Docker remains CPU-only"
-        )
-    else:
-        gpu_detail = "repository did not request GPU access; Docker remains CPU-only"
-    stages.append(StageResult("GPU policy", "passed", gpu_detail))
+    )
 
     dockerfile = generate_dockerfile(
         profile,
@@ -487,7 +423,7 @@ def reproduce(
             )
         except Exception as exc:
             stages.append(StageResult("Datasets downloaded", "failed", str(exc)))
-            experiment_failed = True
+            preexecution_failed = True
     else:
         stages.append(
             StageResult(
@@ -515,7 +451,7 @@ def reproduce(
             )
         except Exception as exc:
             stages.append(StageResult("Model artifacts materialized", "failed", str(exc)))
-            experiment_failed = True
+            preexecution_failed = True
     else:
         stages.append(
             StageResult(
@@ -544,212 +480,68 @@ def reproduce(
                     "Automatic metric policy",
                     "passed",
                     f"eligible grounded metric(s): {', '.join(sorted(paper_metrics))}; "
-                    f"fixed absolute tolerance={_AUTO_METRIC_TOLERANCE}",
+                    f"fixed absolute tolerance={AUTO_METRIC_TOLERANCE}",
                 )
             )
 
     output_dir = workspace / "outputs"
-    if output_backend == "ephemeral":
-        output_policy_detail = (
-            "ephemeral bounded tmpfs; experiment file outputs are discarded after the container exits "
-            "and never bind-mounted to the host"
+    stages.append(
+        StageResult(
+            "Output policy",
+            "passed",
+            output_policy_detail(output_backend),
         )
-    else:
-        output_policy_detail = (
-            "persistent run-scoped host bind; post-run indexing remains host-budgeted but the bind "
-            "is not a hard filesystem quota"
-        )
-    stages.append(StageResult("Output policy", "passed", output_policy_detail))
+    )
 
-    if execute and run_command and not experiment_failed:
-        try:
-            tag = image_tag(chosen_repo, environment_plan.environment_fingerprint)
-            build_image(repo, dockerfile, tag, timeout=timeout)
-            stages.append(StageResult("Environment built", "passed", f"Docker image {tag}"))
-            result = run_in_docker(
-                tag,
-                run_command,
-                output_dir,
-                dataset_dir,
-                model_dir if model_artifacts else None,
-                output_backend=output_backend,
-                network=network_enabled,
-                gpu=gpu_enabled,
-                timeout=timeout,
-            )
-            (workspace / "experiment.stdout.log").write_text(result.stdout, encoding="utf-8")
-            (workspace / "experiment.stderr.log").write_text(result.stderr, encoding="utf-8")
-            if result.succeeded:
-                stages.append(
-                    StageResult(
-                        "Experiment executed",
-                        "passed",
-                        f"exit=0 in {result.duration_seconds:.1f}s using `{run_command}`",
-                    )
-                )
-            else:
-                experiment_failed = True
-                stages.append(
-                    StageResult(
-                        "Experiment executed",
-                        "failed",
-                        f"exit={result.exit_code}; see experiment.stderr.log",
-                    )
-                )
-            reproduced_metrics = extract_output_metrics(result.stdout + "\n" + result.stderr)
-        except DockerUnavailableError as exc:
-            experiment_failed = True
-            stages.append(StageResult("Environment built", "failed", str(exc)))
-            stages.append(
-                StageResult(
-                    "Experiment executed",
-                    "skipped",
-                    "environment build failed; experiment was not started",
-                )
-            )
-        except Exception as exc:
-            experiment_failed = True
-            stages.append(StageResult("Experiment executed", "failed", str(exc)))
-    elif execute and run_command and experiment_failed:
-        stages.append(
-            StageResult(
-                "Experiment executed",
-                "skipped",
-                "a required pre-execution stage failed; experiment was not started",
-            )
-        )
-    elif not execute:
-        stages.append(StageResult("Experiment executed", "skipped", "execution disabled by --no-execute"))
-    else:
-        stages.append(
-            StageResult(
-                "Experiment executed",
-                "skipped",
-                "no safe reproduction command found; add verirepro.yaml, use --command, "
-                "or enable grounded repository planning",
-            )
-        )
+    execution = execute_experiment(
+        execute=execute,
+        run_command=run_command,
+        preexecution_failed=preexecution_failed,
+        repository_url=chosen_repo,
+        repository_path=repo,
+        dockerfile=dockerfile,
+        environment_fingerprint=environment_plan.environment_fingerprint,
+        workspace=workspace,
+        output_dir=output_dir,
+        dataset_dir=dataset_dir,
+        model_dir=model_dir if model_artifacts else None,
+        output_backend=output_backend,
+        network_enabled=network_enabled,
+        gpu_enabled=gpu_enabled,
+        timeout=timeout,
+    )
+    stages.extend(execution.stages)
+    reproduced_metrics = execution.reproduced_metrics
 
-    try:
-        output_artifacts = list(index_outputs(output_dir))
-        if output_artifacts:
-            counts: dict[str, int] = {}
-            for item in output_artifacts:
-                counts[item.kind] = counts.get(item.kind, 0) + 1
-            summary = ", ".join(f"{kind}={count}" for kind, count in sorted(counts.items()))
-            stages.append(StageResult("Outputs indexed", "passed", f"{len(output_artifacts)} artifact(s): {summary}"))
-        else:
-            stages.append(StageResult("Outputs indexed", "skipped", "experiment produced no persisted output artifacts"))
-    except Exception as exc:
-        output_artifacts = []
-        output_index_failed = True
-        experiment_failed = True
-        stages.append(
-            StageResult(
-                "Outputs indexed",
-                "failed",
-                f"host-side output indexing failed safely: {exc}",
-            )
-        )
+    verification = verify_results(
+        manifest=manifest,
+        execute=execute,
+        repository_path=repo,
+        workspace=workspace,
+        output_dir=output_dir,
+        paper_metrics=paper_metrics,
+        reproduced_metrics=reproduced_metrics,
+        metric_specs=metric_specs,
+        execution_failed=execution.failed,
+        artifact_specs=trusted_artifacts if trusted_artifacts else None,
+        artifact_reference_root=trusted_reference_root,
+    )
+    stages.extend(verification.stages)
 
-    if manifest.artifacts and execute and not output_index_failed:
-        try:
-            artifact_comparisons = list(compare_artifacts(manifest.artifacts, repo, output_dir))
-            write_artifact_results(
-                tuple(artifact_comparisons),
-                tuple(output_artifacts),
-                workspace / "artifact-results.json",
-            )
-            artifact_passed = sum(item.passed for item in artifact_comparisons)
-            stages.append(
-                StageResult(
-                    "Artifacts compared",
-                    "passed" if artifact_passed == len(artifact_comparisons) else "failed",
-                    f"{artifact_passed}/{len(artifact_comparisons)} host-authorized figure/table/file artifact(s) matched",
-                )
-            )
-        except Exception as exc:
-            artifact_comparisons = []
-            experiment_failed = True
-            stages.append(
-                StageResult(
-                    "Artifact verification safety",
-                    "failed",
-                    f"host-side artifact verification failed safely: {exc}",
-                )
-            )
-    elif manifest.artifacts and output_index_failed:
-        stages.append(
-            StageResult(
-                "Artifacts compared",
-                "skipped",
-                "output indexing failed its host safety budget; artifact comparisons were not attempted",
-            )
-        )
-    elif manifest.artifacts:
-        stages.append(
-            StageResult(
-                "Artifacts compared",
-                "skipped",
-                "execution disabled; host-authorized artifact comparisons were not run",
-            )
-        )
-    else:
-        if output_artifacts:
-            write_artifact_results((), tuple(output_artifacts), workspace / "artifact-results.json")
-        stages.append(
-            StageResult(
-                "Artifacts compared",
-                "skipped",
-                "no host-authorized artifact comparison contract was available",
-            )
-        )
-
-    comparisons = compare_metrics(paper_metrics, reproduced_metrics, metric_specs)
-    if comparisons:
-        passed = sum(item.passed for item in comparisons)
-        stages.append(
-            StageResult(
-                "Results compared",
-                "passed" if passed == len(comparisons) else "failed",
-                f"{passed}/{len(comparisons)} evidence-authorized metric(s) within tolerance",
-            )
-        )
-    else:
-        stages.append(
-            StageResult(
-                "Results compared",
-                "skipped",
-                "no comparable host-authorized or page/quote-grounded paper/output metrics were available",
-            )
-        )
-
-    metric_failed = any(not item.passed for item in comparisons)
-    artifact_failed = any(not item.passed for item in artifact_comparisons)
-    has_verified_result = bool(comparisons or artifact_comparisons)
-    if experiment_failed or metric_failed or artifact_failed:
-        status = "FAIL"
-    elif has_verified_result:
-        status = "PASS"
-    else:
-        status = "PARTIAL"
-
-    return write_report(
-        ReproductionReport(
-            source=source,
-            status=status,
-            repository=chosen_repo,
-            stacks=stacks,
-            stages=stages,
-            paper_metrics=paper_metrics,
-            reproduced_metrics=reproduced_metrics,
-            comparisons=comparisons,
-            workspace=workspace,
-            paper_intelligence=intelligence.to_dict() if intelligence else None,
-            repository_plan=repository_plan.to_dict() if repository_plan else None,
-            environment_plan=environment_plan.to_dict(),
-            artifact_discovery=discovery_payload,
-            artifact_comparisons=artifact_comparisons,
-            output_artifacts=output_artifacts,
-        )
+    return write_completed_report(
+        source=source,
+        status=verification.status,
+        repository=chosen_repo,
+        stacks=stacks,
+        stages=stages,
+        paper_metrics=paper_metrics,
+        reproduced_metrics=reproduced_metrics,
+        metric_comparisons=verification.metric_comparisons,
+        workspace=workspace,
+        paper_intelligence=intelligence.to_dict() if intelligence else None,
+        repository_plan=repository_plan.to_dict() if repository_plan else None,
+        environment_plan=environment_plan.to_dict(),
+        artifact_discovery=discovery_payload,
+        artifact_comparisons=verification.artifact_comparisons,
+        output_artifacts=verification.output_artifacts,
     )
