@@ -3,12 +3,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import re
 from pathlib import Path
 from typing import Any
 
 from reproagent import __version__
+from reproagent.config import ArtifactSpec
 from reproagent.release_provenance import release_source_sha256
 from reproagent.reprobench_adapter import (
     ReproBenchContractError,
@@ -24,6 +26,7 @@ from reproagent.reprobench_summary import (
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SUITE = ROOT / "benchmarks/reprobench-seed-suite.json"
 DEFAULT_OUTPUT = ROOT / ".verirepro/benchmarks/reprobench-seed"
+SCIENTIFIC_REFERENCE_ROOT = ROOT / "benchmarks/reprobench-reference"
 _MAX_SUITE_BYTES = 256 * 1024
 _GIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 _ALLOWED_GATE_KEYS = frozenset(
@@ -44,6 +47,7 @@ _ALLOWED_CASE_KEYS = frozenset(
         "use_llm",
         "allow_network",
         "trust_repository_contract",
+        "scientific_artifacts",
         "timeout_seconds",
         "release_gate",
     }
@@ -148,6 +152,112 @@ def _timeout(case: dict[str, Any]) -> int:
     return value
 
 
+def _finite(value: object, field: str) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError) as exc:
+        raise SeedSuiteError(f"{field} must be a finite number") from exc
+    if not math.isfinite(parsed):
+        raise SeedSuiteError(f"{field} must be a finite number")
+    return parsed
+
+
+def _trusted_scientific_artifacts(
+    case: dict[str, Any],
+) -> tuple[tuple[ArtifactSpec, ...], list[dict[str, str]]]:
+    raw_specs = case.get("scientific_artifacts", [])
+    if not isinstance(raw_specs, list) or len(raw_specs) > 16:
+        raise SeedSuiteError("scientific_artifacts must be a list with at most 16 entries")
+    allowed = {
+        "name",
+        "kind",
+        "reference",
+        "reproduced",
+        "threshold",
+        "absolute_tolerance",
+        "relative_tolerance",
+        "columns",
+    }
+    specs: list[ArtifactSpec] = []
+    references: list[dict[str, str]] = []
+    seen_references: set[str] = set()
+    for index, raw in enumerate(raw_specs):
+        if not isinstance(raw, dict):
+            raise SeedSuiteError(f"scientific_artifacts[{index}] must be an object")
+        unknown = sorted(set(raw) - allowed)
+        if unknown:
+            raise SeedSuiteError(
+                f"scientific_artifacts[{index}] contains unsupported keys: {unknown}"
+            )
+        name = _bounded_string(raw.get("name"), f"scientific_artifacts[{index}].name", 200)
+        kind = _bounded_string(raw.get("kind"), f"scientific_artifacts[{index}].kind", 20).lower()
+        if kind not in {"figure", "table", "file"}:
+            raise SeedSuiteError(f"scientific_artifacts[{index}].kind is unsupported")
+        reference = _bounded_string(
+            raw.get("reference"), f"scientific_artifacts[{index}].reference", 512
+        ).replace("\\", "/")
+        reproduced = _bounded_string(
+            raw.get("reproduced"), f"scientific_artifacts[{index}].reproduced", 512
+        ).replace("\\", "/")
+        if (
+            reference.startswith("/")
+            or reference.startswith("../")
+            or "/../" in f"/{reference}"
+            or reproduced.startswith("/")
+            or reproduced.startswith("../")
+            or "/../" in f"/{reproduced}"
+        ):
+            raise SeedSuiteError("scientific artifact paths must be confined relative paths")
+        reference_path = SCIENTIFIC_REFERENCE_ROOT / reference
+        if reference_path.is_symlink() or not reference_path.is_file():
+            raise SeedSuiteError(f"scientific artifact reference is missing or unsafe: {reference}")
+        resolved = reference_path.resolve()
+        try:
+            resolved.relative_to(SCIENTIFIC_REFERENCE_ROOT.resolve())
+        except ValueError as exc:
+            raise SeedSuiteError("scientific artifact reference escapes benchmark root") from exc
+        threshold = _finite(raw.get("threshold", 0.95), "scientific artifact threshold")
+        absolute = _finite(
+            raw.get("absolute_tolerance", 1e-6), "scientific artifact absolute_tolerance"
+        )
+        relative = _finite(
+            raw.get("relative_tolerance", 0.01), "scientific artifact relative_tolerance"
+        )
+        if not 0.0 <= threshold <= 1.0 or absolute < 0 or relative < 0:
+            raise SeedSuiteError("scientific artifact thresholds/tolerances are out of range")
+        raw_columns = raw.get("columns", [])
+        if not isinstance(raw_columns, list) or len(raw_columns) > 128:
+            raise SeedSuiteError("scientific artifact columns must be a bounded list")
+        columns = tuple(str(value).strip() for value in raw_columns)
+        if any(not value or len(value) > 200 for value in columns) or len(set(columns)) != len(
+            columns
+        ):
+            raise SeedSuiteError("scientific artifact columns must be unique bounded names")
+        if columns and kind != "table":
+            raise SeedSuiteError("scientific artifact column selection requires kind=table")
+        specs.append(
+            ArtifactSpec(
+                name=name,
+                kind=kind,
+                reference=reference,
+                reproduced=reproduced,
+                threshold=threshold,
+                absolute_tolerance=absolute,
+                relative_tolerance=relative,
+                columns=columns,
+            )
+        )
+        if reference not in seen_references:
+            references.append(
+                {
+                    "file": f"benchmarks/reprobench-reference/{reference}",
+                    "sha256": _sha256(reference_path),
+                }
+            )
+            seen_references.add(reference)
+    return tuple(specs), references
+
+
 def _validate_gate(gate: object) -> dict[str, Any]:
     if not isinstance(gate, dict) or not gate:
         raise SeedSuiteError("release_gate must be a non-empty object")
@@ -212,6 +322,7 @@ def run_seed_suite(suite_path: Path, output_dir: Path) -> dict[str, Any]:
         use_llm = _bool(raw_case, "use_llm")
         allow_network = _bool(raw_case, "allow_network")
         trust_contract = _bool(raw_case, "trust_repository_contract")
+        scientific_artifacts, scientific_references = _trusted_scientific_artifacts(raw_case)
         gate = _validate_gate(raw_case.get("release_gate"))
         timeout = _timeout(raw_case)
 
@@ -226,6 +337,8 @@ def run_seed_suite(suite_path: Path, output_dir: Path) -> dict[str, Any]:
             use_llm=use_llm,
             allow_network=allow_network,
             trust_repository_contract=True if trust_contract else None,
+            trusted_artifact_contract=scientific_artifacts,
+            trusted_reference_root=SCIENTIFIC_REFERENCE_ROOT if scientific_artifacts else None,
         )
         result_path = output_dir / "results" / f"{task.task_id}.json"
         write_reprobench_result(result, result_path)
@@ -240,6 +353,7 @@ def run_seed_suite(suite_path: Path, output_dir: Path) -> dict[str, Any]:
                 "result_file": result_path.relative_to(output_dir).as_posix(),
                 "result_sha256": _sha256(result_path),
                 "repository_ref": repository_ref,
+                "scientific_references": scientific_references,
                 "gate_passed": not gate_failures,
                 "gate_failures": gate_failures,
             }
