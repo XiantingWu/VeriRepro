@@ -182,7 +182,7 @@ Repository planning distinguishes `planned`, `unsupported`, `infrastructure_erro
 
 For each release, front-half measurements and ReproBench evidence must be produced from the release-relevant source bytes for that version. Stable benchmark inputs do not prove stable algorithm behavior after source changes.
 
-The release-source fingerprint covers package/runtime Python, `pyproject.toml`, measurement/promotion policy, the ReproBench seed runner, public launch policy, and the public CI/publish workflows. Changing release-relevant bytes after evidence production invalidates the evidence and requires a fresh trusted measurement run. Documentation and promoted evidence files are intentionally outside that source fingerprint.
+The release-source fingerprint covers package/runtime Python, `pyproject.toml`, measurement/promotion policy, the ReproBench seed runner, public launch policy, layered release policy, trusted Quality/validation/smoke workflows, and the release-only publish workflow. Changing release-relevant bytes after evidence production invalidates the evidence and requires a fresh trusted measurement run. Documentation and promoted evidence files are intentionally outside that source fingerprint.
 
 ## Secrets
 
@@ -192,11 +192,15 @@ VeriRepro supports `VERIREPRO_LITELLM_*`, standard `LITELLM_*`, and legacy `REPR
 
 For gated/private Hugging Face files, `HF_TOKEN` or `HUGGING_FACE_HUB_TOKEN` is used only for the initial Hugging Face request host. If the request redirects to another host, sensitive authorization headers are stripped before following the redirect.
 
-## Public CI and maintainer integrations
+## Public pull requests and maintainer integrations
 
-Ordinary `push` and `pull_request` CI runs on GitHub-hosted ephemeral workers with read-only repository permissions, no repository secrets, and checkout credentials disabled. External fork pull requests therefore receive package/test/build validation without executing their code on maintainer hardware.
+External/fork pull requests run only on **GitHub-hosted ephemeral runners** with read-only repository permissions and no secrets. VeriRepro does not run `pull_request_target` workflows that execute contributor-controlled code, and no workflow may use self-hosted runners, private runner labels, or runner groups.
 
-Ordinary fork PR CI does not require fresh trusted benchmark evidence or a matching release-source fingerprint, because legitimate source-changing contributions necessarily differ from the previous release evidence. Final version-matched evidence and `release_source_check.py` remain maintainer release responsibilities and are enforced again by the publish workflow.
+Accepted changes are merged through the protected `main` flow after maintainer review of the diff, dependency/workflow changes, and authority expansion. The public GitHub-hosted `VeriRepro validation` workflow then certifies the exact canonical `main` SHA. If the change becomes release-relevant, final release evidence is regenerated from that exact source identity.
+
+The project deliberately does not depend on GitHub-hosted CI for source correctness or launch readiness. Hosted runner availability, quota, or billing status therefore cannot turn a passing exact-head self-hosted certification into a code failure.
+
+The one hosted-runner exception is release delivery through `.github/workflows/publish.yml`: PyPA's official Trusted Publishing action is Linux-container based. That workflow is release-only, has no pull-request trigger, uses a protected `pypi` environment plus OIDC, and is not the authority that decides whether source is correct. All source/evidence gates must already pass before a stable release reaches the publishing boundary.
 
 Networked or credentialed real-paper/LiteLLM integration smoke remains separate and maintainer-dispatched. Self-hosted or credentialed runners must never execute arbitrary external fork pull-request code.
 

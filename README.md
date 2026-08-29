@@ -1,46 +1,52 @@
 # VeriRepro
 
+[![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11--3.13-3776AB?logo=python&logoColor=white)](#quick-start)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Typing: PEP 561](https://img.shields.io/badge/typing-PEP%20561-informational)](#python-api)
+
 **Evidence-grounded reproduction for computational papers.**
 
-Give VeriRepro an arXiv paper, DOI, PDF URL, or local PDF. It builds an inspectable chain from paper claims to repository evidence, environment provenance, sandbox execution, scalar metrics, figures, and tables.
-
-The governing rule is:
+Give VeriRepro an arXiv paper, DOI, PDF URL, or local PDF. It builds an inspectable chain from paper claims to repository evidence, environment provenance, sandbox execution, scalar metrics, figures, tables, and a machine-readable reproduction report.
 
 > **Models may propose. Deterministic code must verify.**
 
-Unsupported model output is not promoted into scientific evidence, repository-authored expected values do not self-certify a paper, and a successful program exit does not automatically become a scientific `PASS`.
+VeriRepro is designed for the gap between “the code ran” and “the scientific result was actually reproduced.” Unsupported model output is never promoted into scientific evidence, repository-authored expected values do not self-certify a paper, and a successful process exit does not automatically become a scientific `PASS`.
 
-> Status: **0.8.0 public beta.** The public package, CLI, and Python namespace are `verirepro`. The legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series.
+**Status:** `0.8.0` public-beta release candidate. The source tree and release evidence are certified, but the stable GitHub Release/PyPI publication is intentionally the final launch step. Until then, install from this repository as shown below. The preferred package, CLI, and Python namespace are `verirepro`; the legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series. The authoritative repository/package identity is defined in [docs/CANONICAL_IDENTITY.md](docs/CANONICAL_IDENTITY.md); similarly named copies are not release authorities by name alone.
 
-The committed 0.8.0 release evidence covers a 15-paper repository-discovery corpus, bounded environment planning on three real repositories, and two end-to-end ReproBench seed cases. Those measurements certify only the tested gates and inputs; they are not a claim of arbitrary-paper zero-config reproduction.
+## Why VeriRepro
+
+- **Evidence before confidence.** Paper claims can carry page/quote support, and unverifiable claims remain visibly unverified.
+- **Reproduction is not process success.** `PASS`, `FAIL`, and `PARTIAL` are evidence states, not aliases for exit code 0/1.
+- **Repository code does not grade itself.** Third-party manifests may request execution configuration, but scientific expectations require independent evidence or explicit human authorization.
+- **Execution authority is narrow.** Network, GPU, filesystem, model, dataset, and scientific-contract authority are separate controls.
+- **Release claims are source-bound.** Real-paper and ReproBench evidence is tied to the release-relevant source identity that produced it.
 
 ## Quick start
 
-Use a pinned paper from VeriRepro's fixed public smoke corpus so the first run follows a known, versioned input. The default quick start plans the reproduction without executing third-party experiment code or requiring a model endpoint:
+Start with a pinned paper from VeriRepro's fixed public smoke corpus. This path plans the reproduction without executing third-party experiment code or requiring a model endpoint:
 
 ```bash
 git clone https://github.com/XiantingWu/VeriRepro.git
 cd VeriRepro
 python -m pip install .
+
 verirepro doctor --json
 verirepro plan 2103.00020v1
 verirepro reproduce 2103.00020v1 --no-execute --no-llm
 ```
 
-That first run is intentionally non-executing. Before allowing VeriRepro to execute third-party experiment code, run `verirepro doctor --strict`; add `--require-llm` if model-assisted analysis is required.
+Before allowing third-party experiment code to execute, run:
 
-Python:
-
-```python
-import verirepro
-
-report = verirepro.reproduce("2103.00020v1", execute=False, use_llm=False)
-print(report.status)
+```bash
+verirepro doctor --strict
 ```
 
-`python -m verirepro` is also supported. Model-assisted paper analysis is optional and can be enabled after configuring an OpenAI-compatible/LiteLLM endpoint as described below.
+Add `--require-llm` only when model-assisted analysis is required. Docker is an execution boundary, not a formal sandbox proof; intentionally hostile repositories should additionally use disposable infrastructure.
 
-A run preserves evidence instead of only printing a verdict:
+## What a run produces
+
+A reproduction workspace can preserve:
 
 ```text
 paper-intelligence.json
@@ -57,154 +63,98 @@ experiment.stderr.log
 outputs/
 ```
 
-## What VeriRepro verifies
+The pipeline is intentionally split into orchestration, deterministic policy, execution, verification, and reporting layers so that verdict logic is not hidden inside runtime mechanics.
 
 ```text
 Paper
   ↓
-page-grounded experimental claims
+page-grounded claims
   ↓
-ranked repository / dataset evidence
+repository / dataset evidence
   ↓
 repository-grounded execution plan
   ↓
 Git + Python + dependency + CUDA provenance
   ↓
-Docker sandbox
+Docker execution boundary
   ↓
-experiment execution
-  ↓
-evidence-authorized metrics + Figure/Table/file checks
+metrics + Figure/Table/file evidence
   ↓
 PASS / FAIL / PARTIAL + evidence bundle
 ```
 
-### Paper intelligence
+## Measured release evidence
 
-- PDF page boundaries are preserved.
-- Model-proposed factual claims require page/quote evidence.
-- Quotes are verified against extracted page text.
-- Numeric values must be supported by their cited quote.
-- Unsupported claims become `UNVERIFIED`.
-- Missing reproduction-critical details remain visible in an ambiguity audit.
-- PDF URI annotations can recover repository/dataset links omitted by text extraction, while remaining distinct from scientific claim evidence.
-- Repository occurrences, ranked candidates, annotation links, dataset URLs, and evidence anchors are host-bounded before they can expand downstream ranking/model work.
+The current `0.8.0` release-candidate source is being certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. Evidence recorded in `benchmarks/` from an earlier development line is historical/imported and is replaced by fresh Xianting-native certification (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
-### Repository-grounded execution
+| Gate | Current measured result |
+| --- | --- |
+| Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
+| Tests / coverage | 747 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
+| Release-source commit / SHA-256 | pending fresh Xianting-native certification |
+| Real-paper discovery | 15/15 historical imported measurement; re-verified during fresh certification |
+| Environment planning | 3/3 historical imported measurement; re-verified during fresh certification |
+| ReproBench | 1 success / 1 partial / 0 failures historical imported; re-verified during fresh certification |
+| Evidence commit | pending fresh Xianting-native certification |
+| Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
 
-When no explicit command is supplied, a model may choose only from real Python/Jupyter entrypoints found in the cloned repository. The proposed command must survive deterministic entrypoint, documentation-evidence, and syntax validation.
+All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
 
-Generated plans reject shell chaining, redirects, command substitution, network utilities, package managers, invented entrypoints, and undocumented argument combinations. Safe abstention is preferred over a plausible-looking invented command.
+These are bounded release measurements, not a claim that arbitrary papers are zero-config reproducible. The 15-paper gate measures discovery/evidence and bounded planning; it does not claim that all 15 papers were fully reproduced. The governance seed intentionally remains `PARTIAL` because no independent scientific comparison is authorized for it; successful process execution is not promoted into scientific truth. See [docs/EVIDENCE.md](docs/EVIDENCE.md) for provenance, scope, and limits.
 
-### Environment provenance
+## Verdict semantics
 
-Repository inspection records the resolved Git commit, Python constraints, dependency strategy, lockfiles, scientific-stack signals, CUDA/GPU hints, repository fingerprint, and environment fingerprint.
+- **PASS** — execution completed and every available evidence-authorized scientific comparison passed.
+- **FAIL** — a required input/environment/execution stage failed, host-side safety verification failed, or an evidence-authorized metric/artifact comparison failed.
+- **PARTIAL** — no hard pipeline failure occurred, but available evidence is insufficient to establish scientific `PASS` or `FAIL`.
 
-### Artifact verification
+`PARTIAL` is intentional. VeriRepro does not convert “the script exited 0” into “the paper was reproduced.”
 
-VeriRepro can compare declared Figure/Table/file outputs:
+## Evidence authority
 
-```yaml
-version: 1
-experiment:
-  command: python reproduce.py
-  network: false
+A third-party repository may describe **how to run itself**, but it is not automatically trusted to define the scientific truth used to certify itself.
 
-metrics:
-  - name: accuracy
-    paper: 0.914
-    tolerance: 0.01
-
-artifacts:
-  - name: Figure 3
-    kind: figure
-    reference: references/figure3.png
-    reproduced: figure3.png
-    threshold: 0.95
-
-  - name: Table 2
-    kind: table
-    reference: references/table2.csv
-    reproduced: table2.csv
-    threshold: 1.0
-    relative_tolerance: 0.01
-```
-
-Generated outputs are indexed with SHA-256. Figures use deterministic normalized visual comparison; CSV/TSV tables use structural and cell-level comparison with explicit numeric tolerances. Generic pixel similarity is a secondary signal, not proof of semantic plot equivalence.
-
-## Scientific evidence authority
-
-A third-party repository may describe **how to run itself**, but it may not silently define the scientific truth used to certify itself.
-
-`verirepro.yaml` / `.verirepro.yaml` can provide execution configuration. Legacy `reproagent.yaml` names remain supported during the compatibility window.
-
-Repository-authored `metrics` and `artifacts` are ignored for scientific `PASS`/`FAIL` by default. If a human has reviewed that contract and intentionally wants it to become verdict evidence:
+`verirepro.yaml` / `.verirepro.yaml` may request execution configuration. Repository-authored expected metrics and reference artifacts remain outside automatic scientific authority unless a human explicitly opts in:
 
 ```bash
 verirepro reproduce 2103.00020v1 --trust-repository-contract
 ```
 
-This grants scientific-contract authority only. It does not grant network access, broader filesystem access, Docker capabilities, host commands, or credentials.
+That flag grants scientific-contract authority only. It does not grant network access, GPU access, host filesystem access, host commands, or credentials.
 
-For automatically extracted scalar metrics, the current deterministic policy permits normalized accuracy/F1/AUC/precision/recall-style comparisons with a fixed absolute tolerance of `0.01`. Scale-dependent metrics such as BLEU, loss, or latency remain informational unless a reviewed contract defines their semantics.
-
-Experiment code must emit an explicit marker for scalar verdict evidence:
+Experiment output enters automatic scalar comparison only through an explicit final-result marker such as:
 
 ```python
 print("VERIREPRO_METRIC accuracy=0.908")
 ```
 
-The legacy `REPROAGENT_METRIC` prefix remains accepted. Arbitrary training-log strings such as `accuracy:` or `loss:` are not treated as final scientific results.
+Arbitrary training-log strings are not treated as final scientific evidence.
 
-## Verdict semantics
+## Security model
 
-- **PASS** — execution completed and every available evidence-authorized scientific comparison passed.
-- **FAIL** — a required dataset/environment/execution stage failed, host-side safety verification failed, or at least one evidence-authorized metric/artifact comparison failed.
-- **PARTIAL** — no hard pipeline failure occurred, but the available evidence is insufficient to establish scientific `PASS`/`FAIL` (for example, execution succeeded without an independently authorized metric/artifact comparison).
+VeriRepro handles untrusted paper URLs/text, model output, Git repositories, manifests, dataset/model URLs, artifact paths, and experiment output.
 
-`PARTIAL` is intentional. VeriRepro does not convert “the script exited 0” into “the paper was reproduced,” and it does not downgrade hard execution/infrastructure failures to `PARTIAL`.
+The final research-code runtime uses Docker with:
 
-## ReproBench
+- explicit non-root UID:GID;
+- read-only root filesystem;
+- bounded writable `/workspace` and `/tmp` tmpfs overlays;
+- dropped Linux capabilities and `no-new-privileges`;
+- init, PID, CPU, and memory limits;
+- bounded stdout/stderr capture;
+- network disabled unless both repository request and user `--allow-network` authorization are present;
+- GPU unavailable unless both repository request and user `--allow-gpu` authorization are present;
+- no LiteLLM credentials inside the experiment container.
 
-VeriRepro exposes an agent-agnostic ReproBench boundary without requiring a separate ReproBench source checkout.
+Host-side paper/dataset/model downloads have address, redirect, path, byte/count, and integrity controls. Repository acquisition is restricted to canonical HTTPS GitHub URLs with conservative refs and disabled Git `file`/`ext` transports.
 
-Run one task:
+For exact boundaries and residual risks, read [SECURITY.md](SECURITY.md) and [docs/TRUST_MODEL.md](docs/TRUST_MODEL.md).
 
-```bash
-verirepro-reprobench task.json --output result.json
-```
+## Real-paper corpus
 
-Aggregate fixed result evidence:
+`benchmarks/real-paper-smoke.json` contains 15 public papers across vision, NLP, computational science, scientific ML, and quantum-computing domains. Every arXiv input is pinned to an explicit revision.
 
-```bash
-verirepro-reprobench-summary results/*.json --output summary.json
-```
-
-The adapter records:
-
-- success / partial / failure;
-- environment-build and experiment-execution status;
-- grounded metric and artifact comparison counts/rates;
-- expected-artifact coverage;
-- failure taxonomy;
-- wall-clock runtime;
-- repository/environment provenance;
-- operator intervention count;
-- provider-reported model token/runtime/cost telemetry when available.
-
-Task JSON is untrusted: local/file/insecure-HTTP paper sources are rejected, expected-artifact paths are confined, files are size-bounded, symlinks and non-standard `NaN`/`Infinity` JSON are rejected, and unknown fields are recorded but never executed.
-
-Result aggregation enforces outcome/taxonomy consistency: `success` cannot carry failures; `partial` is reserved for `insufficient_evidence_or_execution`; hard taxonomy entries require `failure`. The final release-evidence checker independently revalidates the same contract and recomputes outcome counts/rates from the committed results.
-
-The canonical 0.8 seed suite uses CPU-capable public repositories pinned to immutable commits. Repository/ref/command overrides remain visible as interventions. The release gate can therefore require successful Docker environment construction and experiment execution while still expecting a scientifically honest `PARTIAL` when there is no independently authorized metric/artifact contract.
-
-See `docs/REPROBENCH.md` for the task/result/summary schemas, seed policy, evidence hashes, exact-head provenance, and release gate.
-
-## Real-paper evidence
-
-The fixed discovery corpus in `benchmarks/real-paper-smoke.json` contains 15 public papers across vision/NLP and computational-science domains. Every arXiv input is pinned to an explicit revision and the result is bound to the exact corpus bytes by SHA-256.
-
-Deterministic discovery/evidence gate:
+Run the deterministic discovery/evidence gate:
 
 ```bash
 python scripts/run_real_paper_smoke.py \
@@ -212,7 +162,7 @@ python scripts/run_real_paper_smoke.py \
   --require-evidence
 ```
 
-Bounded real-repository environment planning:
+Run bounded real-repository planning without third-party experiment execution:
 
 ```bash
 python scripts/run_real_paper_smoke.py \
@@ -222,31 +172,26 @@ python scripts/run_real_paper_smoke.py \
   --max-cases 3
 ```
 
-These measurements test repository discovery/evidence and environment planning. They do **not** claim that all 15 papers were fully reproduced. End-to-end execution rates belong to ReproBench.
+See [docs/REAL_PAPER_SMOKE.md](docs/REAL_PAPER_SMOKE.md).
 
-See `docs/REAL_PAPER_SMOKE.md`.
+## ReproBench
 
-## Dataset providers
+VeriRepro exposes an agent-agnostic ReproBench JSON/process boundary without requiring a sibling source checkout.
 
-Direct HTTPS, Hugging Face, and Zenodo declarations are supported.
-
-```yaml
-datasets:
-  - name: validation
-    provider: huggingface
-    repo_id: my-org/my-dataset
-    revision: 4f6d2c1
-    path: data/validation.parquet
-    max_bytes: 1073741824
+```bash
+verirepro-reprobench task.json --output result.json
+verirepro-reprobench-summary results/*.json --output summary.json
 ```
 
-Host-side downloads enforce HTTPS-by-default, public-IP/DNS checks, redirect re-validation, host-owned byte ceilings, atomic partial files, symlink refusal, and optional SHA-256 verification. Hugging Face credentials are scoped to the original Hugging Face host and stripped on cross-host redirects. Credentials are never forwarded into experiment containers.
+The adapter records outcome, environment-build and execution status, grounded metric/artifact comparisons, expected-artifact coverage, failure taxonomy, runtime, provenance, explicit operator interventions, and bounded provider telemetry when available.
 
-See `docs/DATASETS.md`.
+Task JSON is untrusted: local/file/insecure-HTTP paper sources are rejected, paths are confined, files are size-bounded, symlinks and non-standard `NaN`/`Infinity` JSON are rejected, and unknown fields are recorded but never executed.
+
+See [docs/REPROBENCH.md](docs/REPROBENCH.md).
 
 ## LiteLLM / OpenAI-compatible models
 
-VeriRepro uses an OpenAI-compatible endpoint and does not require a provider SDK.
+Model-assisted analysis is optional. VeriRepro talks to an OpenAI-compatible endpoint and does not require a provider SDK.
 
 ```bash
 export VERIREPRO_LITELLM_BASE_URL="https://your-litellm.example.com"
@@ -254,78 +199,79 @@ export VERIREPRO_LITELLM_API_KEY="..."
 export VERIREPRO_LITELLM_MODEL="research-model"
 ```
 
-`LITELLM_*` variables also work, and legacy `REPROAGENT_LITELLM_*` aliases remain during the 0.x transition. There is intentionally no `--api-key` CLI argument.
-
-Benchmark telemetry retains only a bounded whitelist such as model names, latency, token counts, and provider-reported cost. Endpoint URLs, credentials, prompts, and response content are excluded. Cost is never guessed from model names or price tables; absent provider cost remains `null`.
-
 Disable model reasoning while retaining deterministic stages:
 
 ```bash
 verirepro reproduce 2103.00020v1 --no-llm
 ```
 
-## Security model
+There is intentionally no `--api-key` CLI argument. Credentials remain host-side and are excluded from third-party experiment containers and release evidence.
 
-VeriRepro handles untrusted paper URLs/text, model output, Git repositories, manifests, dataset URLs, artifact paths, and experiment output.
+## Python API
 
-The experiment runtime uses Docker with a read-only root filesystem, an explicit non-root UID:GID, bounded writable tmpfs overlays, network disabled by default, Linux capabilities dropped, `no-new-privileges`, init, PID limits, CPU/memory limits, and no LiteLLM credentials in the container. Runtime networking requires both a repository request and explicit host `--allow-network` authorization. Model artifacts are materialized on the host with checksum/provenance controls and mounted read-only.
+```python
+import verirepro
 
-Host-side paper/dataset downloads have address, redirect, path, and byte/count controls. Repository acquisition is separately restricted to canonical HTTPS GitHub URLs, conservative refs, shallow/no-tag operations, and disabled Git `file`/`ext` and LFS smudge; it does **not** currently impose a hard byte quota on Git transfer/checkout. See `docs/TRUST_MODEL.md` and `SECURITY.md` for the exact controls and residual resource risks.
+report = verirepro.reproduce("2103.00020v1", execute=False, use_llm=False)
+print(report.status)
+```
 
-## Release engineering
+`python -m verirepro` is supported. The installed `verirepro` package is PEP 561 typed; `reproagent` remains a 0.x compatibility/implementation namespace.
 
-Maintainer release candidates are validated from the repository root with the same public package surface that users install:
+## Development and contribution model
+
+Local development checks:
 
 ```bash
 python -m pip install -e '.[dev]'
-pytest -q
-verirepro --version
-verirepro doctor --json
+ruff check src tests scripts
+ruff format --check src tests scripts
+mypy
+pytest -q --cov=reproagent --cov=verirepro --cov-branch
+python scripts/history_scan.py
 python scripts/release_check.py
 python scripts/launch_surface_check.py
 ```
 
-The public CI design runs untrusted fork PRs only on GitHub-hosted ephemeral runners with read-only permissions, no repository secrets, and non-persistent checkout credentials. Networked/credentialed smoke remains maintainer-dispatched on trusted infrastructure. Publication uses PyPI Trusted Publishing/OIDC rather than a long-lived PyPI token.
+External/fork pull requests run on **GitHub-hosted ephemeral runners** with read-only permissions and no repository secrets. VeriRepro never executes contributor-controlled code on maintainer-owned infrastructure. The exact canonical `main` SHA is certified through the public GitHub-hosted `VeriRepro validation` workflow, which publishes only sanitized evidence artifacts.
 
-Final publication additionally runs:
+GitHub-hosted CI is the sole automated quality/validation lane. The release-only exception is PyPI Trusted Publishing/OIDC delivery in `publish.yml`.
 
-```bash
-python scripts/launch_surface_check.py
-python scripts/release_check.py --require-release-evidence
-python scripts/release_source_check.py
-```
-
-For 0.8, that gate requires **version-matched** 15-paper discovery evidence and bounded 3-repository environment-planning evidence from the frozen 0.8 source, plus version-matched ReproBench evidence with suite/task/result/summary hashes and GitHub Actions provenance. Historical 0.7 evidence remains immutable provenance for 0.7 but cannot certify the changed 0.8 runtime/package source merely because benchmark inputs are unchanged. The release source fingerprint also covers the front-half measurement/promotion policy and public-launch policy, and the final checker independently revalidates ReproBench outcome/failure-taxonomy semantics and recomputes aggregate outcome rates from committed result evidence.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. For reproduction help, use [SUPPORT.md](SUPPORT.md). Security-sensitive findings belong in GitHub's private Security advisory flow, not a public issue.
 
 ## Current limitations
 
 - General figure comparison is visual/pixel-based, not semantic plot understanding.
-- Automatic PDF Figure/Table crop-to-output matching is still incomplete.
-- Environment reconstruction cannot make an underspecified or unavailable upstream dependency reproducible.
-- NVIDIA/CUDA hardware execution remains unverified until a matching NVIDIA-capable trusted runner exists; the GPU authorization contract itself is tested.
-- Repository checkout does not currently have a hard transfer/working-tree byte quota. Persistent experiment outputs likewise are not a hard filesystem quota; less-trusted runs can instead use `--output-backend ephemeral` for a host-budgeted disposable tmpfs.
-- Dependency/image builds still interact with the Docker daemon before the non-root research-runtime boundary; hostile builds require a disposable VM, rootless builder, or equivalent infrastructure.
-- A small seed ReproBench suite is evidence of the tested cases only; it is not a claim of arbitrary-paper zero-config reproduction.
+- Automatic PDF Figure/Table crop-to-output matching is incomplete.
+- Environment reconstruction cannot make unavailable or underspecified upstream dependencies reproducible.
+- NVIDIA/CUDA hardware execution is not yet release-certified on a matching NVIDIA-capable trusted runner.
+- Repository checkout does not currently have a hard transfer/working-tree byte quota.
+- Persistent experiment output has no portable hard filesystem quota; `--output-backend ephemeral` is available for less-trusted writers.
+- Dependency/image builds interact with the Docker daemon before the final non-root research-runtime boundary; hostile builds require stronger isolation.
+- Current ReproBench evidence demonstrates its pinned seed cases only.
 
-## Project documents
+## Documentation
 
-- `docs/ARCHITECTURE.md`
-- `docs/TRUST_MODEL.md`
-- `docs/REPROBENCH.md`
-- `docs/REAL_PAPER_SMOKE.md`
-- `docs/DATASETS.md`
-- `docs/MODEL_ARTIFACTS.md`
-- `docs/OUTPUTS.md`
-- `docs/GETTING_STARTED.md`
-- `docs/LITELLM.md`
-- `docs/SCHEMAS.md`
-- `docs/PUBLISHING.md`
-- `ROADMAP.md`
-- `CONTRIBUTING.md`
-- `SECURITY.md`
+- [Getting started](docs/GETTING_STARTED.md)
+- [Canonical identity](docs/CANONICAL_IDENTITY.md)
+- [Release evidence](docs/EVIDENCE.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Trust model](docs/TRUST_MODEL.md)
+- [Real-paper smoke](docs/REAL_PAPER_SMOKE.md)
+- [ReproBench](docs/REPROBENCH.md)
+- [Datasets](docs/DATASETS.md)
+- [Model artifacts](docs/MODEL_ARTIFACTS.md)
+- [Outputs](docs/OUTPUTS.md)
+- [LiteLLM](docs/LITELLM.md)
+- [Schemas](docs/SCHEMAS.md)
+- [Publishing](docs/PUBLISHING.md)
+- [Roadmap](ROADMAP.md)
+- [Contributing](CONTRIBUTING.md)
+- [Support](SUPPORT.md)
+- [Security](SECURITY.md)
 
 ## License
 
-Apache-2.0. See `LICENSE`.
+Apache-2.0. See [LICENSE](LICENSE).
 
-For academic use, see `CITATION.cff`.
+For academic use, see [CITATION.cff](CITATION.cff).

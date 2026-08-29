@@ -1,5 +1,9 @@
 # Security policy
 
+## Supported versions
+
+VeriRepro is pre-1.0. Security fixes target the latest published 0.x release and current `main`; older 0.x lines are not maintained unless explicitly stated. Until `0.8.0` is published, reports should be evaluated against the current 0.8.0 release candidate / `main`.
+
 Do not place API keys, private paper contents, private repository URLs, unpublished datasets, or credentials in public issues or logs.
 
 VeriRepro processes untrusted remote paper URLs, PDFs, model output, third-party repositories, host-side dataset URLs, build output, and experiment output. Current controls include:
@@ -39,19 +43,21 @@ A repository cannot self-enable experiment networking or GPU access merely by co
 
 The non-root/read-only runtime applies to the final research-code container. It is not a claim that the Docker daemon, image build, dependency installation, or host process is rootless. `/workspace` and `/tmp` are explicit bounded tmpfs overlays, `/datasets` and `/models` are read-only, and `/repro-output` is either the persistent run-scoped bind or an operator-selected bounded ephemeral tmpfs.
 
-## Public pull requests and validation isolation
+## Public pull requests and CI isolation
 
-This repository intentionally ships without GitHub Actions workflows. Unit tests, release-tree validation, wheel/sdist construction, Twine checks, and clean-wheel installation run manually on a trusted machine via the documented release preflight. No automated validation executes repository code on maintainer hardware, and no secrets are exposed to any automated pipeline.
+External/fork pull requests run only on **GitHub-hosted ephemeral runners** with read-only repository permissions and no repository secrets. VeriRepro never executes contributor-controlled source on maintainer-owned or persistent infrastructure, and no workflow may use `pull_request_target` for contributor execution.
 
-Ordinary contribution validation does not require current trusted benchmark evidence or a matching release source fingerprint. A source-changing contribution is expected to differ from the previous release evidence until a maintainer produces fresh trusted evidence. Final `--require-release-evidence` and `release_source_check.py` gates are therefore enforced manually by the maintainer in the release path.
+Do not execute external fork pull-request code on persistent or self-hosted runners. Approval of a GitHub pull request is not itself a sandbox boundary. Maintainers must first review the diff, dependency/workflow changes, and authority expansion; accepted changes are merged through the protected maintainer flow, then the exact canonical `main` SHA is certified by the public GitHub-hosted `VeriRepro validation` workflow.
 
-Networked or credentialed measurement is separate. Real-paper discovery and LiteLLM smoke tests run only on trusted infrastructure controlled by the maintainer; untrusted pull-request code is never executed there.
+A source-changing contribution is expected to differ from the previous release evidence. Final `--require-release-evidence` and `release_source_check.py` gates are maintainer release responsibilities: the GitHub-hosted validation lane produces fresh source-bound discovery/planning/ReproBench evidence from canonical `main`, with raw run logs kept transient and only sanitized evidence artifacts published.
 
-Maintainer release validation keeps uploaded evidence deliberately narrow: release-promotable discovery/planning JSON plus the ReproBench manifest, summary, and sanitized result JSON. Temporary PDFs, cloned third-party repositories, experiment workspaces, provider prompts/responses, credentials, and raw logs remain transient state and are not redistributed as release evidence.
+Networked or credentialed integration workflows remain separate. Real-paper discovery and LiteLLM smoke tests are maintainer-dispatched on trusted integration infrastructure; external fork pull requests cannot invoke those workflows.
 
-Before fresh evidence is promoted, the maintainer runs `scripts/release_source_check.py` on the exact release commit; that final integrity gate is expected to fail rather than silently accepting stale measurements.
+Maintainer release validation keeps promoted evidence deliberately narrow: release-promotable discovery/planning JSON plus the ReproBench manifest, summary, and sanitized result JSON. Temporary PDFs, cloned third-party repositories, experiment workspaces, provider prompts/responses, credentials, and raw logs remain transient state and are not redistributed as release evidence.
 
-If GitHub Actions workflows are restored in the future, they must remain fork-safe: no self-hosted runners for untrusted pull-request code, no repository secrets in public CI, and persisted credentials disabled at checkout. The release-tree checker and regression tests enforce these boundaries.
+The PyPI publish workflow is a separate release-delivery boundary, not a contribution CI lane. It is triggered only by a published GitHub Release, uses the protected `pypi` environment and OIDC, and never receives pull-request events. The official PyPA publishing action is kept isolated from source validation authority.
+
+The release-tree checker and regression tests enforce the review-only contribution boundary, reject `pull_request_target`, reject reintroduction of the legacy hosted `ci.yml`, and prevent non-publish workflows from silently depending on GitHub-hosted runners.
 
 ## Important residual risks
 

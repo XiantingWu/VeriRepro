@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # During the 0.x public beta, major dependency changes are deliberate
+    # release work because pyproject.toml is part of the certified source
+    # identity. Minor/patch version updates remain enabled; Dependabot security
+    # updates are independent of this version-update filter.
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # Workflow bytes are release-fingerprinted. Review major Action runtime
+    # migrations as an explicit release change instead of allowing them to
+    # accumulate as launch-time noise.
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

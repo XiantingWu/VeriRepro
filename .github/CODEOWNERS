@@ -1,0 +1,14 @@
+# Default maintainer ownership
+* @XiantingWu
+
+# Security, trust, execution, and release boundaries
+/SECURITY.md @XiantingWu
+/docs/TRUST_MODEL.md @XiantingWu
+/docs/PUBLISHING.md @XiantingWu
+/.github/workflows/ @XiantingWu
+/scripts/release_check.py @XiantingWu
+/scripts/release_checks/ @XiantingWu
+/scripts/release_source_check.py @XiantingWu
+/scripts/launch_surface_check.py @XiantingWu
+/src/reproagent/ @XiantingWu
+/src/verirepro/ @XiantingWu

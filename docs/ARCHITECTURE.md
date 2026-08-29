@@ -115,10 +115,30 @@ LiteLLM credentials remain host-side and are not injected into experiment contai
 
 See `SCHEMAS.md`, `REPROBENCH.md`, and `TRUST_MODEL.md` for compatibility and trust details.
 
+## Release-check boundaries
+
+`scripts/release_check.py` is a thin aggregator. Each gate lives in an independently testable module under `scripts/release_checks/`:
+
+- `common.py`: shared file inventory, safe path handling, command-gate helpers.
+- `package_surface.py`: distribution metadata, version alignment across namespaces, canonical repository URLs.
+- `security_surface.py`: trust-boundary declarations in `SECURITY.md`, private advisory routing, historical-incubator rejection.
+- `workflow_surface.py`: workflow trigger/runner-label contracts, review-only fork isolation, action pinning, publish-workflow safety.
+- `benchmark_surface.py`: smoke corpus and release-evidence structure checks.
+
+Every check appends human-readable errors and fails closed: any error fails the entire release check, and missing files are failures rather than skips. The layers are exercised directly by `tests/test_release_check_layers.py`.
+
+## Release evidence lifecycle
+
+1. A maintainer cuts a read-only `validation/**` branch from the exact hardening SHA intended for certification; the branch is never modified after validation starts.
+2. The trusted GitHub-hosted `VeriRepro validation` workflow measures coverage, executes discovery/environment-planning/ReproBench gates, and stamps all measurements with the exact source SHA (`SOURCE_SHA`) via `scripts/stamp_release_measurement.py`.
+3. Evidence is sanitized (no host paths, credentials, prompts, or raw workspaces), hashed (`evidence.sha256`), and written back by a separate minimal job that executes no project code.
+4. `scripts/release_source_check.py` re-verifies that the certified source tree matches the fingerprint recorded in the evidence; `python scripts/release_check.py --require-release-evidence` enforces presence and structure at publish time.
+5. If runtime code, release scripts, or workflow policy change after certification, existing evidence is stale and must be regenerated from a new exact-head validation branch.
+
 ## Package and integration boundaries
 
 The standalone package exposes the `verirepro` namespace and compatibility `reproagent` aliases during the 0.x series. Runtime code does not depend on unpublished sibling-project source trees.
 
 Cross-project benchmark or agent integration uses versioned JSON, CLI/process boundaries, report schemas, or published packages instead of hidden relative imports.
 
-Ordinary external pull-request CI runs on GitHub-hosted ephemeral workers with read-only permissions and no repository secrets. Trusted benchmark evidence and source-fingerprint checks are maintainer release gates and are enforced again by the publication workflow.
+External/fork pull requests run only on GitHub-hosted ephemeral runners with read-only permissions and no secrets. Maintainers review the diff and merge through the protected `main` flow; the exact canonical `main` SHA is then certified by the public GitHub-hosted `VeriRepro validation` workflow. Final trusted benchmark evidence and source-fingerprint checks remain release gates and are enforced again before publication.
