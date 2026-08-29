@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  quality-py311:
+    name: Quality (Python 3.11)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install
+        run: |
+          set -euo pipefail
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"
+          python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
+          python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
+      - name: Ruff check
+        run: ruff check .
+      - name: Ruff format
+        run: ruff format --check .
+      - name: mypy
+        run: mypy
+      - name: Tests with branch coverage
+        run: |
+          python -m pytest -q --cov=reproagent --cov=verirepro --cov-branch --cov-report=json
+      - name: Coverage gate
+        run: python scripts/coverage_gate.py coverage.json --min-statement 85 --min-branch 75
+      - name: History scan
+        run: python scripts/history_scan.py --ref HEAD
+      - name: Release check
+        run: python scripts/release_check.py
+      - name: Launch surface
+        run: python scripts/launch_surface_check.py
+      - name: Build distributions
+        run: |
+          rm -rf dist build
+          python -m build
+          python -m twine check dist/*
+      - name: Clean-wheel verification
+        run: |
+          set -euo pipefail
+          CHECK_VENV="$RUNNER_TEMP/verirepro-ci-wheel-${GITHUB_RUN_ID}"
+          rm -rf "$CHECK_VENV"
+          trap 'rm -rf "$CHECK_VENV"' EXIT
+          python -m venv "$CHECK_VENV"
+          "$CHECK_VENV/bin/python" -m pip install 'pip==26.2.1'
+          WHEEL="$(find dist -maxdepth 1 -type f -name 'verirepro-*.whl' -print -quit)"
+          "$CHECK_VENV/bin/python" -m pip install "$WHEEL"
+          "$CHECK_VENV/bin/python" -m pip check
+          "$CHECK_VENV/bin/verirepro" --version
+          "$CHECK_VENV/bin/python" -m verirepro --version
+      - name: CLI surface
+        run: |
+          verirepro --version
+          python -m verirepro --version
+          verirepro-reprobench --help >/dev/null
+          verirepro-reprobench-summary --help >/dev/null
+          verirepro doctor --json >/dev/null
+
+  compatibility-py312:
+    name: Compatibility (Python 3.12)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Full pytest suite
+        run: python -m pytest -q
+      - name: Import and CLI surface
+        run: |
+          python -c 'import verirepro, reproagent'
+          verirepro --version
+          python -m verirepro --version
+
+  compatibility-py313:
+    name: Compatibility (Python 3.13)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install
+        run: python -m pip install -e '.[dev]'
+      - name: Full pytest suite
+        run: python -m pytest -q
+      - name: Import and CLI surface
+        run: |
+          python -c 'import verirepro, reproagent'
+          verirepro --version
+          python -m verirepro --version
