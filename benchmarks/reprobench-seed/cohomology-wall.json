@@ -3,5 +3,7 @@
   "task_id": "cohomology-wall-smoke-v1",
   "domain": "computational-algebraic-geometry",
   "paper": "https://raw.githubusercontent.com/smaniches/cohomology-wall/a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704/paper/tetraquadric_cohomology_wall.pdf",
-  "expected_artifacts": []
+  "expected_artifacts": [
+    "verification_table.csv"
+  ]
 }

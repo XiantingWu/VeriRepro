@@ -70,3 +70,35 @@ metrics:
     )
     with pytest.raises(ValueError, match="metric paper value must be a finite number"):
         config.load_manifest(path, trust_scientific_contract=True)
+
+
+def test_manifest_table_columns_are_bounded_and_table_only(tmp_path: Path) -> None:
+    path = _manifest(
+        tmp_path,
+        """version: 1
+artifacts:
+  - name: figure
+    kind: file
+    reference: ref.bin
+    reproduced: out.bin
+    columns: [accuracy]
+""",
+    )
+    with pytest.raises(ValueError, match="supported only for table"):
+        config.load_manifest(path, trust_scientific_contract=True)
+
+
+def test_manifest_accepts_unique_table_column_projection(tmp_path: Path) -> None:
+    path = _manifest(
+        tmp_path,
+        """version: 1
+artifacts:
+  - name: table
+    kind: table
+    reference: paper.csv
+    reproduced: result.csv
+    columns: [a1, meas_rank]
+""",
+    )
+    manifest = config.load_manifest(path, trust_scientific_contract=True)
+    assert manifest.artifacts[0].columns == ("a1", "meas_rank")
