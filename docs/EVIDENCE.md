@@ -20,12 +20,12 @@ These identifiers do **not** match the current Xianting `main`. They are histori
 
 ## Current Xianting-native certification
 
-- Certified source: **pending** (fresh certification is produced after the public CI/release control plane is stable)
-- Release-source SHA-256: **pending**
-- Validation run: **pending**
-- Evidence commit: **pending**
+- Certified source: `84fcc6f24610d13124fc204055166b2b069c8297`
+- Release-source SHA-256: `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2`
+- Validation run: GitHub-hosted `VeriRepro validation` run `33276158764`
+- Evidence commit: `027fe3c`
 
-Until a fresh certification run completes, do not cite `32523314161`, `16044bec…`, or `e25cacde…` as current certification.
+Discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures — all produced on GitHub-hosted `ubuntu-latest` at the exact certified source. The historical/imported identifiers above are superseded by this certification.
 
 ## Scientific limits
 

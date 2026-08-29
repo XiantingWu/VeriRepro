@@ -91,11 +91,13 @@ The current `0.8.0` release-candidate source is being certified on **GitHub-host
 | --- | --- |
 | Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
 | Tests / coverage | 747 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
-| Release-source commit / SHA-256 | pending fresh Xianting-native certification |
-| Real-paper discovery | 15/15 historical imported measurement; re-verified during fresh certification |
-| Environment planning | 3/3 historical imported measurement; re-verified during fresh certification |
-| ReproBench | 1 success / 1 partial / 0 failures historical imported; re-verified during fresh certification |
-| Evidence commit | pending fresh Xianting-native certification |
+| Release-source commit | `84fcc6f24610d13124fc204055166b2b069c8297` |
+| Release-source SHA-256 | `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2` |
+| Validation run | GitHub-hosted `VeriRepro validation` run `33276158764` |
+| Real-paper discovery | 15/15 (found, top-1, evidence anchored) |
+| Environment planning | 3/3 bounded repository plans |
+| ReproBench | 1 success / 1 partial / 0 failures |
+| Evidence commit | `027fe3c` (evidence-only promotion, sole parent certified source) |
 | Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
 
 All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
