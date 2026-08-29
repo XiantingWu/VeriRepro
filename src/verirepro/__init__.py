@@ -1,10 +1,10 @@
-"""Public VeriRepro Python API.
+"""Preferred public Python API for VeriRepro.
 
-The implementation currently lives in :mod:`reproagent` so existing incubator
-users keep working. New code should import from :mod:`verirepro`.
+The implementation remains shared with :mod:`reproagent` during the 0.x
+compatibility window. New integrations should import from :mod:`verirepro`.
 """
 
 from reproagent import ReproductionPlan, build_reproduction_plan, reproduce
-from reproagent import __version__
+from reproagent import __version__ as __version__
 
 __all__ = ["ReproductionPlan", "build_reproduction_plan", "reproduce"]

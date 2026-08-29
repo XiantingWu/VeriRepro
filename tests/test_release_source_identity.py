@@ -19,6 +19,11 @@ def _load_checker(project_root: Path):
 def _release_tree(root: Path) -> Path:
     files = {
         "pyproject.toml": '[project]\nname = "verirepro"\nversion = "0.7.0"\n',
+        "constraints/certification.txt": "packaging==26.3\n",
+        "certification/public-manager-policy.json": "{}\n",
+        "scripts/certification_environment_check.py": "pass\n",
+        "scripts/coverage_gate.py": "MIN_STATEMENT = 85\nMIN_BRANCH = 75\n",
+        "scripts/history_scan.py": "pass\n",
         "scripts/launch_surface_check.py": "pass\n",
         "scripts/release_check.py": "pass\n",
         "scripts/release_source_check.py": "pass\n",
@@ -26,10 +31,15 @@ def _release_tree(root: Path) -> Path:
         "scripts/run_real_paper_smoke.py": "pass\n",
         "scripts/stamp_release_measurement.py": "pass\n",
         "scripts/run_reprobench_seed.py": "pass\n",
-        ".github/workflows/ci.yml": "name: CI\n",
+        "scripts/release_checks/policy.py": "VALUE = 1\n",
+        ".github/workflows/quality.yml": "name: Quality\n",
+        ".github/workflows/validation.yml": "name: VeriRepro validation\n",
+        ".github/workflows/litellm-smoke.yml": "name: LiteLLM\n",
+        ".github/workflows/real-paper-smoke.yml": "name: Real paper\n",
         ".github/workflows/publish.yml": "name: Publish\n",
         "src/reproagent/a.py": "VALUE = 1\n",
         "src/verirepro/b.py": "VALUE = 2\n",
+        "src/verirepro/py.typed": "",
     }
     for relative, content in files.items():
         path = root / relative
@@ -38,9 +48,13 @@ def _release_tree(root: Path) -> Path:
     return root
 
 
-def _identity(run_id: str = "12345", head_sha: str = "a" * 40) -> dict[str, str]:
+def _identity(
+    run_id: str = "12345",
+    head_sha: str = "a" * 40,
+    workflow: str = "VeriRepro validation",
+) -> dict[str, str]:
     return {
-        "workflow": "VeriRepro validation",
+        "workflow": workflow,
         "github_actions_run_id": run_id,
         "head_sha": head_sha,
     }
@@ -92,6 +106,19 @@ def _write_evidence(
         ),
         encoding="utf-8",
     )
+    (front_dir / "certification-environment-0.7.0.json").write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "constraints_sha256": __import__("hashlib")
+                .sha256((root / "constraints/certification.txt").read_bytes())
+                .hexdigest(),
+                "release_source_sha256": source_digest,
+                "provenance": reprobench_identity,
+            }
+        ),
+        encoding="utf-8",
+    )
 
 
 def test_release_source_checker_accepts_one_exact_trusted_identity(tmp_path: Path) -> None:
@@ -102,6 +129,23 @@ def test_release_source_checker_accepts_one_exact_trusted_identity(tmp_path: Pat
     _write_evidence(root, source_digest=digest)
 
     assert checker.check_release_source(root) == []
+
+
+def test_release_source_checker_rejects_private_manager_identity(tmp_path: Path) -> None:
+    project_root = Path(__file__).parents[1]
+    checker = _load_checker(project_root)
+    root = _release_tree(tmp_path / "release")
+    digest = release_source_sha256(root)
+    identity = _identity(workflow="VeriRepro private manager certification")
+    _write_evidence(
+        root,
+        source_digest=digest,
+        discovery_identity=identity,
+        planning_identity=identity,
+        reprobench_identity=identity,
+    )
+
+    assert checker.check_release_source(root) != []
 
 
 def test_release_source_checker_rejects_mixed_front_half_runs(tmp_path: Path) -> None:
@@ -148,3 +192,63 @@ def test_release_source_checker_rejects_promotion_relabel(tmp_path: Path) -> Non
 
     errors = checker.check_release_source(root)
     assert any("promotion provenance must match" in item for item in errors)
+
+
+def test_release_source_fingerprint_includes_layered_release_policy(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    policy = root / "scripts/release_checks/policy.py"
+    policy.write_text("VALUE = 2\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first != second
+
+
+def test_release_source_fingerprint_includes_coverage_gate(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    coverage_gate = root / "scripts/coverage_gate.py"
+    coverage_gate.write_text("MIN_STATEMENT = 86\nMIN_BRANCH = 75\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first != second
+
+
+def test_release_source_fingerprint_includes_public_typing_marker(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    marker = root / "src/verirepro/py.typed"
+    marker.write_text("typed-contract-changed\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first != second
+
+
+def test_legacy_hosted_ci_is_not_part_of_release_source_identity(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    legacy = root / ".github/workflows/ci.yml"
+    legacy.write_text("name: forbidden hosted CI\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first == second
+
+
+def test_release_source_fingerprint_includes_certification_constraints(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    constraints = root / "constraints/certification.txt"
+    constraints.write_text("packaging==26.2\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first != second
+
+
+def test_release_source_checker_rejects_certification_environment_drift(tmp_path: Path) -> None:
+    project_root = Path(__file__).parents[1]
+    checker = _load_checker(project_root)
+    root = _release_tree(tmp_path / "release")
+    digest = release_source_sha256(root)
+    _write_evidence(root, source_digest=digest)
+    environment = root / "benchmarks/certification-environment-0.7.0.json"
+    payload = json.loads(environment.read_text(encoding="utf-8"))
+    payload["release_source_sha256"] = "0" * 64
+    environment.write_text(json.dumps(payload), encoding="utf-8")
+
+    errors = checker.check_release_source(root)
+    assert any("certification-environment evidence" in item for item in errors)

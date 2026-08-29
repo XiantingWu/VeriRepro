@@ -207,9 +207,7 @@ def run_seed_suite(suite_path: Path, output_dir: Path) -> dict[str, Any]:
         task_ids.add(task.task_id)
 
         repository = _bounded_string(raw_case.get("repository"), "repository", 4096)
-        repository_ref = _optional_repository_ref(
-            raw_case, require_pinned=canonical_suite
-        )
+        repository_ref = _optional_repository_ref(raw_case, require_pinned=canonical_suite)
         command = _bounded_string(raw_case.get("command"), "command", 1000)
         use_llm = _bool(raw_case, "use_llm")
         allow_network = _bool(raw_case, "allow_network")

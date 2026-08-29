@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import errno
 import hashlib
-import json
 import ipaddress
+import json
 import os
 import socket
 import stat
@@ -106,7 +106,9 @@ def _reject_symlink_components(path: Path, *, label: str) -> None:
         current = current / part
         try:
             if current.is_symlink():
-                raise DatasetSecurityError(f"{label} must not contain symbolic-link path components")
+                raise DatasetSecurityError(
+                    f"{label} must not contain symbolic-link path components"
+                )
         except OSError as exc:
             raise DatasetSecurityError(f"could not inspect {label} path components") from exc
 
@@ -138,7 +140,9 @@ def _cache_lock(root: Path):
     try:
         descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR | nofollow, 0o600)
     except OSError as exc:
-        raise DatasetSecurityError("dataset cache lock file must be a regular non-symlink file") from exc
+        raise DatasetSecurityError(
+            "dataset cache lock file must be a regular non-symlink file"
+        ) from exc
 
     locked = False
     try:
@@ -152,7 +156,9 @@ def _cache_lock(root: Path):
                 break
             except BlockingIOError:
                 if time.monotonic() >= deadline:
-                    raise DatasetCacheBusyError("dataset cache lock acquisition timed out")
+                    raise DatasetCacheBusyError(
+                        "dataset cache lock acquisition timed out"
+                    ) from None
                 time.sleep(0.05)
             except OSError as exc:
                 raise DatasetSecurityError("dataset cache advisory lock failed") from exc
@@ -470,7 +476,9 @@ def _huggingface_url(spec: DatasetSpec) -> str:
     repo_id = quote(spec.repo_id, safe="/")
     revision = quote(spec.revision or "main", safe="")
     remote_path = quote(spec.path, safe="/")
-    return f"https://huggingface.co/datasets/{repo_id}/resolve/{revision}/{remote_path}?download=true"
+    return (
+        f"https://huggingface.co/datasets/{repo_id}/resolve/{revision}/{remote_path}?download=true"
+    )
 
 
 def _zenodo_url(spec: DatasetSpec) -> str:
@@ -579,7 +587,9 @@ def download_datasets(
         except ValueError as exc:
             raise DatasetSecurityError("dataset destination escaped the dataset root") from exc
         if output.is_symlink():
-            raise DatasetSecurityError(f"dataset destination must not be a symbolic link: {output.name}")
+            raise DatasetSecurityError(
+                f"dataset destination must not be a symbolic link: {output.name}"
+            )
 
         materialization = "downloaded"
         cache_status = "disabled" if cache_root is None else "uncacheable_unpinned"
@@ -589,7 +599,9 @@ def download_datasets(
         if expected and _existing_is_valid(output, spec):
             size = output.stat().st_size
             if size > effective_limit:
-                raise DatasetSecurityError("existing verified dataset exceeds effective host byte limit")
+                raise DatasetSecurityError(
+                    "existing verified dataset exceeds effective host byte limit"
+                )
             observed = expected
             materialization = "existing_verified"
             cache_status = "not_checked_existing" if cache_root is not None else "disabled"
@@ -598,7 +610,9 @@ def download_datasets(
             try:
                 temporary.resolve(strict=False).relative_to(destination_root)
             except ValueError as exc:
-                raise DatasetSecurityError("dataset temporary path escaped the dataset root") from exc
+                raise DatasetSecurityError(
+                    "dataset temporary path escaped the dataset root"
+                ) from exc
             if temporary.is_symlink():
                 raise DatasetSecurityError(
                     f"dataset temporary path must not be a symbolic link: {temporary.name}"
@@ -664,7 +678,7 @@ def download_datasets(
                             digest.update(chunk)
                     observed = digest.hexdigest().lower()
                     if expected and observed != expected:
-                        raise RuntimeError(f"SHA-256 mismatch for dataset {spec.name}")
+                        raise DatasetSecurityError(f"SHA-256 mismatch for dataset {spec.name}")
                     temporary.replace(output)
                     size = total
                 except Exception:

@@ -3,8 +3,19 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
+TRUSTED_CERTIFICATION_WORKFLOWS = frozenset(
+    {
+        "VeriRepro validation",
+    }
+)
+
 _RELEASE_SOURCE_FILES = (
     "pyproject.toml",
+    "constraints/certification.txt",
+    "certification/public-manager-policy.json",
+    "scripts/certification_environment_check.py",
+    "scripts/coverage_gate.py",
+    "scripts/history_scan.py",
     "scripts/launch_surface_check.py",
     "scripts/release_check.py",
     "scripts/release_source_check.py",
@@ -12,8 +23,15 @@ _RELEASE_SOURCE_FILES = (
     "scripts/run_real_paper_smoke.py",
     "scripts/stamp_release_measurement.py",
     "scripts/run_reprobench_seed.py",
+    "src/verirepro/py.typed",
+    ".github/workflows/quality.yml",
+    ".github/workflows/validation.yml",
+    ".github/workflows/litellm-smoke.yml",
+    ".github/workflows/real-paper-smoke.yml",
+    ".github/workflows/publish.yml",
 )
 _RELEASE_SOURCE_GLOBS = (
+    "scripts/release_checks/**/*.py",
     "src/reproagent/**/*.py",
     "src/verirepro/**/*.py",
 )
@@ -38,9 +56,14 @@ def release_source_files(root: Path) -> tuple[Path, ...]:
     Benchmark task/suite bytes are bound separately in ReproBench evidence.
     Documentation is intentionally excluded so evidence can be promoted and
     explanatory text improved without invalidating measured runtime results.
-    Measurement, evidence-promotion, public-launch policy, and final release-policy
-    scripts are part of the fingerprint because changing those semantics
-    invalidates prior measurements even when runtime package bytes are unchanged.
+    Measurement, evidence-promotion, public-launch policy, final release-policy,
+    coverage enforcement, exact maintainer certification dependency constraints,
+    package typing markers, and trusted certification/evidence-production plus
+    publish workflows are part of the
+    fingerprint because changing those semantics invalidates prior measurements
+    even when core runtime Python bytes are unchanged. External pull-request
+    intake is review-only and therefore has no executable CI workflow in the
+    release source set.
     """
 
     root = Path(root).resolve()

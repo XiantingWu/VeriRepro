@@ -36,6 +36,7 @@ def _capture(monkeypatch: pytest.MonkeyPatch, commands: list[list[str]]) -> None
         del kwargs
         commands.append(list(command))
         return _Process()
+
     monkeypatch.setattr(experiment_module.subprocess, "Popen", fake_popen)
 
 
@@ -114,7 +115,9 @@ def test_python_dockerfile_seals_repository_template_after_dependency_install(
     repo = tmp_path / "python-repo"
     repo.mkdir()
     (repo / "requirements.txt").write_text("pytest>=8\n", encoding="utf-8")
-    (repo / "reproduce.py").write_text("open('relative-output.txt','w').write('ok')\n", encoding="utf-8")
+    (repo / "reproduce.py").write_text(
+        "open('relative-output.txt','w').write('ok')\n", encoding="utf-8"
+    )
     profile = inspect_repository(repo)
     dockerfile = generate_dockerfile(profile, repo / "Dockerfile.verirepro", "3.11")
     content = dockerfile.read_text(encoding="utf-8")
@@ -131,8 +134,12 @@ def test_conda_dockerfile_seals_repository_template_after_dependency_install(
 ) -> None:
     repo = tmp_path / "conda-repo"
     repo.mkdir()
-    (repo / "environment.yml").write_text("name: demo\ndependencies:\n  - python=3.11\n", encoding="utf-8")
-    (repo / "reproduce.py").write_text("open('relative-output.txt','w').write('ok')\n", encoding="utf-8")
+    (repo / "environment.yml").write_text(
+        "name: demo\ndependencies:\n  - python=3.11\n", encoding="utf-8"
+    )
+    (repo / "reproduce.py").write_text(
+        "open('relative-output.txt','w').write('ok')\n", encoding="utf-8"
+    )
     profile = inspect_repository(repo)
     dockerfile = generate_dockerfile(profile, repo / "Dockerfile.verirepro", "3.11")
     content = dockerfile.read_text(encoding="utf-8")

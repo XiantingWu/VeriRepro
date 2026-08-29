@@ -3,11 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-
 OUTPUT = Path(
-    os.environ.get("VERIREPRO_OUTPUT_DIR")
-    or os.environ.get("REPROAGENT_OUTPUT_DIR")
-    or "outputs"
+    os.environ.get("VERIREPRO_OUTPUT_DIR") or os.environ.get("REPROAGENT_OUTPUT_DIR") or "outputs"
 )
 OUTPUT.mkdir(parents=True, exist_ok=True)
 

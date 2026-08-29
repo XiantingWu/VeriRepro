@@ -37,7 +37,11 @@ def _terminal_class(status: str) -> str:
         return "abstained"
     if status in {"repository_not_found", "discovery_mismatch"}:
         return "quality_failure"
-    if status in {"paper_analysis_unavailable", "paper_analysis_error", "repository_planning_error"}:
+    if status in {
+        "paper_analysis_unavailable",
+        "paper_analysis_error",
+        "repository_planning_error",
+    }:
         return "model_failure"
     if status == "infrastructure_or_pipeline_error":
         return "infrastructure_or_pipeline_failure"

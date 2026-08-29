@@ -122,18 +122,27 @@ def _resolve_python(requirement: str | None, requested: str) -> tuple[str, str, 
                 f"Could not fully parse Python requirement {requirement!r}; using {match.group(0)}."
             )
             return match.group(0), "repository-heuristic", warnings
-        warnings.append(f"Could not parse supported Python requirement {requirement!r}; using 3.11.")
+        warnings.append(
+            f"Could not parse supported Python requirement {requirement!r}; using 3.11."
+        )
         return "3.11", "verirepro-default", warnings
 
     for candidate in _SUPPORTED_PYTHON_MINORS:
         if Version(candidate) in specifier:
             return candidate, "repository-specifier", warnings
-    warnings.append(f"No supported Python 3.8-3.13 minor matches {requirement!r}; using 3.11 for planning.")
+    warnings.append(
+        f"No supported Python 3.8-3.13 minor matches {requirement!r}; using 3.11 for planning."
+    )
     return "3.11", "verirepro-default", warnings
 
 
 def _reproducibility_grade(profile: RepositoryProfile) -> str:
-    if profile.commit_sha and profile.dependency_strategy in {"uv", "poetry", "conda-lock", "pipenv-lock"}:
+    if profile.commit_sha and profile.dependency_strategy in {
+        "uv",
+        "poetry",
+        "conda-lock",
+        "pipenv-lock",
+    }:
         return "strong"
     if profile.commit_sha and profile.dependency_strategy == "requirements":
         if not any("unpinned" in warning.lower() for warning in profile.warnings):
@@ -145,7 +154,9 @@ def _reproducibility_grade(profile: RepositoryProfile) -> str:
 
 
 def plan_environment(profile: RepositoryProfile, requested_python: str = "auto") -> EnvironmentPlan:
-    python_version, source, resolution_warnings = _resolve_python(profile.python_requirement, requested_python)
+    python_version, source, resolution_warnings = _resolve_python(
+        profile.python_requirement, requested_python
+    )
     warnings = list(profile.warnings)
     warnings.extend(resolution_warnings)
     if profile.cuda_hints:
@@ -197,7 +208,10 @@ def generate_dockerfile(
             fallback_packages.append("scipy")
         if "PyTorch" in profile.stacks:
             fallback_packages.append("torch")
-    if profile.dependency_strategy not in {"uv", "poetry", "conda-lock", "pipenv-lock"} and "Jupyter" in profile.stacks:
+    if (
+        profile.dependency_strategy not in {"uv", "poetry", "conda-lock", "pipenv-lock"}
+        and "Jupyter" in profile.stacks
+    ):
         fallback_packages.extend(["jupyter", "nbconvert"])
 
     fallback_line = ""
@@ -212,11 +226,19 @@ def generate_dockerfile(
 
     if profile.dependency_strategy in {"conda-lock", "conda"}:
         lock_name = next(
-            (name for name in ("conda-lock.yml", "conda-lock.yaml") if name in profile.dependency_files),
+            (
+                name
+                for name in ("conda-lock.yml", "conda-lock.yaml")
+                if name in profile.dependency_files
+            ),
             None,
         )
         environment_name = next(
-            (name for name in ("environment.yml", "environment.yaml") if name in profile.dependency_files),
+            (
+                name
+                for name in ("environment.yml", "environment.yaml")
+                if name in profile.dependency_files
+            ),
             None,
         )
         runtime_env = "base"
@@ -233,9 +255,7 @@ def generate_dockerfile(
                 f"--name {runtime_env} /workspace/{lock_name} && micromamba clean --all --yes\n"
             )
             tool_cleanup = (
-                "USER root\n"
-                "RUN rm -rf /opt/verirepro-conda-lock-tool\n"
-                "USER $MAMBA_USER\n"
+                "USER root\nRUN rm -rf /opt/verirepro-conda-lock-tool\nUSER $MAMBA_USER\n"
             )
         else:
             if environment_name is None:
@@ -289,8 +309,7 @@ USER $MAMBA_USER
             )
         else:
             pipenv_install = (
-                "PIPENV_DONT_LOAD_ENV=1 PIPENV_NOSPIN=1 "
-                "pipenv install --system --skip-lock"
+                "PIPENV_DONT_LOAD_ENV=1 PIPENV_NOSPIN=1 pipenv install --system --skip-lock"
             )
         dependency_install = (
             f"RUN python -m pip install pipenv=={pipenv_version} && "
@@ -475,14 +494,17 @@ def _ensure_base_image_available(dockerfile: Path, timeout: int) -> None:
     if not base_image:
         return
 
-    inspect = subprocess.run(
-        ["docker", "image", "inspect", base_image],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-        timeout=min(15, timeout),
-        check=False,
-    )
-    if inspect.returncode == 0:
+    try:
+        inspect = subprocess.run(
+            ["docker", "image", "inspect", base_image],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=min(15, timeout),
+            check=False,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        inspect = None
+    if inspect is not None and inspect.returncode == 0:
         return
 
     pull_timeout = min(120, max(15, timeout // 4))
@@ -494,13 +516,19 @@ def _ensure_base_image_available(dockerfile: Path, timeout: int) -> None:
     if mirror_image:
         acquired, mirror_error = _pull_image(mirror_image, pull_timeout)
         if acquired:
-            tag = subprocess.run(
-                ["docker", "tag", mirror_image, base_image],
-                capture_output=True,
-                text=True,
-                timeout=min(30, timeout),
-                check=False,
-            )
+            try:
+                tag = subprocess.run(
+                    ["docker", "tag", mirror_image, base_image],
+                    capture_output=True,
+                    text=True,
+                    timeout=min(30, timeout),
+                    check=False,
+                )
+            except (subprocess.TimeoutExpired, OSError) as exc:
+                raise DockerBuildError(
+                    f"Docker base image {base_image!r} was acquired from {mirror_image!r} "
+                    f"but could not be retagged: {exc}"
+                ) from exc
             if tag.returncode == 0:
                 return
             tail = _build_output_tail(tag.stdout, tag.stderr)
@@ -513,7 +541,9 @@ def _ensure_base_image_available(dockerfile: Path, timeout: int) -> None:
             f"or its public mirror {mirror_image!r} ({mirror_error})"
         )
 
-    raise DockerBuildError(f"Docker base image {base_image!r} could not be acquired: {canonical_error}")
+    raise DockerBuildError(
+        f"Docker base image {base_image!r} could not be acquired: {canonical_error}"
+    )
 
 
 def build_image(repo: Path, dockerfile: Path, tag: str, timeout: int = 1800) -> None:

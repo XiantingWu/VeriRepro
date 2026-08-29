@@ -6,8 +6,9 @@ import json
 import math
 import statistics
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from .reprobench_adapter import REPROBENCH_RESULT_SCHEMA_VERSION, REPROBENCH_TASK_SCHEMA_VERSION
 
@@ -250,19 +251,13 @@ def _expected_artifact_totals(results: list[dict[str, Any]]) -> dict[str, Any]:
         if declared is None and present is None and missing is None:
             continue
         declared_list = _string_list(declared, "measurements.expected_artifacts", unique=True)
-        present_list = _string_list(
-            present, "measurements.expected_artifacts_found", unique=True
-        )
-        missing_list = _string_list(
-            missing, "measurements.expected_artifacts_missing", unique=True
-        )
+        present_list = _string_list(present, "measurements.expected_artifacts_found", unique=True)
+        missing_list = _string_list(missing, "measurements.expected_artifacts_missing", unique=True)
         declared_set = set(declared_list)
         present_set = set(present_list)
         missing_set = set(missing_list)
         if present_set & missing_set:
-            raise ReproBenchSummaryError(
-                "expected artifacts cannot be both found and missing"
-            )
+            raise ReproBenchSummaryError("expected artifacts cannot be both found and missing")
         if present_set | missing_set != declared_set:
             raise ReproBenchSummaryError(
                 "expected artifact accounting must exactly partition declared artifacts into found/missing"
@@ -285,9 +280,7 @@ def _model_usage_totals(results: list[dict[str, Any]]) -> dict[str, Any]:
         measurements = item.get("measurements") or {}
         cost = measurements.get("model_cost_usd")
         if cost is not None:
-            costs.append(
-                _finite_number(cost, "measurements.model_cost_usd", minimum=0.0)
-            )
+            costs.append(_finite_number(cost, "measurements.model_cost_usd", minimum=0.0))
 
         usage = measurements.get("token_usage")
         if usage is None:
@@ -320,11 +313,7 @@ def _model_usage_totals(results: list[dict[str, Any]]) -> dict[str, Any]:
         "cases_with_token_usage": len(token_snapshots),
     }
     for key in _MODEL_USAGE_INTEGER_FIELDS:
-        values = [
-            value
-            for usage in token_snapshots
-            if isinstance((value := usage.get(key)), int)
-        ]
+        values = [value for usage in token_snapshots if isinstance((value := usage.get(key)), int)]
         totals[key] = sum(values) if values else None
     durations = [
         float(value)
@@ -418,9 +407,7 @@ def summarize_reprobench_results(paths: Iterable[Path]) -> dict[str, Any]:
 
 def write_reprobench_summary(payload: dict[str, Any], destination: Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(
-        json.dumps(payload, indent=2, allow_nan=False) + "\n", encoding="utf-8"
-    )
+    destination.write_text(json.dumps(payload, indent=2, allow_nan=False) + "\n", encoding="utf-8")
     return destination
 
 

@@ -1,0 +1,50 @@
+# VeriRepro maintainer certification constraints.
+#
+# User installations continue to follow the compatible ranges in pyproject.toml.
+# Snapshot is reviewed release policy, not an end-user dependency lock.
+# Trusted Quality/Validation/Publish lanes resolve against this exact snapshot so
+# release evidence is bound to both source bytes and the certification toolchain.
+backports-tarfile==1.2.0 ; python_version < "3.12"
+build==1.5.0
+certifi==2026.7.22
+charset-normalizer==3.5.1
+coverage==7.15.4
+docutils==0.23
+hatchling==1.32.0
+id==1.6.1
+idna==3.19
+importlib-metadata==9.0.0 ; python_version < "3.12"
+iniconfig==2.3.0
+jaraco.classes==3.4.0
+jaraco.context==6.1.2
+jaraco.functools==4.6.0
+keyring==25.7.0
+librt==0.15.0
+markdown-it-py==4.2.0
+mdurl==0.1.2
+more-itertools==11.1.0
+mypy==1.20.2
+mypy-extensions==1.1.0
+nh3==0.3.7
+packaging==26.3
+pathspec==1.1.1
+pillow==12.3.0
+pip==26.2.1
+pluggy==1.6.0
+pygments==2.21.0
+pypdf==6.16.2
+pyproject-hooks==1.2.0
+pytest==8.4.2
+pytest-cov==7.1.0
+pyyaml==6.0.3
+readme-renderer==45.0
+requests==2.34.2
+requests-toolbelt==1.0.0
+rfc3986==2.0.0
+rich==15.0.0
+ruff==0.16.4
+trove-classifiers==2026.6.1.19
+twine==6.2.0
+typing-extensions==4.16.0
+urllib3==2.7.0
+zipp==4.1.0 ; python_version < "3.12"

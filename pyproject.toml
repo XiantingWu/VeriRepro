@@ -7,7 +7,7 @@ name = "verirepro"
 version = "0.8.0"
 description = "Evidence-grounded agent for verifiable computational paper reproduction"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 keywords = ["reproducibility", "ai-agent", "research", "arxiv", "scientific-computing", "paper-reproduction"]
@@ -19,6 +19,7 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
   "Topic :: Scientific/Engineering",
   "Topic :: Software Development :: Quality Assurance",
 ]
@@ -33,7 +34,11 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "build>=1.2,<2",
+  "coverage[toml]>=7.6,<8",
+  "mypy>=1.15,<2",
   "pytest>=8.0,<9",
+  "pytest-cov>=6,<8",
+  "ruff>=0.12,<1",
   "twine>=6,<7",
 ]
 
@@ -57,3 +62,37 @@ core-metadata-version = "2.4"
 [tool.hatch.build.targets.wheel]
 core-metadata-version = "2.4"
 packages = ["src/verirepro", "src/reproagent"]
+
+[tool.coverage.run]
+branch = true
+source = ["reproagent", "verirepro"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+precision = 1
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+files = [
+  "src/verirepro",
+  "src/reproagent/pipeline_policy.py",
+  "src/reproagent/pipeline_execution.py",
+  "src/reproagent/pipeline_verification.py",
+  "src/reproagent/pipeline_reporting.py",
+]
+follow_imports = "skip"
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unused_ignores = true

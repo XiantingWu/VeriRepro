@@ -4,10 +4,11 @@ import json
 import math
 import os
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Any, Iterator
+from typing import Any
 
 import requests
 
@@ -38,9 +39,7 @@ def _parse_litellm_timeout(value: str) -> int:
             "LiteLLM timeout must be an integer in [1, 3600] seconds"
         ) from None
     if not _MIN_LITELLM_TIMEOUT <= timeout <= _MAX_LITELLM_TIMEOUT:
-        raise LLMUnavailableError(
-            "LiteLLM timeout must be an integer in [1, 3600] seconds"
-        )
+        raise LLMUnavailableError("LiteLLM timeout must be an integer in [1, 3600] seconds")
     return timeout
 
 
@@ -52,7 +51,7 @@ class LLMConfig:
     timeout: int = 120
 
     @classmethod
-    def from_env(cls, *, model: str | None = None) -> "LLMConfig | None":
+    def from_env(cls, *, model: str | None = None) -> LLMConfig | None:
         veri_base = _first_env("VERIREPRO_LITELLM_BASE_URL")
         legacy_base = _first_env("REPROAGENT_LITELLM_BASE_URL")
         litellm_base = _first_env("LITELLM_BASE_URL")
