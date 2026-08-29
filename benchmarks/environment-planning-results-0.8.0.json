@@ -19,7 +19,7 @@
     "algorithm_found_rate": 1.0,
     "algorithm_top1_rate": 1.0,
     "algorithm_evidence_anchor_rate": 1.0,
-    "mean_discovery_seconds": 2.4566666666666666,
+    "mean_discovery_seconds": 1.9143333333333334,
     "discovery_status": {
       "ok": 3
     },
@@ -76,7 +76,7 @@
           "context": "https://github.com/OpenAI/CLIP"
         }
       ],
-      "discovery_seconds": 3.69,
+      "discovery_seconds": 2.7,
       "top_candidate": "https://github.com/OpenAI/CLIP",
       "candidate_count": 2,
       "candidates": [
@@ -102,7 +102,7 @@
       ],
       "repository_inspection": {
         "status": "planned",
-        "duration_seconds": 1.495,
+        "duration_seconds": 0.667,
         "commit_sha": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
         "python_version": "3.11",
         "python_source": "verirepro-default",
@@ -144,7 +144,7 @@
           "context": "https://github.com/microsoft/LoRA"
         }
       ],
-      "discovery_seconds": 3.323,
+      "discovery_seconds": 2.735,
       "top_candidate": "https://github.com/microsoft/LoRA",
       "candidate_count": 1,
       "candidates": [
@@ -161,7 +161,7 @@
       ],
       "repository_inspection": {
         "status": "planned",
-        "duration_seconds": 4.855,
+        "duration_seconds": 1.369,
         "commit_sha": "c4593f060e6a368d7bb5af5273b8e42810cdef90",
         "python_version": "3.11",
         "python_source": "verirepro-default",
@@ -201,7 +201,7 @@
           "context": "https://github.com/google-research/ALBERT"
         }
       ],
-      "discovery_seconds": 0.357,
+      "discovery_seconds": 0.308,
       "top_candidate": "https://github.com/google-research/ALBERT",
       "candidate_count": 2,
       "candidates": [
@@ -226,7 +226,7 @@
       ],
       "repository_inspection": {
         "status": "planned",
-        "duration_seconds": 1.659,
+        "duration_seconds": 0.395,
         "commit_sha": "b772393d3dae115b493258ce8e37c17b2cc62100",
         "python_version": "3.11",
         "python_source": "verirepro-default",
@@ -247,12 +247,12 @@
   ],
   "measurement_provenance": {
     "workflow": "VeriRepro validation",
-    "github_actions_run_id": "32523314161",
-    "head_sha": "16044bec91ac1e94021c5ceace9700ad673463d8"
+    "github_actions_run_id": "33276158764",
+    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
   },
   "release": "0.8.0",
   "provenance": {
-    "github_actions_run_id": "32523314161",
-    "head_sha": "16044bec91ac1e94021c5ceace9700ad673463d8"
+    "github_actions_run_id": "33276158764",
+    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
   }
 }

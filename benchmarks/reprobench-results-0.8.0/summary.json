@@ -5,29 +5,30 @@
   "inputs": [
     {
       "file": "cohomology-wall-smoke-v1.json",
-      "sha256": "ed499005922d30ba5ddcedc2b242520417ed059e12559bc11256fdcd73826061",
+      "sha256": "b968fb24814797c693244620b93e16652768a3399be270d9cec80decd3dfc3c4",
       "task_id": "cohomology-wall-smoke-v1"
     },
     {
       "file": "governed-individuation-mechanism-v1.json",
-      "sha256": "43e8001e0b2e42126c621626499f715d131096f1e8522eb1919ba9a7f755b4f0",
+      "sha256": "a1ae14109f08a930f0f40b4470a9484bb58522a0475070fbc1e09c24fee350ed",
       "task_id": "governed-individuation-mechanism-v1"
     }
   ],
   "summary": {
     "cases": 2,
     "outcomes": {
-      "partial": 2
+      "partial": 1,
+      "success": 1
     },
-    "success_rate": 0.0,
-    "partial_rate": 1.0,
+    "success_rate": 0.5,
+    "partial_rate": 0.5,
     "failure_rate": 0.0,
     "zero_intervention_cases": 0,
     "zero_intervention_rate": 0.0,
-    "interventions_total": 6,
-    "wall_clock_seconds_total": 83.056718,
-    "wall_clock_seconds_mean": 41.528359,
-    "wall_clock_seconds_median": 41.528359,
+    "interventions_total": 7,
+    "wall_clock_seconds_total": 33.924047,
+    "wall_clock_seconds_mean": 16.962024,
+    "wall_clock_seconds_median": 16.962024,
     "environment_build": {
       "statuses": {
         "passed": 2
@@ -51,16 +52,16 @@
       "pass_rate": null
     },
     "artifact_comparisons": {
-      "tasks_with_comparisons": 0,
-      "comparisons": 0,
-      "passed": 0,
-      "pass_rate": null
+      "tasks_with_comparisons": 1,
+      "comparisons": 1,
+      "passed": 1,
+      "pass_rate": 1.0
     },
     "expected_artifacts": {
-      "tasks_with_expectations": 0,
-      "expected": 0,
-      "found": 0,
-      "found_rate": null
+      "tasks_with_expectations": 1,
+      "expected": 1,
+      "found": 1,
+      "found_rate": 1.0
     },
     "model_usage": {
       "cases_with_cost": 0,
@@ -76,7 +77,7 @@
       "duration_seconds": null
     },
     "failure_taxonomy": {
-      "insufficient_evidence_or_execution": 2
+      "insufficient_evidence_or_execution": 1
     },
     "domains": {
       "agent-governance": {
@@ -89,9 +90,9 @@
       "computational-algebraic-geometry": {
         "cases": 1,
         "outcomes": {
-          "partial": 1
+          "success": 1
         },
-        "success_rate": 0.0
+        "success_rate": 1.0
       }
     },
     "agents": {

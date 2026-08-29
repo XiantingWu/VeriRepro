@@ -2,36 +2,43 @@
   "schema_version": 1,
   "release": "0.8.0",
   "suite": "benchmarks/reprobench-seed-suite.json",
-  "suite_sha256": "c45267a0a0d782b0ff465990cfafb136a86630a0ceccf4f3acf1a555765f75da",
-  "source_tree_sha256": "e25cacde58e3d0dcc56a8e38e23a4f71d1c94b87ee38c29364b7949460c56128",
+  "suite_sha256": "dcddb4e81b760392c8e14945e9fe5f6b23691c5b0342b7451e1661576eef36d6",
+  "source_tree_sha256": "ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2",
   "cases": [
     {
       "task_id": "governed-individuation-mechanism-v1",
       "task_file": "benchmarks/reprobench-seed/governed-individuation.json",
       "task_sha256": "eed91e4725b13fe3e07befb606df212e39d65a609c6aef1cad21045c4a122c04",
       "result_file": "results/governed-individuation-mechanism-v1.json",
-      "result_sha256": "43e8001e0b2e42126c621626499f715d131096f1e8522eb1919ba9a7f755b4f0",
+      "result_sha256": "a1ae14109f08a930f0f40b4470a9484bb58522a0475070fbc1e09c24fee350ed",
       "repository_ref": "010f4d716db5fa0f1defbb2b5f4afa11ab566fe1",
+      "scientific_references": [],
       "gate_passed": true,
       "gate_failures": []
     },
     {
       "task_id": "cohomology-wall-smoke-v1",
       "task_file": "benchmarks/reprobench-seed/cohomology-wall.json",
-      "task_sha256": "381c967dcf0d8c0336d2190e2dbc849691b6ad2dc14458116e43040f1341e7c8",
+      "task_sha256": "7500e6be55b589c22037d04d2a2779e6fb0c5cb79e1c423669665c00d15a5c83",
       "result_file": "results/cohomology-wall-smoke-v1.json",
-      "result_sha256": "ed499005922d30ba5ddcedc2b242520417ed059e12559bc11256fdcd73826061",
+      "result_sha256": "b968fb24814797c693244620b93e16652768a3399be270d9cec80decd3dfc3c4",
       "repository_ref": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
+      "scientific_references": [
+        {
+          "file": "benchmarks/reprobench-reference/cohomology-wall-section7.csv",
+          "sha256": "6dcc2e37da3111db49ada6592e5ec92d76e7ce9d86ee14e57a7a950143ab2588"
+        }
+      ],
       "gate_passed": true,
       "gate_failures": []
     }
   ],
   "summary_file": "summary.json",
-  "summary_sha256": "0bdf9057f7de14ce6d2038ec7d3491d514119c526759aa8285dc8896d0a22711",
+  "summary_sha256": "b3ca4835bc71dbc16627630605a23b203390b5546fc859535e5faa556680dd2b",
   "gate_passed": true,
   "provenance": {
     "workflow": "VeriRepro validation",
-    "github_actions_run_id": "32523314161",
-    "head_sha": "16044bec91ac1e94021c5ceace9700ad673463d8"
+    "github_actions_run_id": "33276158764",
+    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
   }
 }

@@ -6,7 +6,9 @@
     "task_id": "cohomology-wall-smoke-v1",
     "domain": "computational-algebraic-geometry",
     "paper": "https://raw.githubusercontent.com/smaniches/cohomology-wall/a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704/paper/tetraquadric_cohomology_wall.pdf",
-    "expected_artifacts": [],
+    "expected_artifacts": [
+      "verification_table.csv"
+    ],
     "extra_fields": []
   },
   "agent": {
@@ -14,17 +16,18 @@
     "version": "0.8.0",
     "report_schema_version": 1
   },
-  "outcome": "partial",
-  "wall_clock_seconds": 31.579741,
+  "outcome": "success",
+  "wall_clock_seconds": 12.688982,
   "execution_requested": true,
   "operator_interventions": [
     "repository_override",
     "repository_ref_override",
-    "command_override"
+    "command_override",
+    "host_scientific_artifact_contract"
   ],
-  "intervention_count": 3,
+  "intervention_count": 4,
   "measurements": {
-    "verirepro_status": "PARTIAL",
+    "verirepro_status": "PASS",
     "repository": "https://github.com/smaniches/cohomology-wall",
     "environment_plan_success": true,
     "repository_commit": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
@@ -37,20 +40,22 @@
     "grounded_metric_comparisons": 0,
     "grounded_metric_passed": 0,
     "grounded_metric_pass_rate": null,
-    "artifact_comparisons": 0,
-    "artifact_comparisons_passed": 0,
-    "artifact_comparison_pass_rate": null,
-    "output_artifact_count": 0,
-    "expected_artifacts": [],
-    "expected_artifacts_found": [],
+    "artifact_comparisons": 1,
+    "artifact_comparisons_passed": 1,
+    "artifact_comparison_pass_rate": 1.0,
+    "output_artifact_count": 1,
+    "expected_artifacts": [
+      "verification_table.csv"
+    ],
+    "expected_artifacts_found": [
+      "verification_table.csv"
+    ],
     "expected_artifacts_missing": [],
     "expected_artifact_rate": 1.0,
     "model_cost_usd": null,
     "token_usage": null
   },
-  "failure_taxonomy": [
-    "insufficient_evidence_or_execution"
-  ],
+  "failure_taxonomy": [],
   "stages": [
     {
       "name": "Paper resolved",
@@ -74,7 +79,7 @@
     },
     {
       "name": "Scientific contract",
-      "status": "skipped"
+      "status": "passed"
     },
     {
       "name": "Environment planned",
@@ -118,11 +123,11 @@
     },
     {
       "name": "Outputs indexed",
-      "status": "skipped"
+      "status": "passed"
     },
     {
       "name": "Artifacts compared",
-      "status": "skipped"
+      "status": "passed"
     },
     {
       "name": "Results compared",
