@@ -47,7 +47,7 @@ The non-root/read-only runtime applies to the final research-code container. It 
 
 External/fork pull requests run only on **GitHub-hosted ephemeral runners** with read-only repository permissions and no repository secrets. VeriRepro never executes contributor-controlled source on maintainer-owned or persistent infrastructure, and no workflow may use `pull_request_target` for contributor execution.
 
-Do not execute external fork pull-request code on persistent or self-hosted runners. Approval of a GitHub pull request is not itself a sandbox boundary. Maintainers must first review the diff, dependency/workflow changes, and authority expansion; accepted changes are merged through the protected maintainer flow, then the exact canonical `main` SHA is certified by the public GitHub-hosted `VeriRepro validation` workflow.
+Do not execute external fork pull-request code on persistent self-hosted runners. All CI and validation jobs run on GitHub-hosted ephemeral runners only. Approval of a GitHub pull request is not itself a sandbox boundary. Maintainers must first review the diff, dependency/workflow changes, and authority expansion; accepted changes are merged through the protected maintainer flow, then the exact canonical `main` SHA is certified by the public GitHub-hosted `VeriRepro validation` workflow.
 
 A source-changing contribution is expected to differ from the previous release evidence. Final `--require-release-evidence` and `release_source_check.py` gates are maintainer release responsibilities: the GitHub-hosted validation lane produces fresh source-bound discovery/planning/ReproBench evidence from canonical `main`, with raw run logs kept transient and only sanitized evidence artifacts published.
 

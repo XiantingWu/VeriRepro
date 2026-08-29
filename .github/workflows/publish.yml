@@ -1,0 +1,123 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Test, build, and verify distributions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.event.release.target_commitish }}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13'
+      - name: Require release tag to match pyproject version
+        run: |
+          set -euo pipefail
+          VERSION="$(python - <<'PY'
+          import tomllib
+          from pathlib import Path
+          data = tomllib.loads(Path('pyproject.toml').read_text(encoding='utf-8'))
+          print(data['project']['version'])
+          PY
+          )"
+          test "${GITHUB_REF_NAME}" = "v${VERSION}" || {
+            echo "Release tag ${GITHUB_REF_NAME} does not match pyproject version v${VERSION}" >&2
+            exit 2
+          }
+      - name: Require annotated signed tag on canonical main history
+        run: |
+          set -euo pipefail
+          git fetch --force origin main
+          test "$(git cat-file -t "$GITHUB_REF_NAME")" = tag || {
+            echo 'Stable publication requires a pre-created annotated tag.' >&2
+            exit 2
+          }
+          tag_payload="$(git cat-file tag "$GITHUB_REF_NAME")"
+          printf '%s\n' "$tag_payload" | grep -Eq -- '-----BEGIN (PGP|SSH) SIGNATURE-----' || {
+            echo 'Stable publication requires a cryptographically signed tag object.' >&2
+            exit 2
+          }
+          TAG_COMMIT="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
+          HEAD_COMMIT="$(git rev-parse HEAD)"
+          test "$TAG_COMMIT" = "$HEAD_COMMIT" || {
+            echo 'Release checkout does not match the dereferenced tag commit.' >&2
+            exit 2
+          }
+          git merge-base --is-ancestor "$TAG_COMMIT" origin/main || {
+            echo 'Release tag commit is not reachable from canonical main.' >&2
+            exit 2
+          }
+      - name: Run release source and evidence gates
+        run: |
+          set -euo pipefail
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"
+          echo "PIP_CONSTRAINT=$PIP_CONSTRAINT" >> "$GITHUB_ENV"
+          python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
+          python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
+          python scripts/certification_environment_check.py --constraints "$PIP_CONSTRAINT" >/dev/null
+          python -m pytest -q
+          python scripts/history_scan.py --ref origin/main --include-tree HEAD
+          python scripts/launch_surface_check.py
+          python scripts/release_check.py --require-release-evidence
+          python scripts/release_source_check.py
+          verirepro --version
+          python -m verirepro --version
+          verirepro-reprobench --help >/dev/null
+          verirepro-reprobench-summary --help >/dev/null
+      - name: Build and check wheel and sdist
+        run: |
+          set -euo pipefail
+          rm -rf dist build
+          python -m build
+          python -m twine check dist/*
+          test "$(find dist -maxdepth 1 -type f -name '*.whl' | wc -l | tr -d ' ')" = "1"
+          test "$(find dist -maxdepth 1 -type f -name '*.tar.gz' | wc -l | tr -d ' ')" = "1"
+      - name: Install built wheel in an isolated environment
+        run: |
+          set -euo pipefail
+          CHECK_VENV="$RUNNER_TEMP/verirepro-publish-wheel-${GITHUB_RUN_ID}"
+          rm -rf "$CHECK_VENV"
+          trap 'rm -rf "$CHECK_VENV"' EXIT
+          python -m venv "$CHECK_VENV"
+          "$CHECK_VENV/bin/python" -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          WHEEL="$(find dist -maxdepth 1 -type f -name 'verirepro-*.whl' -print -quit)"
+          "$CHECK_VENV/bin/python" -m pip install -c "$PIP_CONSTRAINT" "$WHEEL"
+          "$CHECK_VENV/bin/python" -m pip check
+          "$CHECK_VENV/bin/verirepro" --version
+          "$CHECK_VENV/bin/python" -m verirepro --version
+      - name: Upload distributions
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: verirepro-dist-${{ github.run_id }}
+          path: dist/
+
+  publish:
+    name: Publish to PyPI via Trusted Publishing
+    needs: build
+    if: ${{ github.event.release.prerelease == false }}
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: verirepro-dist-${{ github.run_id }}
+          path: dist/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@a892a5a61159132606e93a2fa6f4358831b04d26 # v1.14.2

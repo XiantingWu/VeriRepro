@@ -1,0 +1,125 @@
+name: VeriRepro validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Certify exact source on GitHub-hosted runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      VERIREPRO_RELEASE_VERSION: 0.8.0
+      VERIREPRO_SOURCE_SHA: ${{ github.sha }}
+      VERIREPRO_WORK: ${{ runner.temp }}/verirepro-validation
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install certification environment
+        run: |
+          set -euo pipefail
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"
+          echo "PIP_CONSTRAINT=$PIP_CONSTRAINT" >> "$GITHUB_ENV"
+          python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
+          python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
+          mkdir -p "$VERIREPRO_WORK"
+      - name: Static quality gates
+        run: |
+          set -euo pipefail
+          ruff check .
+          ruff format --check .
+          mypy
+      - name: Full deterministic validation
+        run: |
+          set -euo pipefail
+          python -m pytest -q --cov=reproagent --cov=verirepro --cov-branch --cov-report=json
+          python scripts/coverage_gate.py coverage.json --min-statement 85 --min-branch 75
+          python scripts/history_scan.py --ref origin/main --include-tree HEAD
+          python scripts/release_check.py
+          python scripts/launch_surface_check.py
+          verirepro doctor --strict --json > "$VERIREPRO_WORK/doctor.json"
+      - name: Certification environment
+        run: |
+          set -euo pipefail
+          python scripts/certification_environment_check.py \
+            --constraints "$PIP_CONSTRAINT" \
+            --output "$VERIREPRO_WORK/certification-environment.json" \
+            --run-id "$GITHUB_RUN_ID" \
+            --head-sha "$VERIREPRO_SOURCE_SHA"
+      - name: Measure 15-paper discovery gate
+        run: |
+          set -euo pipefail
+          OUT="$VERIREPRO_WORK/discovery.json"
+          python scripts/run_real_paper_smoke.py \
+            --output "$OUT" \
+            --require-top1 \
+            --require-evidence
+          python scripts/stamp_release_measurement.py \
+            "$OUT" --source-sha "$VERIREPRO_SOURCE_SHA"
+      - name: Measure bounded environment-planning gate
+        run: |
+          set -euo pipefail
+          OUT="$VERIREPRO_WORK/planning.json"
+          python scripts/run_real_paper_smoke.py \
+            --output "$OUT" \
+            --require-top1 \
+            --require-evidence \
+            --inspect-repositories \
+            --require-environment-plan \
+            --max-cases 3
+          python scripts/stamp_release_measurement.py \
+            "$OUT" --source-sha "$VERIREPRO_SOURCE_SHA"
+      - name: Measure ReproBench seed execution
+        run: |
+          set -euo pipefail
+          python scripts/run_reprobench_seed.py --output "$VERIREPRO_WORK/reprobench"
+      - name: Stage sanitized evidence bundle
+        run: |
+          set -euo pipefail
+          python scripts/record_release_evidence.py \
+            --discovery "$VERIREPRO_WORK/discovery.json" \
+            --planning "$VERIREPRO_WORK/planning.json" \
+            --release "$VERIREPRO_RELEASE_VERSION" \
+            --run-id "$GITHUB_RUN_ID" \
+            --head-sha "$VERIREPRO_SOURCE_SHA"
+
+          DEST="benchmarks/reprobench-results-${VERIREPRO_RELEASE_VERSION}"
+          rm -rf "$DEST"
+          mkdir -p "$DEST/results"
+          cp "$VERIREPRO_WORK/reprobench/manifest.json" "$DEST/manifest.json"
+          cp "$VERIREPRO_WORK/reprobench/summary.json" "$DEST/summary.json"
+          cp "$VERIREPRO_WORK/reprobench/results/"*.json "$DEST/results/"
+          cp "$VERIREPRO_WORK/certification-environment.json" \
+            "benchmarks/certification-environment-${VERIREPRO_RELEASE_VERSION}.json"
+      - name: Verify evidence against exact source
+        run: |
+          set -euo pipefail
+          python scripts/release_check.py --require-release-evidence
+          python scripts/release_source_check.py
+
+          allowed="^(benchmarks/real-paper-smoke-results-${VERIREPRO_RELEASE_VERSION}\.json|benchmarks/environment-planning-results-${VERIREPRO_RELEASE_VERSION}\.json|benchmarks/certification-environment-${VERIREPRO_RELEASE_VERSION}\.json|benchmarks/reprobench-results-${VERIREPRO_RELEASE_VERSION}/)"
+          unexpected="$(git status --short | awk '{print $2}' | grep -Ev "$allowed" || true)"
+          test -z "$unexpected" || {
+            echo 'FAIL: validation modified files outside the sanitized release-evidence surface:' >&2
+            echo "$unexpected" >&2
+            exit 2
+          }
+      - name: Upload sanitized evidence artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: verirepro-validation-evidence-${{ github.run_id }}
+          path: |
+            benchmarks/real-paper-smoke-results-${{ env.VERIREPRO_RELEASE_VERSION }}.json
+            benchmarks/environment-planning-results-${{ env.VERIREPRO_RELEASE_VERSION }}.json
+            benchmarks/certification-environment-${{ env.VERIREPRO_RELEASE_VERSION }}.json
+            benchmarks/reprobench-results-${{ env.VERIREPRO_RELEASE_VERSION }}/
