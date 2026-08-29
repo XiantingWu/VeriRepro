@@ -79,7 +79,9 @@ def test_launch_surface_rejects_incubator_project_urls(tmp_path: Path) -> None:
     root = _surface_copy(tmp_path)
     path = root / "pyproject.toml"
     path.write_text(
-        path.read_text(encoding="utf-8").replace(REPOSITORY, "https://github.com/findwoods/Papers"),
+        path.read_text(encoding="utf-8").replace(
+            REPOSITORY, "https://github.com/private-incubator/Papers"
+        ),
         encoding="utf-8",
     )
 
@@ -94,7 +96,7 @@ def test_launch_surface_rejects_incubator_security_route(tmp_path: Path) -> None
     path.write_text(
         path.read_text(encoding="utf-8").replace(
             "https://github.com/XiantingWu/VeriRepro/security/advisories/new",
-            "https://github.com/findwoods/Papers/security",
+            "https://github.com/private-incubator/Papers/security",
         ),
         encoding="utf-8",
     )
@@ -102,4 +104,4 @@ def test_launch_surface_rejects_incubator_security_route(tmp_path: Path) -> None
     errors = check_launch_surface(root)
 
     assert any("private-advisory" in error for error in errors)
-    assert any("private Papers incubator" in error for error in errors)
+    assert any("non-canonical GitHub repositories" in error for error in errors)

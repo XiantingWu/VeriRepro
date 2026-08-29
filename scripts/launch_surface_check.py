@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -56,10 +57,11 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
             errors.append(
                 "issue template security contact must use the standalone private-advisory URL"
             )
-        if "github.com/findwoods/Papers" in issue_config:
-            errors.append(
-                "issue template must not route public security reports to the private Papers incubator"
-            )
+        for url in re.findall(
+            r"https?://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", issue_config
+        ):
+            if not url.startswith(REPOSITORY):
+                errors.append("issue template must not reference non-canonical GitHub repositories")
 
     citation = _read(root, "CITATION.cff", errors)
     if citation:
