@@ -32,10 +32,8 @@ def _release_tree(root: Path) -> Path:
         "scripts/stamp_release_measurement.py": "pass\n",
         "scripts/run_reprobench_seed.py": "pass\n",
         "scripts/release_checks/policy.py": "VALUE = 1\n",
-        ".github/workflows/quality.yml": "name: Quality\n",
+        ".github/workflows/ci.yml": "name: CI\n",
         ".github/workflows/validation.yml": "name: VeriRepro validation\n",
-        ".github/workflows/litellm-smoke.yml": "name: LiteLLM\n",
-        ".github/workflows/real-paper-smoke.yml": "name: Real paper\n",
         ".github/workflows/publish.yml": "name: Publish\n",
         "src/reproagent/a.py": "VALUE = 1\n",
         "src/verirepro/b.py": "VALUE = 2\n",
@@ -221,13 +219,13 @@ def test_release_source_fingerprint_includes_public_typing_marker(tmp_path: Path
     assert first != second
 
 
-def test_legacy_hosted_ci_is_not_part_of_release_source_identity(tmp_path: Path) -> None:
+def test_public_ci_is_part_of_release_source_identity(tmp_path: Path) -> None:
     root = _release_tree(tmp_path / "release")
     first = release_source_sha256(root)
-    legacy = root / ".github/workflows/ci.yml"
-    legacy.write_text("name: forbidden hosted CI\n", encoding="utf-8")
+    ci = root / ".github/workflows/ci.yml"
+    ci.write_text("name: changed hosted CI\n", encoding="utf-8")
     second = release_source_sha256(root)
-    assert first == second
+    assert first != second
 
 
 def test_release_source_fingerprint_includes_certification_constraints(tmp_path: Path) -> None:
