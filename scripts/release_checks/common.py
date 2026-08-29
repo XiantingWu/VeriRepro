@@ -27,7 +27,6 @@ BASE_REQUIRED_FILES = (
     "docs/PUBLIC_RELEASE_CHECKLIST.md",
     "benchmarks/real-paper-smoke.json",
     "benchmarks/reprobench-seed-suite.json",
-    "certification/public-manager-policy.json",
     "scripts/history_scan.py",
     "scripts/run_real_paper_smoke.py",
     "scripts/run_reprobench_seed.py",
@@ -36,18 +35,14 @@ BASE_REQUIRED_FILES = (
     "src/verirepro/__main__.py",
     "src/verirepro/reprobench.py",
     "src/verirepro/py.typed",
-    ".github/workflows/quality.yml",
+    ".github/workflows/ci.yml",
     ".github/workflows/validation.yml",
-    ".github/workflows/litellm-smoke.yml",
-    ".github/workflows/real-paper-smoke.yml",
     ".github/workflows/publish.yml",
 )
 
 PUBLIC_WORKFLOWS = (
-    ".github/workflows/quality.yml",
+    ".github/workflows/ci.yml",
     ".github/workflows/validation.yml",
-    ".github/workflows/litellm-smoke.yml",
-    ".github/workflows/real-paper-smoke.yml",
     ".github/workflows/publish.yml",
 )
 

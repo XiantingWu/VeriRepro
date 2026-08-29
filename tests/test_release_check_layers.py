@@ -130,112 +130,83 @@ def test_security_surface_rejects_historical_incubator_in_security_md(tmp_path: 
     assert any("historical incubator repository" in item for item in errors)
 
 
-def test_quality_workflow_requires_owner_guard(tmp_path: Path):
-    workflow = tmp_path / ".github/workflows/quality.yml"
-    workflow.parent.mkdir(parents=True)
-    workflow.write_text(
-        "name: Quality\n"
-        "on:\n  push:\n    branches: ['hardening/**']\n  workflow_dispatch:\n"
-        "jobs:\n"
-        "  quality:\n"
-        "    runs-on: [self-hosted, macOS, ARM64, repo-repo1-verirepro, verirepro-release]\n"
-        "    steps:\n"
-        "      - uses: actions/checkout@" + "a" * 40 + "\n"
-        "        with:\n          persist-credentials: false\n"
-        "      - run: ruff check src && mypy && pytest --cov-branch && echo VERIREPRO_COVERAGE\n",
-        encoding="utf-8",
-    )
-    errors: list[str] = []
-    check_workflow_surface(tmp_path, errors)
-    assert any("repository owner" in item for item in errors)
-
-
-def test_quality_workflow_requires_dedicated_repo1_runner_labels(tmp_path: Path):
-    workflow = tmp_path / ".github/workflows/quality.yml"
-    workflow.parent.mkdir(parents=True)
-    workflow.write_text(
-        "name: Quality\n"
-        "on:\n  push:\n    branches: ['hardening/**']\n  workflow_dispatch:\n"
-        "jobs:\n"
-        "  quality:\n"
-        "    runs-on: [self-hosted, macOS, ARM64]\n"
-        "    steps:\n"
-        "      - uses: actions/checkout@" + "a" * 40 + "\n"
-        "        with:\n          persist-credentials: false\n"
-        "      - run: ruff check src && mypy && pytest --cov-branch && echo VERIREPRO_COVERAGE\n"
-        "        if: github.actor == github.repository_owner\n",
-        encoding="utf-8",
-    )
-    errors: list[str] = []
-    check_workflow_surface(tmp_path, errors)
-    assert any("dedicated Repo1 standalone runner" in item for item in errors)
-    assert any("repo-repo1-verirepro" in item for item in errors)
-
-
-def test_quality_workflow_requires_reviewed_integration_lane(tmp_path: Path):
-    workflow = tmp_path / ".github/workflows/quality.yml"
-    workflow.parent.mkdir(parents=True)
-    workflow.write_text(
-        "name: Quality\n"
-        "on:\n  push:\n    branches: ['main', 'hardening/**']\n  workflow_dispatch:\n"
-        "jobs:\n"
-        "  quality:\n"
-        "    if: github.actor == github.repository_owner\n"
-        "    runs-on: [self-hosted, macOS, ARM64, repo-repo1-verirepro, verirepro-release]\n"
-        "    steps:\n"
-        "      - uses: actions/checkout@" + "a" * 40 + "\n"
-        "        with:\n          persist-credentials: false\n          ref: ${{ github.sha }}\n"
-        "      - run: git rev-parse HEAD && ruff && mypy && pytest --cov-branch && echo VERIREPRO_COVERAGE && python -m build && twine && python scripts/release_check.py && python scripts/launch_surface_check.py\n",
-        encoding="utf-8",
-    )
-    errors: list[str] = []
-    check_workflow_surface(tmp_path, errors)
-    assert any("integration/**" in item for item in errors)
-
-
-def test_validation_workflow_requires_dedicated_repo1_runner_labels(tmp_path: Path):
-    workflow = tmp_path / ".github/workflows/validation.yml"
-    workflow.parent.mkdir(parents=True)
-    workflow.write_text(
-        "name: VeriRepro validation\n"
-        "on:\n  push:\n    branches: ['validation/**']\n  workflow_dispatch:\n"
-        "jobs:\n"
-        "  certify:\n"
-        "    runs-on: [self-hosted, macOS, ARM64]\n"
-        "    permissions:\n      contents: read\n"
-        "    steps:\n"
-        "      - uses: actions/checkout@" + "a" * 40 + "\n"
-        "        with:\n          persist-credentials: false\n"
-        "        if: github.actor == github.repository_owner\n",
-        encoding="utf-8",
-    )
-    errors: list[str] = []
-    check_workflow_surface(tmp_path, errors)
-    assert any("dedicated Repo1 standalone runner" in item for item in errors)
-    assert any("repo-repo1-verirepro" in item for item in errors)
-
-
-def test_review_only_policy_rejects_legacy_hosted_ci(tmp_path: Path):
+def _hosted_ci(tmp_path: Path) -> Path:
     workflow = tmp_path / ".github/workflows/ci.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
-        "name: CI\non:\n  pull_request:\njobs:\n  test:\n    runs-on: ubuntu-latest\n",
+        "name: CI\n"
+        "on:\n"
+        "  pull_request:\n"
+        "  push:\n    branches: [main]\n"
+        "permissions:\n  contents: read\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n"
+        "        with:\n          persist-credentials: false\n",
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
+def test_workflow_surface_rejects_self_hosted_runner(tmp_path: Path):
+    workflow = tmp_path / ".github/workflows/ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "name: CI\n"
+        "on:\n  push:\n    branches: [main]\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: self-hosted\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n"
+        "        with:\n          persist-credentials: false\n",
         encoding="utf-8",
     )
     errors: list[str] = []
     check_workflow_surface(tmp_path, errors)
-    assert any("hosted public CI must remain removed" in item for item in errors)
-    assert any("review-only fork policy" in item for item in errors)
-    assert any(
-        "non-publish workflow must not depend on GitHub-hosted runners" in item for item in errors
+    assert any("self-hosted" in item for item in errors)
+
+
+def test_workflow_surface_rejects_private_runner_labels_and_groups(tmp_path: Path):
+    workflow = tmp_path / ".github/workflows/ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "name: CI\n"
+        "on:\n  push:\n    branches: [main]\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: [ubuntu-latest, group: private, experiments]\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n"
+        "        with:\n          persist-credentials: false\n",
+        encoding="utf-8",
     )
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+    assert any("private runner labels or groups" in item for item in errors)
 
 
-def test_review_only_policy_rejects_pull_request_target(tmp_path: Path):
+def test_workflow_surface_accepts_hosted_ci(tmp_path: Path):
+    root = _hosted_ci(tmp_path)
+    errors: list[str] = []
+    check_workflow_surface(root, errors)
+    assert not any("self-hosted" in item for item in errors)
+
+
+def test_workflow_surface_rejects_pull_request_target(tmp_path: Path):
     workflow = tmp_path / ".github/workflows/metadata.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
-        "name: Metadata\non:\n  pull_request_target:\njobs:\n  inspect:\n    runs-on: [self-hosted, macOS, ARM64]\n",
+        "name: Metadata\n"
+        "on:\n  pull_request_target:\n"
+        "jobs:\n"
+        "  inspect:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n"
+        "        with:\n          persist-credentials: false\n",
         encoding="utf-8",
     )
     errors: list[str] = []
@@ -243,7 +214,67 @@ def test_review_only_policy_rejects_pull_request_target(tmp_path: Path):
     assert any("must not use pull_request_target" in item for item in errors)
 
 
-def test_publish_is_the_only_allowed_hosted_runner_exception(tmp_path: Path):
+def test_workflow_surface_rejects_secrets_in_pull_request_ci(tmp_path: Path):
+    workflow = tmp_path / ".github/workflows/ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "name: CI\n"
+        "on:\n  pull_request:\n"
+        "permissions:\n  contents: read\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n"
+        "        with:\n          persist-credentials: false\n"
+        '      - run: echo "${{ secrets.PYPI_API_TOKEN }}"\n',
+        encoding="utf-8",
+    )
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+    assert any("secret-free" in item for item in errors)
+
+
+def test_workflow_surface_requires_checkout_credential_isolation(tmp_path: Path):
+    workflow = tmp_path / ".github/workflows/ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "name: CI\n"
+        "on:\n  push:\n    branches: [main]\n"
+        "permissions:\n  contents: read\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@" + "a" * 40 + "\n",
+        encoding="utf-8",
+    )
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+    assert any("persist repository credentials" in item for item in errors)
+
+
+def test_workflow_surface_requires_action_sha_pins(tmp_path: Path):
+    workflow = tmp_path / ".github/workflows/ci.yml"
+    workflow.parent.mkdir(parents=True)
+    workflow.write_text(
+        "name: CI\n"
+        "on:\n  push:\n    branches: [main]\n"
+        "permissions:\n  contents: read\n"
+        "jobs:\n"
+        "  test:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - uses: actions/checkout@v4\n"
+        "        with:\n          persist-credentials: false\n",
+        encoding="utf-8",
+    )
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+    assert any("40-character commit SHA" in item for item in errors)
+
+
+def test_publish_requires_oidc_and_rejects_long_lived_credentials(tmp_path: Path):
     workflow = tmp_path / ".github/workflows/publish.yml"
     workflow.parent.mkdir(parents=True)
     workflow.write_text(
@@ -255,15 +286,13 @@ def test_publish_is_the_only_allowed_hosted_runner_exception(tmp_path: Path):
         "    environment:\n      name: pypi\n"
         "    permissions:\n      id-token: write\n"
         "    steps:\n"
-        "      - run: python -m twine check dist/* && echo $GITHUB_REF_NAME && python scripts/release_check.py --require-release-evidence\n"
         "      - uses: pypa/gh-action-pypi-publish@" + "a" * 40 + "\n",
         encoding="utf-8",
     )
     errors: list[str] = []
     check_workflow_surface(tmp_path, errors)
-    assert not any(
-        "non-publish workflow must not depend on GitHub-hosted runners" in item for item in errors
-    )
+    assert not any("self-hosted" in item for item in errors)
+    assert not any("long-lived credential" in item for item in errors)
 
 
 def test_release_tree_aggregator_is_importable_and_fail_closed(tmp_path: Path):

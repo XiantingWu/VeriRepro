@@ -15,7 +15,7 @@
     "report_schema_version": 1
   },
   "outcome": "success",
-  "wall_clock_seconds": 4.6e-05,
+  "wall_clock_seconds": 3.4e-05,
   "execution_requested": false,
   "operator_interventions": [
     "repository_override",
