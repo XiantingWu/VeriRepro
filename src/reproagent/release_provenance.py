@@ -12,7 +12,6 @@ TRUSTED_CERTIFICATION_WORKFLOWS = frozenset(
 _RELEASE_SOURCE_FILES = (
     "pyproject.toml",
     "constraints/certification.txt",
-    "certification/public-manager-policy.json",
     "scripts/certification_environment_check.py",
     "scripts/coverage_gate.py",
     "scripts/history_scan.py",
@@ -24,10 +23,8 @@ _RELEASE_SOURCE_FILES = (
     "scripts/stamp_release_measurement.py",
     "scripts/run_reprobench_seed.py",
     "src/verirepro/py.typed",
-    ".github/workflows/quality.yml",
+    ".github/workflows/ci.yml",
     ".github/workflows/validation.yml",
-    ".github/workflows/litellm-smoke.yml",
-    ".github/workflows/real-paper-smoke.yml",
     ".github/workflows/publish.yml",
 )
 _RELEASE_SOURCE_GLOBS = (
