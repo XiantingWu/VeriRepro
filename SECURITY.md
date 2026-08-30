@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-VeriRepro is pre-1.0. Security fixes target the latest published 0.x release and current `main`; older 0.x lines are not maintained unless explicitly stated. Until `0.8.0` is published, reports should be evaluated against the current 0.8.0 release candidate / `main`.
+VeriRepro is pre-1.0. Security fixes target the latest published 0.x release and current `main`; older 0.x releases are not maintained unless explicitly stated.
 
 Do not place API keys, private paper contents, private repository URLs, unpublished datasets, or credentials in public issues or logs.
 

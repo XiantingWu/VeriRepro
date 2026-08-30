@@ -15,6 +15,6 @@ For release and security decisions, verify all of the following together:
 - release evidence passes `scripts/release_check.py --require-release-evidence`;
 - release-source identity passes `scripts/release_source_check.py`;
 - all GitHub Actions workflows execute on GitHub-hosted runners only;
-- stable PyPI publication, when enabled, uses the `verirepro` project and the repository's protected Trusted Publishing path.
+- stable PyPI publication uses the `verirepro` project and the repository's protected Trusted Publishing path.
 
 A source-compatible copy can reproduce the code bytes while still being a different distribution authority. GitHub stars, repository names, or copied README text are not authority signals.

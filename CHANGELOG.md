@@ -2,6 +2,14 @@
 
 Notable user-facing changes are recorded here. Internal CI incidents and one-off maintainer infrastructure details are intentionally omitted from public release notes.
 
+## 0.8.2 — public release truth and metadata correction
+
+- synchronize public release-status documentation;
+- make PyPI installation the primary user path;
+- correct stale PyPI-facing README metadata through a new immutable package version;
+- refresh current release evidence after fresh source-bound certification;
+- no intentional scientific runtime or public API semantics change.
+
 ## 0.8.1 — release-delivery correction
 
 - correct the PyPI Trusted Publishing action pin so the v1.14.2 annotated
@@ -15,6 +23,9 @@ Notable user-facing changes are recorded here. Internal CI incidents and one-off
 - the v0.8.0 GitHub release completed, but its first PyPI delivery did not
   upload distributions because the publishing action used an annotated tag
   object SHA without a corresponding runtime image.
+- production PyPI Trusted Publishing subsequently completed successfully
+  through the protected GitHub environment;
+- clean installation from pypi.org was independently verified.
 
 ## 0.8.0 — hardened runtime, verification, and release engineering
 

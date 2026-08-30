@@ -12,7 +12,7 @@ Give VeriRepro an arXiv paper, DOI, PDF URL, or local PDF. It builds an inspecta
 
 VeriRepro is designed for the gap between “the code ran” and “the scientific result was actually reproduced.” Unsupported model output is never promoted into scientific evidence, repository-authored expected values do not self-certify a paper, and a successful process exit does not automatically become a scientific `PASS`.
 
-**Status:** `0.8.0` public-beta release candidate. The source tree and release evidence are certified, but the stable GitHub Release/PyPI publication is intentionally the final launch step. Until then, install from this repository as shown below. The preferred package, CLI, and Python namespace are `verirepro`; the legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series. The authoritative repository/package identity is defined in [docs/CANONICAL_IDENTITY.md](docs/CANONICAL_IDENTITY.md); similarly named copies are not release authorities by name alone.
+**Status:** VeriRepro is a public-beta Python package distributed through PyPI and released from the canonical [XiantingWu/VeriRepro](https://github.com/XiantingWu/VeriRepro) repository. The current published production release is `0.8.1`; this repository is preparing the immutable `0.8.2` public truth-synchronization release. The preferred package, CLI, and Python namespace are `verirepro`; the legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series. The authoritative repository/package identity is defined in [docs/CANONICAL_IDENTITY.md](docs/CANONICAL_IDENTITY.md); similarly named copies are not release authorities by name alone.
 
 ## Why VeriRepro
 
@@ -24,16 +24,20 @@ VeriRepro is designed for the gap between “the code ran” and “the scientif
 
 ## Quick start
 
-Start with a pinned paper from VeriRepro's fixed public smoke corpus. This path plans the reproduction without executing third-party experiment code or requiring a model endpoint:
+Install the published package from PyPI, then start with a pinned paper from VeriRepro's fixed public smoke corpus. This path plans the reproduction without executing third-party experiment code or requiring a model endpoint:
 
 ```bash
-git clone https://github.com/XiantingWu/VeriRepro.git
-cd VeriRepro
-python -m pip install .
+python -m pip install verirepro
 
 verirepro doctor --json
 verirepro plan 2103.00020v1
 verirepro reproduce 2103.00020v1 --no-execute --no-llm
+```
+
+To install the exact release prepared by this repository, use:
+
+```bash
+python -m pip install "verirepro==0.8.2"
 ```
 
 Before allowing third-party experiment code to execute, run:
@@ -85,19 +89,21 @@ PASS / FAIL / PARTIAL + evidence bundle
 
 ## Measured release evidence
 
-The `0.8.0` release-candidate source is currently certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The current Xianting-native authority is the exact-main validation run and its explicit evidence-only promotion recorded below; earlier source, fingerprint, and run records are historical and superseded (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
+The latest completed Xianting-native authority is the released `v0.8.1` source, certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The `0.8.2` candidate is not yet certified; its fresh authority will be recorded only after exact-main validation (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
 | Gate | Current measured result |
 | --- | --- |
 | Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
-| Tests / coverage | 782 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
-| Current release-source commit | `ace6683ff24399ff374eec5c05669b67783ffec9` |
-| Current release-source SHA-256 | `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8` |
-| Current exact-main validation run | GitHub-hosted `VeriRepro validation` run `33282504163` |
+| Tests / coverage | 803 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
+| Latest certified release-source commit (v0.8.1) | `0a0385ab655e4c58a3db527287dc888dacd14f94` |
+| Latest certified release-source SHA-256 (F3) | `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613` |
+| Latest exact-main validation run | GitHub-hosted `VeriRepro validation` run `33324289201` |
 | Real-paper discovery | 15/15 (found, top-1, evidence anchored) |
 | Environment planning | 3/3 bounded repository plans |
 | ReproBench | 1 success / 1 partial / 0 failures |
-| Current evidence commit | `820898feec6fc4f663c45bf0a42216c64d434bee` (evidence-only promotion, direct parent current certified source) |
+| Latest evidence commit (E3) | `68d50603e8a30b87bcb333cc510a3f85ea6926ce` (evidence-only promotion, direct parent certified source) |
+| v0.8.1 production PyPI publication | SUCCESS; publish run `33325816551` |
+| 0.8.2 certification authority | NOT YET CERTIFIED |
 | Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
 
 All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
@@ -222,6 +228,14 @@ print(report.status)
 
 ## Development and contribution model
 
+For contributor installation from a checkout:
+
+```bash
+git clone https://github.com/XiantingWu/VeriRepro.git
+cd VeriRepro
+python -m pip install -e '.[dev]'
+```
+
 Local development checks:
 
 ```bash
@@ -254,23 +268,56 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. For reproductio
 
 ## Documentation
 
+### Getting Started
+
 - [Getting started](docs/GETTING_STARTED.md)
-- [Canonical identity](docs/CANONICAL_IDENTITY.md)
-- [Release evidence](docs/EVIDENCE.md)
+
+### Architecture
+
 - [Architecture](docs/ARCHITECTURE.md)
+
+### Trust / Security
+
 - [Trust model](docs/TRUST_MODEL.md)
+- [Security policy](SECURITY.md)
+
+### Environment / GPU
+
+- [Environment](docs/ENVIRONMENT.md)
+- [Environment managers](docs/ENVIRONMENT_MANAGERS.md)
+- [GPU](docs/GPU.md)
+
+### Datasets / Models
+
 - [Real-paper smoke](docs/REAL_PAPER_SMOKE.md)
-- [ReproBench](docs/REPROBENCH.md)
 - [Datasets](docs/DATASETS.md)
 - [Model artifacts](docs/MODEL_ARTIFACTS.md)
 - [Outputs](docs/OUTPUTS.md)
 - [LiteLLM](docs/LITELLM.md)
-- [Schemas](docs/SCHEMAS.md)
+
+### ReproBench
+
+- [ReproBench](docs/REPROBENCH.md)
+
+### Evidence
+
+- [Canonical identity](docs/CANONICAL_IDENTITY.md)
+- [Release evidence](docs/EVIDENCE.md)
+
+### Publishing / Signing
+
 - [Publishing](docs/PUBLISHING.md)
+- [Release signing](docs/RELEASE_SIGNING.md)
+
+### Schemas
+
+- [Schemas](docs/SCHEMAS.md)
+
+### Support / Contribution
+
 - [Roadmap](ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 - [Support](SUPPORT.md)
-- [Security](SECURITY.md)
 
 ## License
 

@@ -1,6 +1,6 @@
 # Release evidence
 
-This page is the human-readable index for VeriRepro `0.8.1` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove.
+This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed authority is the released v0.8.1 chain; the active v0.8.2 candidate is not yet certified.
 
 ## Evidence policy
 
@@ -69,10 +69,10 @@ evidence-only PR. S2/F2, validation run `33316585656`, and E2 are the
 historical v0.8.0 authority; the v0.8.0 PyPI delivery itself was not
 completed, and v0.8.0 was never published to PyPI.
 
-## Current Xianting-native certification (v0.8.1 candidate)
+## Released v0.8.1 certification authority
 
-The current v0.8.1 candidate authority was produced after the PyPI publisher
-delivery repair and is the only current certification authority:
+The released v0.8.1 authority was produced after the PyPI publisher delivery
+repair and is the latest completed certification authority:
 
 - Certified source (S3): `0a0385ab655e4c58a3db527287dc888dacd14f94`
 - Release-source SHA-256 (F3): `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613`
@@ -85,11 +85,30 @@ delivery repair and is the only current certification authority:
 - ReproBench: 1 success / 1 partial / 0 failures
 - Exact PyPI publisher runtime image preflight: PASS
   (`ghcr.io/pypa/gh-action-pypi-publish:dc37677b2e1c63e2034f94d8a5b11f265b73ba33`)
+- GitHub Release `v0.8.1`: PUBLISHED
+- PyPI `verirepro==0.8.1`: PUBLISHED
+- Publish run `33325816551`: SUCCESS through protected Trusted Publishing
+- Fresh clean PyPI install: PASS
 
 The validation run tested the exact S3 source and recorded F3 in the sanitized
 artifact. The artifact was reviewed and promoted through an explicit
-evidence-only PR. S3/F3, validation run `33324289201`, and E3 are current;
+evidence-only PR. S3/F3, validation run `33324289201`, and E3 are the latest
+completed authority;
 S2/F2, validation run `33316585656`, and E2 are historical v0.8.0 authority.
+
+## Active v0.8.2 candidate authority
+
+The 0.8.2 candidate exists to synchronize public release truth and correct
+PyPI-facing metadata through a new immutable package version. It has not yet
+completed fresh source-bound certification:
+
+- Certification status: **NOT YET CERTIFIED**
+- S4, F4, Validation4, and E4: not yet assigned
+- PyPI `verirepro==0.8.2`: not yet published
+
+No v0.8.1 evidence is reused as v0.8.2 evidence. The 0.8.2 authority will be
+promoted only from a sanitized Validation4 artifact after the exact canonical
+main source is frozen.
 
 ## Scientific limits
 
