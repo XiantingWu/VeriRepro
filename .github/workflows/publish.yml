@@ -11,6 +11,7 @@ jobs:
   build:
     name: Test, build, and verify distributions
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     permissions:
       contents: read
     steps:
@@ -18,7 +19,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
-          ref: ${{ github.event.release.target_commitish }}
+          ref: ${{ github.event.release.tag_name }}
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
@@ -36,7 +37,7 @@ jobs:
             echo "Release tag ${GITHUB_REF_NAME} does not match pyproject version v${VERSION}" >&2
             exit 2
           }
-      - name: Require annotated signed tag on canonical main history
+      - name: Require cryptographically signed annotated tag on canonical main history
         run: |
           set -euo pipefail
           git fetch --force origin main
@@ -44,11 +45,10 @@ jobs:
             echo 'Stable publication requires a pre-created annotated tag.' >&2
             exit 2
           }
-          tag_payload="$(git cat-file tag "$GITHUB_REF_NAME")"
-          printf '%s\n' "$tag_payload" | grep -Eq -- '-----BEGIN (PGP|SSH) SIGNATURE-----' || {
-            echo 'Stable publication requires a cryptographically signed tag object.' >&2
-            exit 2
-          }
+          python scripts/verify_release_tag.py \
+            --tag "$GITHUB_REF_NAME" \
+            --allowed-signers .github/release-signers \
+            --expected-principal XiantingWu
           TAG_COMMIT="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"
           HEAD_COMMIT="$(git rev-parse HEAD)"
           test "$TAG_COMMIT" = "$HEAD_COMMIT" || {
@@ -109,6 +109,7 @@ jobs:
     needs: build
     if: ${{ github.event.release.prerelease == false }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: pypi
     permissions:

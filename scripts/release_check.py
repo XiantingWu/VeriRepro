@@ -13,6 +13,7 @@ if __package__:
         check_required_files,
         load_pyproject,
     )
+    from .release_checks.public_contract_surface import check_public_contract_surface
     from .release_checks.security_surface import check_security_surface
     from .release_checks.workflow_surface import check_workflow_surface
 else:
@@ -24,6 +25,7 @@ else:
         check_required_files,
         load_pyproject,
     )
+    from release_checks.public_contract_surface import check_public_contract_surface
     from release_checks.security_surface import check_security_surface
     from release_checks.workflow_surface import check_workflow_surface
 
@@ -53,6 +55,7 @@ def check_release_tree(
 
     version = check_package_surface(root, pyproject, errors)
     check_security_surface(root, errors)
+    check_public_contract_surface(root, errors)
     check_certification_surface(root, errors)
     check_smoke_corpus(root, version=version, errors=errors)
     if require_release_evidence:

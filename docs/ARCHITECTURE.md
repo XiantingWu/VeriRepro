@@ -122,18 +122,25 @@ See `SCHEMAS.md`, `REPROBENCH.md`, and `TRUST_MODEL.md` for compatibility and tr
 - `common.py`: shared file inventory, safe path handling, command-gate helpers.
 - `package_surface.py`: distribution metadata, version alignment across namespaces, canonical repository URLs.
 - `security_surface.py`: trust-boundary declarations in `SECURITY.md`, private advisory routing, historical-incubator rejection.
-- `workflow_surface.py`: workflow trigger/runner-label contracts, review-only fork isolation, action pinning, publish-workflow safety.
+- `workflow_surface.py`: workflow trigger/runner-label contracts, GitHub-hosted fork-PR isolation, resource bounds, action pinning, publish-workflow safety.
+- `public_contract_surface.py`: current public contribution, certification, evidence-promotion, and delivery language.
 - `benchmark_surface.py`: smoke corpus and release-evidence structure checks.
 
 Every check appends human-readable errors and fails closed: any error fails the entire release check, and missing files are failures rather than skips. The layers are exercised directly by `tests/test_release_check_layers.py`.
 
 ## Release evidence lifecycle
 
-1. A maintainer cuts a read-only `validation/**` branch from the exact hardening SHA intended for certification; the branch is never modified after validation starts.
-2. The trusted GitHub-hosted `VeriRepro validation` workflow measures coverage, executes discovery/environment-planning/ReproBench gates, and stamps all measurements with the exact source SHA (`SOURCE_SHA`) via `scripts/stamp_release_measurement.py`.
-3. Evidence is sanitized (no host paths, credentials, prompts, or raw workspaces), hashed (`evidence.sha256`), and written back by a separate minimal job that executes no project code.
-4. `scripts/release_source_check.py` re-verifies that the certified source tree matches the fingerprint recorded in the evidence; `python scripts/release_check.py --require-release-evidence` enforces presence and structure at publish time.
-5. If runtime code, release scripts, or workflow policy change after certification, existing evidence is stale and must be regenerated from a new exact-head validation branch.
+1. Freeze a candidate canonical `main` SHA.
+2. Dispatch `VeriRepro validation` against that exact canonical source identity.
+3. Validation runs deterministic quality, discovery, planning, ReproBench, and environment checks on a GitHub-hosted runner.
+4. The workflow uploads only the sanitized evidence artifact; it does not modify a branch.
+5. The maintainer verifies source SHA, run ID, fingerprint, and evidence purity.
+6. Create an evidence branch from the certified source.
+7. Commit only version-matched benchmark evidence.
+8. Review and merge an explicit evidence-only PR.
+9. `release_source_check.py` revalidates source/evidence identity at publication time.
+
+If runtime code, release scripts, or workflow policy change after certification, existing evidence is stale and must be regenerated from a new exact canonical `main` SHA.
 
 ## Package and integration boundaries
 
@@ -141,4 +148,4 @@ The standalone package exposes the `verirepro` namespace and compatibility `repr
 
 Cross-project benchmark or agent integration uses versioned JSON, CLI/process boundaries, report schemas, or published packages instead of hidden relative imports.
 
-External/fork pull requests run only on GitHub-hosted ephemeral runners with read-only permissions and no secrets. Maintainers review the diff and merge through the protected `main` flow; the exact canonical `main` SHA is then certified by the public GitHub-hosted `VeriRepro validation` workflow. Final trusted benchmark evidence and source-fingerprint checks remain release gates and are enforced again before publication.
+External/fork pull requests use GitHub-hosted fork-PR isolation only: read-only, secret-free, no self-hosted runners, and no `pull_request_target`. Maintainers review the diff and merge through the protected `main` flow; the exact canonical `main` SHA is then certified by the public GitHub-hosted `VeriRepro validation` workflow. Final trusted benchmark evidence and source-fingerprint checks remain release gates and are enforced again before publication.

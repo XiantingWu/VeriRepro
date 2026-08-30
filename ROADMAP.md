@@ -66,7 +66,7 @@ Release evidence is deliberately bounded. It demonstrates only the tested discov
 - [ ] add a rootless, VM-backed, or equivalently isolated dependency/image build backend;
 - [ ] add a hard repository-transfer/checkout byte budget rather than relying only on shallow clone and downstream limits;
 - [ ] continue reducing host-side parsing/build attack surface for intentionally adversarial inputs;
-- [ ] add genuinely disposable Linux compatibility execution if contributor demand justifies automatic fork testing.
+- [ ] broaden adversarial PR CI resource-boundary tests.
 
 ### Better scientific evidence
 

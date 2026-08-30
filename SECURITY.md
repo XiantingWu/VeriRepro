@@ -45,19 +45,19 @@ The non-root/read-only runtime applies to the final research-code container. It 
 
 ## Public pull requests and CI isolation
 
-External/fork pull requests run only on **GitHub-hosted ephemeral runners** with read-only repository permissions and no repository secrets. VeriRepro never executes contributor-controlled source on maintainer-owned or persistent infrastructure, and no workflow may use `pull_request_target` for contributor execution.
+External/fork pull requests run only on **GitHub-hosted ephemeral PR CI** with `contents: read`, read-only behavior, and no repository secrets. No self-hosted execution and no `pull_request_target` may be used for contributor code.
 
-Do not execute external fork pull-request code on persistent self-hosted runners. All CI and validation jobs run on GitHub-hosted ephemeral runners only. Approval of a GitHub pull request is not itself a sandbox boundary. Maintainers must first review the diff, dependency/workflow changes, and authority expansion; accepted changes are merged through the protected maintainer flow, then the exact canonical `main` SHA is certified by the public GitHub-hosted `VeriRepro validation` workflow.
+`ci.yml` is the canonical public PR/main CI. `validation.yml` is manual GitHub-hosted certification of an exact canonical `main` SHA. `publish.yml` is GitHub-hosted OIDC delivery and is isolated from PR execution. PR CI success is quality evidence only; it is not release certification.
 
-A source-changing contribution is expected to differ from the previous release evidence. Final `--require-release-evidence` and `release_source_check.py` gates are maintainer release responsibilities: the GitHub-hosted validation lane produces fresh source-bound discovery/planning/ReproBench evidence from canonical `main`, with raw run logs kept transient and only sanitized evidence artifacts published.
+Maintainers review code, dependency/workflow changes, and authority expansion before merge. After merge, the manual validation workflow produces fresh source-bound discovery/planning/ReproBench evidence from canonical `main`, with raw run logs kept transient and only sanitized evidence artifacts published.
 
-Networked or credentialed integration workflows remain separate. Real-paper discovery and LiteLLM smoke tests are maintainer-dispatched on trusted integration infrastructure; external fork pull requests cannot invoke those workflows.
+Credentialed model integrations are outside ordinary fork PR CI. If a future credentialed smoke is added, it must be manual, GitHub-hosted, environment-protected, and isolated from `pull_request` events.
 
 Maintainer release validation keeps promoted evidence deliberately narrow: release-promotable discovery/planning JSON plus the ReproBench manifest, summary, and sanitized result JSON. Temporary PDFs, cloned third-party repositories, experiment workspaces, provider prompts/responses, credentials, and raw logs remain transient state and are not redistributed as release evidence.
 
 The PyPI publish workflow is a separate release-delivery boundary, not a contribution CI lane. It is triggered only by a published GitHub Release, uses the protected `pypi` environment and OIDC, and never receives pull-request events. The official PyPA publishing action is kept isolated from source validation authority.
 
-The release-tree checker and regression tests enforce the review-only contribution boundary, reject `pull_request_target`, reject reintroduction of the legacy hosted `ci.yml`, and prevent non-publish workflows from silently depending on GitHub-hosted runners.
+The release-tree checker and regression tests enforce the GitHub-hosted PR CI contract, reject `pull_request_target`, reject private runner labels, require explicit workflow resource bounds, and require the publish workflow to verify a release tag cryptographically.
 
 ## Important residual risks
 

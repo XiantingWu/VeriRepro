@@ -107,3 +107,42 @@ def test_compatibility_matrix_covers_python_312_and_313() -> None:
     assert "python-version: '3.11'" in ci
     assert "python-version: '3.12'" in ci
     assert "python-version: '3.13'" in ci
+
+
+def test_ci_cancels_stale_same_pr_or_branch_runs() -> None:
+    ci = _workflow("ci.yml")
+    assert "concurrency:" in ci
+    assert (
+        "group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}"
+        in ci
+    )
+    assert "cancel-in-progress: true" in ci
+
+
+def test_all_public_ci_jobs_have_explicit_timeouts() -> None:
+    ci = _workflow("ci.yml")
+    assert ci.count("timeout-minutes:") == 3
+    assert "timeout-minutes: 45" in ci
+    assert ci.count("timeout-minutes: 30") == 2
+
+
+def test_publish_checks_out_release_tag() -> None:
+    publish = _workflow("publish.yml")
+    assert "ref: ${{ github.event.release.tag_name }}" in publish
+
+
+def test_publish_does_not_checkout_target_commitish() -> None:
+    publish = _workflow("publish.yml")
+    assert "github.event.release.target_commitish" not in publish
+
+
+def test_publish_requires_cryptographic_tag_verification() -> None:
+    publish = _workflow("publish.yml")
+    assert "python scripts/verify_release_tag.py" in publish
+    assert "--allowed-signers .github/release-signers" in publish
+    assert "git verify-tag" in (ROOT / "scripts/verify_release_tag.py").read_text(encoding="utf-8")
+
+
+def test_publish_rejects_signature_block_only_policy() -> None:
+    publish = _workflow("publish.yml")
+    assert "grep -Eq" not in publish

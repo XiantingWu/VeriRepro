@@ -27,6 +27,7 @@ def _release_tree(root: Path) -> Path:
         "scripts/launch_surface_check.py": "pass\n",
         "scripts/release_check.py": "pass\n",
         "scripts/release_source_check.py": "pass\n",
+        "scripts/verify_release_tag.py": "pass\n",
         "scripts/record_release_evidence.py": "pass\n",
         "scripts/run_real_paper_smoke.py": "pass\n",
         "scripts/stamp_release_measurement.py": "pass\n",
@@ -224,6 +225,15 @@ def test_public_ci_is_part_of_release_source_identity(tmp_path: Path) -> None:
     first = release_source_sha256(root)
     ci = root / ".github/workflows/ci.yml"
     ci.write_text("name: changed hosted CI\n", encoding="utf-8")
+    second = release_source_sha256(root)
+    assert first != second
+
+
+def test_release_tag_verifier_is_part_of_release_source_identity(tmp_path: Path) -> None:
+    root = _release_tree(tmp_path / "release")
+    first = release_source_sha256(root)
+    verifier = root / "scripts/verify_release_tag.py"
+    verifier.write_text("changed verifier\n", encoding="utf-8")
     second = release_source_sha256(root)
     assert first != second
 

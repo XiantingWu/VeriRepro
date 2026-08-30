@@ -1,14 +1,14 @@
 # Public Release Checklist (0.8.0)
 
-Status: **engineering-ready, not yet released.** The stable GitHub Release/PyPI publication is intentionally the final launch step and requires a separate explicit authorization.
+Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/PyPI publication requires separate explicit authorization.
 
 ## Runner architecture
 
 - [x] every executable workflow job runs on a GitHub-hosted runner (`ubuntu-latest`); zero jobs use `runs-on: self-hosted`
 - [x] zero workflow references private runner labels, runner groups, or private manager infrastructure
 - [x] public CI history is retained as quality evidence; no raw self-hosted logs exist by construction
-- [x] `certification/public-manager-policy.json` is absent; the public repository does not depend on any private certification lane
-- [ ] pending: confirm the fork live smoke executes on GitHub-hosted runners (see `test_public_ci_contract` / live smoke)
+- [x] self-hosted execution authority is none
+- [ ] live fork smoke: static contract PASS; live behavioral smoke is not yet verified
 
 ## CI
 
@@ -16,44 +16,50 @@ Status: **engineering-ready, not yet released.** The stable GitHub Release/PyPI 
 - [x] pull-request CI is secret-free; no `secrets.*` in ordinary CI
 - [x] all third-party Actions pinned to 40-character commit SHAs
 - [x] no `pull_request_target` contributor execution
-- [x] CPython 3.11/3.12/3.13 compatibility lane on GitHub-hosted runners
-- [x] coverage floors: statement >= 85%, branch >= 75% (measured 86.4% / 79.9% on 3.11)
+- [x] CPython 3.11/3.12/3.13 compatibility lanes run on GitHub-hosted runners
+- [x] explicit timeouts bound all CI jobs
+- [x] workflow-level concurrency cancels stale same-PR/branch CI
+- [x] coverage floors: statement >= 85%, branch >= 75%
 - [x] ruff, ruff format, mypy, history scan, release/launch policy gates in CI
 
-## Validation
+## Validation and evidence
 
-- [x] `validation.yml` is `workflow_dispatch`-only, GitHub-hosted, `contents: read`, no automatic evidence writeback
-- [x] validation produces sanitized evidence artifact (discovery / planning / ReproBench / certification environment / source fingerprint)
-- [x] evidence promotion is an explicit evidence-only PR reviewed by the maintainer
+- [x] `validation.yml` is `workflow_dispatch`-only, GitHub-hosted, `contents: read`, and has no branch mutation
+- [x] validation produces a sanitized evidence artifact (discovery / planning / ReproBench / certification environment / source fingerprint)
+- [x] evidence lifecycle is exact canonical main -> sanitized artifact -> maintainer verification -> explicit evidence-only PR
+- [x] no automatic evidence writeback
 
 ## Publish
 
 - [x] `publish.yml` is GitHub-hosted, release-only, protected `pypi` Environment, `id-token: write`, PyPI Trusted Publishing/OIDC
+- [x] publish uses release tag checkout rather than mutable `target_commitish`
+- [x] annotated tag, tag/version equality, dereferenced tag/checkout equality, and main ancestry are required
+- [x] cryptographic tag verification uses `git verify-tag` with a repository-pinned public SSH allowed-signers policy
 - [x] no long-lived PyPI token; publish refuses pre-release events
-- [x] publish re-runs release/launch/history/source gates before building
+- [x] publish re-runs release/launch/history/source/evidence gates before building
+- [ ] release signer policy public key is not yet provisioned; no stable tag may be created before it is provisioned
 
 ## Governance / security
 
-- [x] `main` protected: block force-push and deletion; require CI status checks and conversation resolution
+- [ ] main PR rule, strict required checks, and conversation resolution are active in the final ruleset
 - [x] private vulnerability reporting enabled; SECURITY.md route points to the canonical advisory flow
-- [x] issue forms (bug report, feature request, reproduction help) and dependabot configured
+- [x] issue forms (bug report, feature request, reproduction help) and Dependabot configured
 - [x] CODEOWNERS assigns XiantingWu as owner for release-sensitive paths
 
 ## Evidence
 
-- [x] fresh Xianting-native certification completed on GitHub-hosted validation (run 33276158764, source 84fcc6f, fingerprint ef02b937…): discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures
-- [x] historical/imported evidence is labelled historical only; current Xianting-native certification (run 33276158764) is the authority
-- [x] historical evidence for the older measured source only; current Xianting-native certification replaces it
+- [ ] fresh certification on exact merged main is pending after P1 hardening
+- [ ] fresh evidence is pending after the exact merged-main certification run
+- [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
 ## Final quality target
 
-- [x] 765 tests; statement 86.4%; branch 79.9%
-- [x] build / Twine / clean-wheel install PASS
-- [x] native history scan PASS; Gitleaks/TruffleHog to be re-run at final audit
-- [x] public launch surface PASS (`scripts/launch_surface_check.py`)
-- [x] anonymous clone + quick start PASS (re-verified at final audit)
-- [x] full reachable Git history contains zero private runner / host identity metadata
+- [ ] fresh test count and coverage recorded after hardening
+- [ ] build / Twine / clean-wheel install PASS recorded after hardening
+- [ ] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
+- [ ] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
+- [ ] full reachable Git history contains zero private runner / host identity metadata
 
 ## Deferred (explicit authorization required)
 
