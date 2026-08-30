@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.2)
 
-Status: **v0.8.1 production release complete; v0.8.2 is a certified candidate awaiting signed-tag, GitHub Release, and PyPI delivery.**
+Status: **v0.8.2 production release complete; signed tag, GitHub Release, and PyPI publication are verified.**
 
 ## Runner architecture
 
@@ -106,7 +106,7 @@ Status: **v0.8.1 production release complete; v0.8.2 is a certified candidate aw
 - [x] GitHub Release `v0.8.0` preserved as published non-prerelease
 - [x] PyPI `verirepro==0.8.0` was not published; no upload was attempted after the deterministic publisher-image failure
 
-## Current v0.8.2 certified candidate
+## Released v0.8.2 authority
 
 - [x] fresh exact-main certification (`Validation4`) on `S4`: run `33333603696`
 - [x] release-source fingerprint `F4`: `95904277df77db6e97e83cafe57a351a100c4b3084453c7083edf6cd0baeb324`
@@ -114,12 +114,16 @@ Status: **v0.8.1 production release complete; v0.8.2 is a certified candidate aw
 - [x] 803 tests with 86.4% statement coverage and 79.9% branch coverage
 - [x] discovery 15/15 and bounded planning 3/3
 - [x] ReproBench gate: 1 success / 1 partial / 0 failures
+- [x] signed annotated tag `v0.8.2` verified and pushed without force
+- [x] GitHub Release `v0.8.2` published
+- [x] PyPI Trusted Publishing succeeded in run `33334230170`
+- [x] fresh clean PyPI install verified
 
-## Pending v0.8.2 delivery
+## Completed v0.8.2 delivery
 
-- [ ] signed annotated tag `v0.8.2`
-- [ ] GitHub Release `v0.8.2`
-- [ ] PyPI Trusted Publishing publication for `verirepro==0.8.2`
+- [x] signed annotated tag `v0.8.2`
+- [x] GitHub Release `v0.8.2`
+- [x] PyPI Trusted Publishing publication for `verirepro==0.8.2`
 
 ## Deferred cross-account smoke
 
