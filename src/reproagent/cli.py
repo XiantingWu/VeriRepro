@@ -292,7 +292,6 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
         git = cast(dict[str, object], payload["git"])
         docker = cast(dict[str, object], payload["docker"])
         litellm = cast(dict[str, object], payload["litellm"])
-        scientific_contract = cast(dict[str, object], payload["scientific_contract"])
         print(f"VeriRepro: {verirepro['version']}")
         print(f"Git: {git['executable'] or 'not found'}")
         print(f"Docker: {docker['executable'] or 'not found'}")
@@ -300,10 +299,6 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
         print(f"LiteLLM configured: {litellm['configured']}")
         print(f"LiteLLM endpoint configured: {litellm['endpoint_configured']}")
         print(f"LiteLLM model: {litellm['model'] or 'not set'}")
-        print(
-            "Repository scientific contract trusted by environment: "
-            f"{scientific_contract['repository_contract_trusted']}"
-        )
         print(f"Ready: {ready}")
         if failed:
             print("Missing/failed requirement(s): " + ", ".join(str(item) for item in failed))
