@@ -226,3 +226,13 @@ def test_dependency_review_is_pull_request_only_and_read_only() -> None:
     assert "timeout-minutes: 15" in workflow
     assert "actions/dependency-review-action@" in workflow
     assert "fail-on-severity: high" in workflow
+
+
+def test_dependency_canary_is_manual_and_weekly_latest_dependency_monitor() -> None:
+    canary = _workflow("dependency-canary.yml")
+    assert "workflow_dispatch:" in canary
+    assert "schedule:" in canary
+    assert "cron:" in canary
+    assert "python-version: ['3.11', '3.12', '3.13']" in canary
+    assert "--upgrade-strategy eager" in canary
+    assert "PIP_CONSTRAINT" not in canary

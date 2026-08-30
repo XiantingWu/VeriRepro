@@ -45,6 +45,7 @@ rich==15.0.0
 ruff==0.16.4
 trove-classifiers==2026.6.1.19
 twine==6.2.0
+types-PyYAML==6.0.12.20260815
 typing-extensions==4.16.0
 urllib3==2.7.0
 zipp==4.1.0 ; python_version < "3.12"

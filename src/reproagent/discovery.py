@@ -5,7 +5,7 @@ import re
 from bisect import bisect_left
 from itertools import islice
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 from .models import DiscoveryResult, PaperDocument, RepositoryCandidate, RepositoryEvidence
 
@@ -41,6 +41,13 @@ _MAX_ANNOTATION_LINKS = 512
 _MAX_ANNOTATION_URL_LENGTH = 4096
 
 
+class _RepositoryRecord(TypedDict):
+    score: int
+    occurrences: int
+    reasons: list[str]
+    first: int
+
+
 def _unique(items: list[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(items))
 
@@ -72,7 +79,7 @@ def _nearest_repository_index(position: int, centers: list[int]) -> int:
 def _rank_repositories(
     text: str, matches: list[tuple[str, int, int]]
 ) -> tuple[RepositoryCandidate, ...]:
-    by_url: dict[str, dict[str, object]] = {}
+    by_url: dict[str, _RepositoryRecord] = {}
     lowered = text.lower()
     centers = [(start + end) // 2 for _, start, end in matches]
     phrase_occurrences: dict[str, list[int]] = {
@@ -91,9 +98,9 @@ def _rank_repositories(
             url,
             {"score": 0, "occurrences": 0, "reasons": [], "first": start},
         )
-        record["occurrences"] = int(record["occurrences"]) + 1
-        record["score"] = int(record["score"]) + 1
-        reasons: list[str] = record["reasons"]  # type: ignore[assignment]
+        record["occurrences"] += 1
+        record["score"] += 1
+        reasons = record["reasons"]
 
         center = centers[occurrence_index]
         for phrase, weight in _CONTEXT_RULES:
@@ -106,21 +113,21 @@ def _rank_repositories(
                 attributed = True
                 break
             if attributed:
-                record["score"] = int(record["score"]) + weight
+                record["score"] += weight
                 if phrase not in reasons:
                     reasons.append(phrase)
 
         if start < min(len(text), 12_000):
-            record["score"] = int(record["score"]) + 2
+            record["score"] += 2
             if "early-paper link" not in reasons:
                 reasons.append("early-paper link")
 
     ranked = [
         RepositoryCandidate(
             url=url,
-            score=int(record["score"]),
-            occurrences=int(record["occurrences"]),
-            reasons=tuple(record["reasons"]),  # type: ignore[arg-type]
+            score=record["score"],
+            occurrences=record["occurrences"],
+            reasons=tuple(record["reasons"]),
         )
         for url, record in by_url.items()
     ]
@@ -128,7 +135,7 @@ def _rank_repositories(
         key=lambda item: (
             -item.score,
             -item.occurrences,
-            int(by_url[item.url]["first"]),
+            by_url[item.url]["first"],
             item.url.lower(),
         )
     )
@@ -169,10 +176,13 @@ def _annotation_links(paper: PaperDocument) -> list[tuple[str, int]]:
         normalized_url = url.strip()
         if len(normalized_url) > _MAX_ANNOTATION_URL_LENGTH:
             continue
-        try:
-            page_number = int(page)
-        except (TypeError, ValueError):
+        if page is None:
             page_number = 0
+        else:
+            try:
+                page_number = int(page)
+            except (TypeError, ValueError):
+                page_number = 0
         links.append((normalized_url, page_number))
     return links
 

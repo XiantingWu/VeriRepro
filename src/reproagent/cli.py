@@ -5,6 +5,7 @@ import json
 import os
 import shutil
 from pathlib import Path
+from typing import cast
 
 from . import __version__
 from .core import build_reproduction_plan
@@ -12,6 +13,7 @@ from .discovery import discover_paper_artifacts, write_discovery
 from .environment import docker_available, plan_environment, write_environment_plan
 from .intelligence import analyze_paper, write_intelligence
 from .llm import LLMConfig, LLMUnavailableError
+from .models import ReproductionReport
 from .pipeline import reproduce
 from .repository import clone_repository, inspect_repository
 from .sources import resolve_paper
@@ -134,7 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _print_human(report) -> None:
+def _print_human(report: ReproductionReport) -> None:
     for stage in report.stages:
         symbol = {"passed": "✓", "failed": "✗", "skipped": "○"}.get(stage.status, "•")
         print(f"{symbol} {stage.name}: {stage.detail}")
@@ -161,19 +163,19 @@ def _print_human(report) -> None:
         print()
     if report.artifact_comparisons:
         print("Artifacts:")
-        for item in report.artifact_comparisons:
-            verdict = "PASS" if item.passed else "FAIL"
+        for artifact in report.artifact_comparisons:
+            verdict = "PASS" if artifact.passed else "FAIL"
             print(
-                f"  {item.kind.title():<7} {item.name}: "
-                f"{item.score:.3f} / {item.threshold:.3f}  {verdict}"
+                f"  {artifact.kind.title():<7} {artifact.name}: "
+                f"{artifact.score:.3f} / {artifact.threshold:.3f}  {verdict}"
             )
         print()
     if report.comparisons:
         width = max(len(item.name) for item in report.comparisons)
-        for item in report.comparisons:
-            print(f"{item.name.title():<{width}}  Paper: {item.paper:.4f}")
-            print(f"{'':<{width}}  Reproduced: {item.reproduced:.4f}")
-            print(f"{'':<{width}}  Difference: {item.difference:+.4f}")
+        for comparison in report.comparisons:
+            print(f"{comparison.name.title():<{width}}  Paper: {comparison.paper:.4f}")
+            print(f"{'':<{width}}  Reproduced: {comparison.reproduced:.4f}")
+            print(f"{'':<{width}}  Difference: {comparison.difference:+.4f}")
             print()
     print(f"Reproducibility: {report.status}")
     if report.report_markdown:
@@ -233,9 +235,9 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
     try:
         config = LLMConfig.from_env()
         config_error = None
-    except LLMUnavailableError as exc:
+    except LLMUnavailableError:
         config = None
-        config_error = str(exc)
+        config_error = "LiteLLM configuration rejected"
 
     git_executable = shutil.which("git")
     docker_executable = shutil.which("docker")
@@ -261,7 +263,6 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
             "configured": config is not None,
             "endpoint_configured": bool(config.base_url) if config else False,
             "model": config.model if config else None,
-            "api_key_present": bool(config.api_key) if config else False,
             "config_error": config_error,
         },
         "scientific_contract": {
@@ -280,29 +281,24 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
 
 def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -> int:
     payload = _doctor_payload(require_llm=require_llm)
-    readiness = payload["readiness"]
-    assert isinstance(readiness, dict)
+    readiness = cast(dict[str, object], payload["readiness"])
     ready = bool(readiness["ready"])
-    failed = readiness["failed"]
-    assert isinstance(failed, list)
+    failed = cast(list[object], readiness["failed"])
 
     if as_json:
         print(json.dumps(payload, indent=2))
     else:
-        print(f"VeriRepro: {payload['verirepro']['version']}")
-        print(f"Git: {payload['git']['executable'] or 'not found'}")
-        print(f"Docker: {payload['docker']['executable'] or 'not found'}")
-        print(f"Docker daemon: {payload['docker']['daemon_available']}")
-        print(f"LiteLLM configured: {payload['litellm']['configured']}")
-        print(f"LiteLLM endpoint configured: {payload['litellm']['endpoint_configured']}")
-        print(f"LiteLLM model: {payload['litellm']['model'] or 'not set'}")
-        print(f"LiteLLM API key present: {payload['litellm']['api_key_present']}")
-        if payload["litellm"]["config_error"]:
-            print(f"LiteLLM configuration error: {payload['litellm']['config_error']}")
-        print(
-            "Repository scientific contract trusted by environment: "
-            f"{payload['scientific_contract']['repository_contract_trusted']}"
-        )
+        verirepro = cast(dict[str, object], payload["verirepro"])
+        git = cast(dict[str, object], payload["git"])
+        docker = cast(dict[str, object], payload["docker"])
+        litellm = cast(dict[str, object], payload["litellm"])
+        print(f"VeriRepro: {verirepro['version']}")
+        print(f"Git: {git['executable'] or 'not found'}")
+        print(f"Docker: {docker['executable'] or 'not found'}")
+        print(f"Docker daemon: {docker['daemon_available']}")
+        print(f"LiteLLM configured: {litellm['configured']}")
+        print(f"LiteLLM endpoint configured: {litellm['endpoint_configured']}")
+        print(f"LiteLLM model: {litellm['model'] or 'not set'}")
         print(f"Ready: {ready}")
         if failed:
             print("Missing/failed requirement(s): " + ", ".join(str(item) for item in failed))

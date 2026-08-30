@@ -39,6 +39,7 @@ dev = [
   "pytest>=8.0,<9",
   "pytest-cov>=6,<8",
   "ruff>=0.12,<1",
+  "types-PyYAML>=6.0,<7",
   "twine>=6,<7",
 ]
 
@@ -84,10 +85,7 @@ ignore = ["E501"]
 python_version = "3.11"
 files = [
   "src/verirepro",
-  "src/reproagent/pipeline_policy.py",
-  "src/reproagent/pipeline_execution.py",
-  "src/reproagent/pipeline_verification.py",
-  "src/reproagent/pipeline_reporting.py",
+  "src/reproagent",
 ]
 follow_imports = "skip"
 check_untyped_defs = true

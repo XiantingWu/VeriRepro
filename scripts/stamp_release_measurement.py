@@ -115,15 +115,11 @@ def main() -> int:
     )
     args = parser.parse_args()
     try:
-        payload = stamp_measurement(args.evidence, source_sha=args.source_sha)
+        stamp_measurement(args.evidence, source_sha=args.source_sha)
     except MeasurementStampError as exc:
         print(f"FAIL: {exc}")
         return 1
-    provenance = payload["measurement_provenance"]
-    print(
-        "PASS: stamped trusted measurement "
-        f"run={provenance['github_actions_run_id']} head={provenance['head_sha']}"
-    )
+    print("PASS: stamped trusted measurement")
     return 0
 
 

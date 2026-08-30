@@ -6,6 +6,7 @@ import re
 import shutil
 import socket
 from pathlib import Path
+from typing import Any, cast
 from urllib.parse import quote, urljoin, urlparse
 
 import requests
@@ -82,7 +83,7 @@ def _validate_pdf_url(url: str, *, resolve_dns: bool = True) -> None:
         raise SourceResolutionError(f"paper host is not publicly routable: {parsed.hostname}")
 
 
-def _safe_pdf_response(url: str, *, timeout: int):
+def _safe_pdf_response(url: str, *, timeout: int) -> requests.Response:
     current = url
     for _ in range(6):
         _validate_pdf_url(current)
@@ -217,10 +218,13 @@ def _extract_pdf_annotation_links(reader: PdfReader) -> list[dict[str, object]]:
             if len(results) >= _MAX_PDF_ANNOTATION_LINKS:
                 return results
             try:
+                raw_reference = cast(Any, reference)
                 annotation = (
-                    reference.get_object() if hasattr(reference, "get_object") else reference
+                    raw_reference.get_object()
+                    if hasattr(raw_reference, "get_object")
+                    else raw_reference
                 )
-                action = annotation.get("/A") if hasattr(annotation, "get") else None
+                action: Any = annotation.get("/A") if hasattr(annotation, "get") else None
                 if hasattr(action, "get_object"):
                     action = action.get_object()
                 uri = action.get("/URI") if hasattr(action, "get") else None
@@ -257,7 +261,7 @@ def _searchable_pdf_text(pages: list[str], annotation_links: list[dict[str, obje
         if not isinstance(url, str):
             continue
         try:
-            page_number = int(page)
+            page_number = int(cast(Any, page))
         except (TypeError, ValueError):
             continue
         if not 1 <= page_number <= len(pages):
