@@ -37,7 +37,20 @@ Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/
 - [x] cryptographic tag verification uses `git verify-tag` with a repository-pinned public SSH allowed-signers policy
 - [x] no long-lived PyPI token; publish refuses pre-release events
 - [x] publish re-runs release/launch/history/source/evidence gates before building
-- [ ] release signer policy public key is not yet provisioned; no stable tag may be created before it is provisioned
+- [x] release signer policy public key is provisioned; no stable tag may be created before the policy is verified
+
+## Release signer
+
+- [x] dedicated production release signer created
+- [x] Git transport key not reused
+- [x] public signer fingerprint verified
+- [x] production public signer policy provisioned
+- [x] valid production scratch signature verified
+- [x] unsigned tag rejected
+- [x] fake signature rejected
+- [x] wrong signer rejected
+- [x] missing signer policy rejected
+- [x] production private key committed = 0
 
 ## Governance / security
 

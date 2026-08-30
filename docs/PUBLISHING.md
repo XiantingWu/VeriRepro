@@ -98,6 +98,20 @@ If the repository name or owner changes, update canonical project URLs, security
 
 For version `X.Y.Z`:
 
+### Stable release prerequisites
+
+Before creating a stable release, confirm all of the following:
+
+- `.github/release-signers` exists.
+- `XiantingWu` is authorized by the public signer policy.
+- The public-key fingerprint matches the documented policy.
+- The release tag is annotated.
+- The release tag has a cryptographic signature.
+- `git verify-tag` passes against the repository-pinned signer policy.
+- The tag name matches the package version.
+- The tag commit matches the checked-out commit.
+- The tag is reachable from canonical `main`.
+
 1. Update version and release metadata.
 2. Freeze release-relevant source before producing final evidence. The fingerprint covers runtime/package code, layered release policy, public launch policy, measurement/promotion code, Quality/validation/smoke workflows, and the publish workflow.
 3. Run CI on the exact candidate head and require all configured quality/build/install gates to pass.

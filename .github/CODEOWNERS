@@ -4,7 +4,9 @@
 # Security, trust, execution, and release boundaries
 /SECURITY.md @XiantingWu
 /docs/TRUST_MODEL.md @XiantingWu
+/docs/RELEASE_SIGNING.md @XiantingWu
 /docs/PUBLISHING.md @XiantingWu
+/.github/release-signers @XiantingWu
 /.github/workflows/ @XiantingWu
 /scripts/release_check.py @XiantingWu
 /scripts/release_checks/ @XiantingWu
