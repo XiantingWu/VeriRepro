@@ -10,7 +10,7 @@ A release is allowed only when all of the following are true:
 2. `python scripts/launch_surface_check.py` passes and confirms canonical repository URLs, the private-advisory security route, dependency-update automation, and stable-only PyPI publication.
 3. The GitHub-hosted CI workflow passes Ruff, the configured mypy surface, branch-coverage measurement, tests, release/launch checks, distribution build, Twine validation, and independent clean-wheel and clean-sdist installation on the exact candidate SHA.
 4. Measured coverage meets the release floor of at least 85% statement coverage and 75% branch coverage.
-5. `python scripts/release_check.py --require-release-evidence` passes on the exact release tree. For 0.8, this requires version-matched 15-paper discovery evidence, bounded 3-repository environment-planning evidence, and version-matched ReproBench evidence.
+5. `python scripts/release_check.py --require-release-evidence` passes on the exact release tree. For 0.8+, this requires version-matched 15-paper discovery evidence, bounded 3-repository environment-planning evidence, and version-matched ReproBench evidence.
 6. `python scripts/release_source_check.py` confirms that release-relevant runtime/package/measurement/promotion/public-launch/release-policy, dependency-update, dependency-review, and workflow bytes are identical to the source fingerprint recorded by the trusted validation run.
 7. External/fork pull requests run only on GitHub-hosted ephemeral runners with read-only permissions and no secrets; maintainer-owned or persistent infrastructure never executes contributor-controlled code.
 8. The repository has a `pypi` GitHub Environment configured with protection rules and required manual approval.
@@ -87,6 +87,20 @@ GitHub-hosted runner. It fails on high-severity dependency findings, uses no
 secrets or write permissions, and is a required `main` status check after the
 workflow has first been verified on a pull request.
 
+## Publisher action pinning
+
+Third-party GitHub Actions must be pinned to dereferenced commit SHAs. For an
+annotated upstream tag, the tag-object SHA is not a valid substitute for the
+release commit SHA. The v1.14.2 `pypa/gh-action-pypi-publish` action is pinned
+to its dereferenced release commit `dc37677b2e1c63e2034f94d8a5b11f265b73ba33`,
+not the annotated tag-object SHA `a892a5a61159132606e93a2fa6f4358831b04d26`.
+
+Because Docker-based publishing actions can resolve a runtime image from
+`github.action_ref`, the validation workflow performs a read-only manifest
+availability preflight for the exact commit image before a candidate is
+certified. This preflight does not request OIDC credentials or upload to
+PyPI.
+
 If repository setup requires a release-relevant source change, stop and produce fresh trusted evidence from the changed source before release. Documentation-only changes remain outside the release-source fingerprint.
 
 ## PyPI Trusted Publishing
@@ -145,9 +159,9 @@ The publish workflow checks out the release tag, refuses a tag that does not equ
 Release evidence is measurement output, not hand-authored marketing data. A trusted exact-head validation run produces:
 
 ```text
-benchmarks/real-paper-smoke-results-0.8.0.json
-benchmarks/environment-planning-results-0.8.0.json
-benchmarks/reprobench-results-0.8.0/
+benchmarks/real-paper-smoke-results-X.Y.Z.json
+benchmarks/environment-planning-results-X.Y.Z.json
+benchmarks/reprobench-results-X.Y.Z/
   manifest.json
   summary.json
   results/

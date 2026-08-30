@@ -1,6 +1,6 @@
-# Public Release Checklist (0.8.0)
+# Public Release Checklist (0.8.1)
 
-Status: **pre-release engineering freeze complete.** Stable GitHub Release/PyPI publication remains separately unauthorized.
+Status: **release-delivery repair candidate; not yet released.**
 
 ## Runner architecture
 
@@ -40,6 +40,8 @@ Status: **pre-release engineering freeze complete.** Stable GitHub Release/PyPI 
 - [x] no long-lived PyPI token; publish refuses pre-release events
 - [x] publish re-runs release/launch/history/source/evidence gates before building
 - [x] release signer policy public key is provisioned; no stable tag may be created before the policy is verified
+- [x] v1.14.2 PyPI publisher action is pinned to its dereferenced release commit; the annotated tag-object SHA is not used
+- [ ] exact PyPI publisher runtime-image manifest preflight passes for the 0.8.1 candidate
 
 ## Release signer
 
@@ -68,27 +70,41 @@ Status: **pre-release engineering freeze complete.** Stable GitHub Release/PyPI 
 - [x] CodeQL Default Setup enabled and successful on GitHub-hosted analysis
 - [x] CODEOWNERS assigns XiantingWu as owner for release-sensitive paths
 
-## Evidence
+## Historical v0.8.0 evidence
 
 - [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
-- [x] fresh certification completed once on exact final hardening main `cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef` in validation run `33316585656`
-- [x] fresh evidence (sanitized) promoted by explicit evidence-only PR as `e262560c4be81b8de1f890ca0effc315b3d6b3f0`
+- [x] v0.8.0 certification completed on `cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef` in validation run `33316585656`
+- [x] v0.8.0 evidence (sanitized) promoted by explicit evidence-only PR as `e262560c4be81b8de1f890ca0effc315b3d6b3f0`
 - [x] S1 `ace6683ff24399ff374eec5c05669b67783ffec9`, F1 `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8`, old validation, and E1 are labelled historical
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
+
+## Active v0.8.1 candidate
+
+- [ ] source-hardening main `S3` frozen after the repair PR
+- [ ] release-source fingerprint `F3` computed and different from historical F2
+- [ ] fresh certification (`Validation3`) completed on exact `S3`
+- [ ] fresh evidence (`E3`) sanitized and promoted by an evidence-only PR
+- [ ] `docs/EVIDENCE.md` updated with S3/F3/Validation3/E3 authority
 
 ## Final quality target
 
 - [x] historical validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
-- [x] current validation recorded 792 tests with 86.4% statement coverage and 79.9% branch coverage
-- [x] build / Twine / independent clean-wheel and clean-sdist install PASS recorded after hardening
+- [x] v0.8.0 historical validation recorded 792 tests with 86.4% statement coverage and 79.9% branch coverage
+- [ ] 0.8.1 build / Twine / independent clean-wheel and clean-sdist install PASS recorded after repair
 - [x] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
 - [x] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
 - [x] full reachable Git history contains zero private runner / host identity metadata
 - [x] TruffleHog verified secrets = 0; unknown/unreviewed candidates = 0; three synthetic fixture candidates reviewed separately
 
-## Deferred (explicit authorization required)
+## Immutable v0.8.0 history
 
-- [ ] signed annotated tag `v0.8.0`
-- [ ] GitHub Release
+- [x] signed annotated tag `v0.8.0` preserved
+- [x] GitHub Release `v0.8.0` preserved as published non-prerelease
+- [x] PyPI `verirepro==0.8.0` was not published; no upload was attempted after the deterministic publisher-image failure
+
+## Deferred 0.8.1 publication
+
+- [ ] signed annotated tag `v0.8.1`
+- [ ] GitHub Release `v0.8.1`
 - [ ] PyPI Trusted Publishing publication
 - [ ] live fork PR smoke on a second account (static contract PASS; deferred pending an independent authorized public fork identity)
