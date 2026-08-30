@@ -1,6 +1,6 @@
-# Public Release Checklist (0.8.1)
+# Public Release Checklist (0.8.2)
 
-Status: **pre-release engineering freeze complete; v0.8.1 publication remains separately unauthorized.**
+Status: **v0.8.1 production release complete; v0.8.2 preparation is active and is not yet certified or published.**
 
 ## Runner architecture
 
@@ -41,7 +41,7 @@ Status: **pre-release engineering freeze complete; v0.8.1 publication remains se
 - [x] publish re-runs release/launch/history/source/evidence gates before building
 - [x] release signer policy public key is provisioned; no stable tag may be created before the policy is verified
 - [x] v1.14.2 PyPI publisher action is pinned to its dereferenced release commit; the annotated tag-object SHA is not used
-- [x] exact PyPI publisher runtime-image manifest preflight passes for the 0.8.1 candidate
+- [x] exact PyPI publisher runtime-image manifest preflight passes for the v0.8.1 release
 
 ## Release signer
 
@@ -78,13 +78,16 @@ Status: **pre-release engineering freeze complete; v0.8.1 publication remains se
 - [x] S1 `ace6683ff24399ff374eec5c05669b67783ffec9`, F1 `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8`, old validation, and E1 are labelled historical
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
-## Active v0.8.1 candidate
+## Released v0.8.1 authority
 
 - [x] source-hardening main `S3` frozen after the repair PR: `0a0385ab655e4c58a3db527287dc888dacd14f94`
 - [x] release-source fingerprint `F3` computed and different from historical F2: `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613`
 - [x] fresh certification (`Validation3`) completed on exact `S3`: run `33324289201`
 - [x] fresh evidence (`E3`) sanitized and promoted by an evidence-only PR: `68d50603e8a30b87bcb333cc510a3f85ea6926ce`
 - [x] `docs/EVIDENCE.md` updated with S3/F3/Validation3/E3 authority
+- [x] v0.8.1 signed annotated tag and GitHub Release published
+- [x] v0.8.1 PyPI Trusted Publishing completed successfully (run `33325816551`)
+- [x] fresh clean PyPI install verified
 
 ## Final quality target
 
@@ -103,9 +106,13 @@ Status: **pre-release engineering freeze complete; v0.8.1 publication remains se
 - [x] GitHub Release `v0.8.0` preserved as published non-prerelease
 - [x] PyPI `verirepro==0.8.0` was not published; no upload was attempted after the deterministic publisher-image failure
 
-## Deferred 0.8.1 publication
+## Active v0.8.2 release preparation
 
-- [ ] signed annotated tag `v0.8.1`
-- [ ] GitHub Release `v0.8.1`
-- [ ] PyPI Trusted Publishing publication
+- [ ] fresh exact-main certification (`Validation4`) and sanitized evidence (`E4`)
+- [ ] signed annotated tag `v0.8.2`
+- [ ] GitHub Release `v0.8.2`
+- [ ] PyPI Trusted Publishing publication for `verirepro==0.8.2`
+
+## Deferred cross-account smoke
+
 - [ ] live fork PR smoke on a second account (static contract PASS; deferred pending an independent authorized public fork identity)

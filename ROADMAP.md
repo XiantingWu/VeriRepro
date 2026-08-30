@@ -2,7 +2,11 @@
 
 VeriRepro is developed against measurable reproducibility, safety, and release gates rather than feature count. Roadmap items are phrased as observable capabilities so contributors can attach tests and evidence to them.
 
-## Current public-beta candidate — 0.8
+## Current public-beta line — 0.8
+
+The 0.8 line has reached public GitHub and PyPI distribution. Future entries
+describe planned capabilities and are not release commitments until their
+evidence and delivery gates are complete.
 
 The 0.8 line establishes the first public release baseline.
 
