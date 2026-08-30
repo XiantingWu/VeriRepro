@@ -418,16 +418,16 @@ def analyze_paper(
             continue
         page = _safe_page(item.get("page"))
         quote = str(item.get("quote") or "").strip()
-        value = str(item.get("value") or "").strip()
+        evidence_value = str(item.get("value") or "").strip()
         verification = _verify_quote(pages, page, quote)
         if verification in {"verified", "approximate"} and not _quote_supports_evidence_value(
-            value, quote
+            evidence_value, quote
         ):
             verification = "unverified"
         evidence.append(
             EvidenceAnchor(
                 field=_canonical_field(str(item.get("field") or "unknown")),
-                value=value,
+                value=evidence_value,
                 page=page,
                 quote=quote,
                 confidence=str(item.get("confidence") or "low").lower(),

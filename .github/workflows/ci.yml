@@ -112,7 +112,12 @@ jobs:
           python-version: '3.12'
           cache: pip
       - name: Install
-        run: python -m pip install -e '.[dev]'
+        run: |
+          set -euo pipefail
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"
+          python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
+          python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
       - name: Full pytest suite
         run: python -m pytest -q
       - name: Import and CLI surface
@@ -134,7 +139,12 @@ jobs:
           python-version: '3.13'
           cache: pip
       - name: Install
-        run: python -m pip install -e '.[dev]'
+        run: |
+          set -euo pipefail
+          export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"
+          python -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          python -m pip install -c "$PIP_CONSTRAINT" 'hatchling==1.32.0'
+          python -m pip install -c "$PIP_CONSTRAINT" -e '.[dev]'
       - name: Full pytest suite
         run: python -m pytest -q
       - name: Import and CLI surface

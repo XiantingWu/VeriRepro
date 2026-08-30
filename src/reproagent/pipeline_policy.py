@@ -24,14 +24,22 @@ _METRIC_CANONICAL = {
 
 
 class _MetricClaimLike(Protocol):
-    name: str
-    value: float
-    quote: str
-    verification: str
+    @property
+    def name(self) -> str: ...
+
+    @property
+    def value(self) -> float: ...
+
+    @property
+    def quote(self) -> str: ...
+
+    @property
+    def verification(self) -> str: ...
 
 
 class _IntelligenceLike(Protocol):
-    metrics: Sequence[_MetricClaimLike]
+    @property
+    def metrics(self) -> Sequence[_MetricClaimLike]: ...
 
 
 def canonical_auto_metric(name: str) -> str | None:

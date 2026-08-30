@@ -47,3 +47,10 @@ def test_quality_lane_runs_release_and_launch_gates() -> None:
 def test_quality_lane_uses_setup_python_actions() -> None:
     ci = _ci()
     assert "actions/setup-python@" in ci
+
+
+def test_all_lanes_use_committed_certification_constraints() -> None:
+    ci = _ci()
+    export = 'export PIP_CONSTRAINT="$GITHUB_WORKSPACE/constraints/certification.txt"'
+    assert ci.count(export) == 3
+    assert ci.count('python -m pip install -c "$PIP_CONSTRAINT"') >= 9

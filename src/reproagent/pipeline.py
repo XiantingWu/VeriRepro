@@ -9,7 +9,7 @@ from .environment import generate_dockerfile, plan_environment, write_environmen
 from .intelligence import analyze_paper, write_intelligence
 from .llm import LLMUnavailableError
 from .model_artifacts import materialize_model_artifacts
-from .models import ReproductionReport, StageResult
+from .models import DiscoveryResult, ReproductionReport, StageResult
 from .pipeline_execution import execute_experiment
 from .pipeline_policy import (
     AUTO_METRIC_TOLERANCE,
@@ -34,7 +34,7 @@ from .sources import resolve_paper
 from .workspaces import allocate_workspace
 
 
-def _discovery_payload(discovery) -> dict[str, object]:
+def _discovery_payload(discovery: DiscoveryResult) -> dict[str, object]:
     return {
         "github_repositories": list(discovery.github_repositories),
         "dataset_urls": list(discovery.dataset_urls),

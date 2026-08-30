@@ -9,6 +9,7 @@ import socket
 import stat
 import time
 import uuid
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -130,7 +131,7 @@ class DatasetCacheBusyError(RuntimeError):
 
 
 @contextmanager
-def _cache_lock(root: Path):
+def _cache_lock(root: Path) -> Iterator[None]:
     if fcntl is None:
         raise DatasetCacheBusyError("host dataset cache locking is unavailable on this platform")
     nofollow = getattr(os, "O_NOFOLLOW", 0)
@@ -447,7 +448,13 @@ def _validate_download_url(url: str, *, resolve_dns: bool = True) -> None:
         raise DatasetSecurityError(f"dataset host is not publicly routable: {parsed.hostname}")
 
 
-def _safe_get(url: str, *, stream: bool, timeout: int, headers: dict[str, str] | None = None):
+def _safe_get(
+    url: str,
+    *,
+    stream: bool,
+    timeout: int,
+    headers: dict[str, str] | None = None,
+) -> requests.Response:
     current = url
     credential_host = urlparse(url).hostname if headers else None
     for _ in range(6):

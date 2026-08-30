@@ -126,17 +126,22 @@ def check_package_surface(
 
     mypy = (pyproject.get("tool") or {}).get("mypy") or {}
     if mypy.get("disallow_untyped_defs") is not True:
-        errors.append("narrow public/core mypy gate must disallow untyped definitions")
+        errors.append("public/core mypy gate must disallow untyped definitions")
     mypy_files = {str(item) for item in mypy.get("files") or []}
-    for required_path in (
-        "src/verirepro",
-        "src/reproagent/pipeline_policy.py",
-        "src/reproagent/pipeline_execution.py",
-        "src/reproagent/pipeline_verification.py",
-        "src/reproagent/pipeline_reporting.py",
-    ):
+    required_mypy_paths = (
+        ("src/verirepro", "src/reproagent")
+        if "src/reproagent" in mypy_files
+        else (
+            "src/verirepro",
+            "src/reproagent/pipeline_policy.py",
+            "src/reproagent/pipeline_execution.py",
+            "src/reproagent/pipeline_verification.py",
+            "src/reproagent/pipeline_reporting.py",
+        )
+    )
+    for required_path in required_mypy_paths:
         if required_path not in mypy_files:
-            errors.append(f"narrow mypy gate must cover {required_path}")
+            errors.append(f"mypy gate must cover {required_path}")
 
     _check_package_version(root, version, errors)
     _check_public_namespace(root, errors)
