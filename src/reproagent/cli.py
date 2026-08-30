@@ -300,8 +300,6 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
         print(f"LiteLLM configured: {litellm['configured']}")
         print(f"LiteLLM endpoint configured: {litellm['endpoint_configured']}")
         print(f"LiteLLM model: {litellm['model'] or 'not set'}")
-        if litellm["config_error"]:
-            print(f"LiteLLM configuration error: {litellm['config_error']}")
         print(
             "Repository scientific contract trusted by environment: "
             f"{scientific_contract['repository_contract_trusted']}"

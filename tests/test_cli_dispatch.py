@@ -647,7 +647,7 @@ def test_doctor_json_payload_reflects_failures_and_strict_exit(monkeypatch, caps
     assert payload["scientific_contract"]["repository_contract_trusted"] is False
 
 
-def test_doctor_reports_litellm_configuration_error(monkeypatch, capsys) -> None:
+def test_doctor_suppresses_litellm_configuration_error_details(monkeypatch, capsys) -> None:
     patch_which(monkeypatch, {"git": "/usr/bin/git", "docker": "/usr/bin/docker"})
     monkeypatch.setattr(cli, "docker_available", lambda: True)
     monkeypatch.setattr(cli, "LLMConfig", BrokenLLMConfig)
@@ -655,7 +655,7 @@ def test_doctor_reports_litellm_configuration_error(monkeypatch, capsys) -> None
     code, out, _ = run_cli(monkeypatch, capsys, "doctor")
 
     assert code == 0
-    assert "LiteLLM configuration error: LiteLLM configuration rejected" in out
+    assert "configuration rejected" not in out
     assert "Ready: True" in out
 
 
