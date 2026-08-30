@@ -120,7 +120,10 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
 
     release_checklist = public_identity["docs/PUBLIC_RELEASE_CHECKLIST.md"]
     if release_checklist:
-        if "historical evidence for the older measured source only" not in release_checklist:
+        if (
+            "previous source/fingerprint/run are labelled historical after release-relevant hardening"
+            not in release_checklist
+        ):
             errors.append("release checklist must distinguish historical from current 0.8 evidence")
 
     publish_path = root / ".github/workflows/publish.yml"

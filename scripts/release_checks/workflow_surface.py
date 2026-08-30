@@ -36,6 +36,7 @@ def check_workflow_surface(root: Path, errors: list[str]) -> None:
         _check_credentials(text, label=label, errors=errors)
         _check_action_pins(text, label=label, errors=errors)
         _check_permissions(text, label=label, errors=errors)
+        _check_resource_bounds(text, label=label, errors=errors)
 
     _check_publish_workflow(root, errors)
 
@@ -92,6 +93,38 @@ def _check_permissions(text: str, *, label: str, errors: list[str]) -> None:
         errors.append(f"only the publish workflow may request OIDC id-token: write: {label}")
 
 
+def _check_resource_bounds(text: str, *, label: str, errors: list[str]) -> None:
+    """Require an explicit timeout for every public workflow job and CI cancellation."""
+
+    runner_count = len(workflow_runs_on_lines(text))
+    timeout_count = text.count("timeout-minutes:")
+    if runner_count and timeout_count != runner_count:
+        errors.append(
+            f"every public workflow job must have an explicit timeout: {label} "
+            f"({timeout_count} timeouts for {runner_count} jobs)"
+        )
+
+    if label == ".github/workflows/ci.yml":
+        required = (
+            "concurrency:",
+            "group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}",
+            "cancel-in-progress: true",
+            "timeout-minutes: 45",
+            "timeout-minutes: 30",
+        )
+        for fragment in required:
+            if fragment not in text:
+                errors.append(f"public CI is missing resource-boundary requirement: {fragment!r}")
+    elif label == ".github/workflows/validation.yml" and "timeout-minutes: 120" not in text:
+        errors.append("validation workflow must retain its 120-minute bounded timeout")
+    elif label == ".github/workflows/publish.yml":
+        for fragment in ("timeout-minutes: 60", "timeout-minutes: 15"):
+            if fragment not in text:
+                errors.append(
+                    f"publish workflow is missing resource-boundary requirement: {fragment!r}"
+                )
+
+
 def _check_publish_workflow(root: Path, errors: list[str]) -> None:
     path = root / ".github/workflows/publish.yml"
     if not path.is_file():
@@ -112,6 +145,10 @@ def _check_publish_workflow(root: Path, errors: list[str]) -> None:
         "python scripts/release_check.py --require-release-evidence",
         "scripts/history_scan.py",
         "git merge-base --is-ancestor",
+        "ref: ${{ github.event.release.tag_name }}",
+        "python scripts/verify_release_tag.py",
+        "--allowed-signers .github/release-signers",
+        "--expected-principal XiantingWu",
     )
     for fragment in required_fragments:
         if fragment not in publish:
@@ -121,3 +158,9 @@ def _check_publish_workflow(root: Path, errors: list[str]) -> None:
             errors.append(
                 f"publish workflow must not contain long-lived credential input: {fragment!r}"
             )
+    if "github.event.release.target_commitish" in publish:
+        errors.append("publish workflow must check out the release tag, not target_commitish")
+    if "grep -Eq" in publish and "SIGNATURE" in publish:
+        errors.append(
+            "publish workflow must use cryptographic tag verification, not signature-block text"
+        )

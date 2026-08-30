@@ -6,7 +6,7 @@ from pathlib import Path
 CANONICAL_REPOSITORY = "https://github.com/XiantingWu/VeriRepro"
 SECURITY_ADVISORY = f"{CANONICAL_REPOSITORY}/security/advisories/new"
 FORK_EXECUTION_BOUNDARY = (
-    "Do not execute external fork pull-request code on persistent self-hosted runners"
+    "No self-hosted execution and no `pull_request_target` may be used for contributor code"
 )
 
 

@@ -62,6 +62,24 @@ def test_current_public_launch_surface_is_complete() -> None:
     assert check_launch_surface(ROOT) == []
 
 
+def test_launch_surface_requires_hardened_evidence_status_language(tmp_path: Path) -> None:
+    root = _surface_copy(tmp_path)
+    checklist = root / "docs/PUBLIC_RELEASE_CHECKLIST.md"
+    checklist.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ROOT / "docs/PUBLIC_RELEASE_CHECKLIST.md", checklist)
+    checklist.write_text(
+        checklist.read_text(encoding="utf-8").replace(
+            "previous source/fingerprint/run are labelled historical after release-relevant hardening",
+            "previous evidence is historical",
+        ),
+        encoding="utf-8",
+    )
+
+    errors = check_launch_surface(root)
+
+    assert any("historical from current 0.8 evidence" in error for error in errors)
+
+
 def test_public_docs_are_standalone_facing() -> None:
     for relative in _PUBLIC_DOCS:
         text = (ROOT / relative).read_text(encoding="utf-8")

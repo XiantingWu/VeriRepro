@@ -18,14 +18,18 @@ The benchmark files under `benchmarks/` currently contain measurements imported 
 
 These identifiers do **not** match the current Xianting `main`. They are historical provenance records only and are superseded by fresh Xianting-native certification when it is produced.
 
-## Current Xianting-native certification
+## Previous Xianting-native certification (historical)
 
 - Certified source: `84fcc6f24610d13124fc204055166b2b069c8297`
 - Release-source SHA-256: `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2`
 - Validation run: GitHub-hosted `VeriRepro validation` run `33276158764`
 - Evidence commit: `027fe3c`
 
-Discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures — all produced on GitHub-hosted `ubuntu-latest` at the exact certified source. The historical/imported identifiers above are superseded by this certification.
+Discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures — all produced on GitHub-hosted `ubuntu-latest` at the previous exact certified source. This certification is superseded by the P1 hardening source and is retained only as historical provenance.
+
+## Current Xianting-native certification
+
+Fresh exact-main validation and explicit evidence-only promotion are pending for the P1 hardening source. Until that lifecycle completes, no earlier run or fingerprint is current authority.
 
 ## Scientific limits
 

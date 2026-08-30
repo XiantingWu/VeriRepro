@@ -52,15 +52,15 @@ The release candidate is not ready if any command fails. Coverage must be measur
 
 ## Contribution trust promotion
 
-External/fork PRs are review-only. The normal trust promotion path is:
+External/fork PRs run public GitHub-hosted CI. The PR lane establishes contribution quality only; release certification occurs only after accepted source is merged to canonical `main` and validated by VeriRepro validation.
 
-1. review the PR diff without executing contributor-controlled code on persistent infrastructure;
-2. inspect dependency, workflow, network, filesystem, credential, and execution-authority changes;
+The normal trust promotion path is:
+
+1. run read-only, secret-free PR CI on GitHub-hosted runners;
+2. review code, dependency, workflow, network, filesystem, credential, and execution-authority changes;
 3. merge accepted changes through the protected maintainer flow;
 4. certify only an exact SHA reachable from canonical `main` on the GitHub-hosted validation workflow;
-5. produce fresh exact-source release evidence and promote only the sanitized `benchmarks/` evidence surface.
-
-If adversarial fork execution is ever needed, use genuinely disposable GitHub-hosted isolation rather than maintainer-owned infrastructure.
+5. verify the sanitized artifact and promote it through an explicit evidence-only PR.
 
 ## Repository controls
 
@@ -104,11 +104,13 @@ For version `X.Y.Z`:
 4. Run the GitHub-hosted `VeriRepro validation` workflow at that same source identity.
 5. Promote only the validation run's sanitized discovery/planning/ReproBench evidence; do not hand-author release evidence.
 6. Re-run `release_check.py --require-release-evidence` and `release_source_check.py` and verify the source fingerprint matches.
-7. Create and push a signed **annotated** tag named exactly `vX.Y.Z` from a commit reachable from canonical `main`; `publish.yml` rejects lightweight/unsigned-looking tag objects and non-main-line tag commits.
+7. Create and push a cryptographically signed **annotated** tag named exactly `vX.Y.Z` from a commit reachable from canonical `main`; `publish.yml` verifies it with the repository-pinned public SSH signer policy and rejects unsigned or unauthorized tags.
 8. Create a **non-prerelease** GitHub Release for that tag when publishing to stable PyPI.
 9. Approve the protected `pypi` deployment only after the release candidate and distributions have already been reviewed.
 
-The publish workflow refuses a release whose tag does not equal `v` plus the version in `pyproject.toml`, requires full Git history, an annotated tag object containing a PGP/SSH signature block, exact checkout/tag agreement, and reachability from canonical `main`; it then rechecks history/launch/release/source gates before building distributions and will not publish the PyPI job for a GitHub prerelease.
+The publish workflow checks out the release tag, refuses a tag that does not equal `v` plus the version in `pyproject.toml`, requires full Git history, an annotated tag object, cryptographic SSH verification against `.github/release-signers`, exact checkout/tag agreement, and reachability from canonical `main`; it then rechecks history/launch/release/source gates before building distributions and will not publish the PyPI job for a GitHub prerelease. The signer policy must be provisioned with public key material before a stable release tag is created.
+
+`.github/release-signers` is an OpenSSH allowed-signers policy containing public key lines such as `XiantingWu ssh-ed25519 AAAA...`. It must contain no private key, secret, or transport credential. The exact approved public signer and principal must be reviewed before the first stable tag.
 
 ## Evidence promotion
 
@@ -124,7 +126,7 @@ benchmarks/reprobench-results-0.8.0/
     <task-id>.json
 ```
 
-The validation workflow stages only sanitized evidence and hands it to a separate writeback job. Paper PDFs, cloned repositories, Docker contexts, workspaces, prompts/responses, credentials, and raw logs remain transient.
+The validation workflow stages and uploads only sanitized evidence. It does not modify a branch. Paper PDFs, cloned repositories, Docker contexts, workspaces, prompts/responses, credentials, and raw logs remain transient.
 
 The ReproBench manifest records the trusted Actions run id, workflow name, exact tested source SHA, and deterministic `source_tree_sha256`. Benchmark suite/task bytes are bound separately by SHA-256. Documentation and promoted evidence files are intentionally excluded from the source fingerprint.
 

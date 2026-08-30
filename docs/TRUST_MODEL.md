@@ -182,7 +182,28 @@ Repository planning distinguishes `planned`, `unsupported`, `infrastructure_erro
 
 For each release, front-half measurements and ReproBench evidence must be produced from the release-relevant source bytes for that version. Stable benchmark inputs do not prove stable algorithm behavior after source changes.
 
-The release-source fingerprint covers package/runtime Python, `pyproject.toml`, measurement/promotion policy, the ReproBench seed runner, public launch policy, layered release policy, trusted Quality/validation/smoke workflows, and the release-only publish workflow. Changing release-relevant bytes after evidence production invalidates the evidence and requires a fresh trusted measurement run. Documentation and promoted evidence files are intentionally outside that source fingerprint.
+The release-source fingerprint covers package/runtime Python, `pyproject.toml`, measurement/promotion policy, the ReproBench seed runner, public launch policy, layered release policy, public CI/validation workflows, and the release-only publish workflow. Changing release-relevant bytes after evidence production invalidates the evidence and requires a fresh trusted measurement run. Documentation and promoted evidence files are intentionally outside that source fingerprint.
+
+The public authority model is intentionally narrow:
+
+- GitHub-hosted CI is the sole automated CI authority;
+- GitHub-hosted validation is the certification authority;
+- GitHub-hosted publish is the delivery authority;
+- Self-hosted execution authority: none.
+
+PR CI success != release certification. Certification requires manual validation of the exact canonical `main` SHA.
+
+The evidence lifecycle is:
+
+1. freeze a candidate canonical `main` SHA;
+2. dispatch validation against that exact source identity;
+3. run deterministic quality, discovery, planning, ReproBench, and environment checks;
+4. upload only the sanitized evidence artifact;
+5. verify source SHA, run ID, fingerprint, and evidence purity;
+6. create an evidence branch from the certified source;
+7. commit only version-matched benchmark evidence;
+8. review and merge an explicit evidence-only PR;
+9. revalidate source/evidence identity at publication time.
 
 ## Secrets
 
@@ -192,17 +213,17 @@ VeriRepro supports `VERIREPRO_LITELLM_*`, standard `LITELLM_*`, and legacy `REPR
 
 For gated/private Hugging Face files, `HF_TOKEN` or `HUGGING_FACE_HUB_TOKEN` is used only for the initial Hugging Face request host. If the request redirects to another host, sensitive authorization headers are stripped before following the redirect.
 
-## Public pull requests and maintainer integrations
+## Public pull requests and credentialed integrations
 
-External/fork pull requests run only on **GitHub-hosted ephemeral runners** with read-only repository permissions and no secrets. VeriRepro does not run `pull_request_target` workflows that execute contributor-controlled code, and no workflow may use self-hosted runners, private runner labels, or runner groups.
+External/fork pull requests run only on **GitHub-hosted ephemeral PR CI** with read-only permissions, no secrets, no self-hosted runners, and no `pull_request_target` execution. Fork PR code cannot grant certification or delivery authority.
 
-Accepted changes are merged through the protected `main` flow after maintainer review of the diff, dependency/workflow changes, and authority expansion. The public GitHub-hosted `VeriRepro validation` workflow then certifies the exact canonical `main` SHA. If the change becomes release-relevant, final release evidence is regenerated from that exact source identity.
+Accepted changes are merged through the protected `main` flow after maintainer review of the diff, dependency/workflow changes, and authority expansion. The public GitHub-hosted `VeriRepro validation` workflow then certifies the exact canonical `main` SHA. If the change becomes release-relevant, final release evidence is regenerated from that exact source identity and promoted through an explicit evidence-only PR.
 
-The project deliberately does not depend on GitHub-hosted CI for source correctness or launch readiness. Hosted runner availability, quota, or billing status therefore cannot turn a passing exact-head self-hosted certification into a code failure.
+Credentialed model integrations are outside ordinary fork PR CI. If a future credentialed smoke is added, it must be manual, GitHub-hosted, environment-protected, and isolated from `pull_request` events.
 
-The one hosted-runner exception is release delivery through `.github/workflows/publish.yml`: PyPA's official Trusted Publishing action is Linux-container based. That workflow is release-only, has no pull-request trigger, uses a protected `pypi` environment plus OIDC, and is not the authority that decides whether source is correct. All source/evidence gates must already pass before a stable release reaches the publishing boundary.
+The release-only delivery boundary is `.github/workflows/publish.yml`: PyPA's official Trusted Publishing action is Linux-container based. That workflow is release-only, has no pull-request trigger, uses a protected `pypi` environment plus OIDC, and delivers only after source/evidence gates pass.
 
-Networked or credentialed real-paper/LiteLLM integration smoke remains separate and maintainer-dispatched. Self-hosted or credentialed runners must never execute arbitrary external fork pull-request code.
+No self-hosted or credentialed runner may execute arbitrary external fork pull-request code.
 
 Trusted release evidence is deliberately narrow: promoted discovery/planning JSON and the ReproBench manifest/summary/result JSON. Paper PDFs, cloned repositories, Docker contexts, workspaces, prompts/responses, credentials, and raw logs remain transient state rather than public release evidence.
 

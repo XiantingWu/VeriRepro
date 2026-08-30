@@ -70,19 +70,21 @@ python scripts/launch_surface_check.py
 
 ### External and fork pull requests
 
-VeriRepro intentionally does **not** run contributor-controlled pull-request code automatically. The repository has no ordinary `pull_request` or `pull_request_target` execution workflow. This avoids sending untrusted fork code either to persistent maintainer hardware or to a hosted CI service that the project does not rely on for release certification.
+External/fork pull requests run public GitHub-hosted PR CI on ephemeral runners with `contents: read`, no repository secrets, no self-hosted execution, and no `pull_request_target`. Ordinary PR CI is quality/compatibility CI; validation is not PR-triggered and PR success is not release certification.
 
-The contribution path is:
+The contribution and certification path is:
 
-1. contributor opens a PR and provides local test evidence;
-2. maintainer reviews the diff, workflow changes, dependency changes, and trust-boundary impact without executing the fork branch on persistent infrastructure;
-3. the GitHub-hosted CI and validation workflows certify the merged `main` state;
-4. accepted changes are merged through the protected maintainer flow first; the public GitHub-hosted validation workflow then certifies only an exact SHA reachable from canonical `main` and publishes sanitized evidence artifacts;
-5. every release-facing source change receives fresh source-bound discovery/planning/ReproBench/certification-environment evidence from the GitHub-hosted validation workflow before release.
+1. contributor opens a PR;
+2. GitHub-hosted PR CI runs Python 3.11 quality plus Python 3.12 and 3.13 compatibility checks;
+3. PR CI remains read-only, secret-free, GitHub-hosted, and non-certifying;
+4. the maintainer reviews code, dependencies, workflows, and trust-boundary expansion;
+5. the PR merges through protected `main`;
+6. release-relevant `main` changes receive a fresh GitHub-hosted validation run;
+7. fresh sanitized evidence is promoted through an explicit evidence-only PR.
 
-Do not ask maintainers to execute fork PR code on self-hosted or persistent hardware. If stronger adversarial contribution testing becomes necessary, it must use genuinely disposable GitHub-hosted isolation.
+If stronger adversarial contribution testing becomes necessary, it must use genuinely disposable GitHub-hosted isolation.
 
-Real-paper and credentialed smoke workflows remain separate and maintainer-dispatched on GitHub-hosted runners. Their generated result files are transient and are not uploaded as GitHub Actions artifacts. Contributors do not need access to maintainer runners or credentials for ordinary pull requests.
+Credentialed model integrations are outside ordinary fork PR CI. If a future credentialed smoke is added, it must be manual, GitHub-hosted, environment-protected, and isolated from `pull_request` events. Its generated result files must remain transient rather than becoming ordinary PR artifacts.
 
 The release-only PyPI Trusted Publishing workflow is not a contribution CI lane. It is triggered only by a published GitHub Release and keeps OIDC publication authority isolated from source validation.
 

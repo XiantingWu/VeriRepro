@@ -18,6 +18,7 @@ _RELEASE_SOURCE_FILES = (
     "scripts/launch_surface_check.py",
     "scripts/release_check.py",
     "scripts/release_source_check.py",
+    "scripts/verify_release_tag.py",
     "scripts/record_release_evidence.py",
     "scripts/run_real_paper_smoke.py",
     "scripts/stamp_release_measurement.py",
@@ -58,9 +59,10 @@ def release_source_files(root: Path) -> tuple[Path, ...]:
     package typing markers, and trusted certification/evidence-production plus
     publish workflows are part of the
     fingerprint because changing those semantics invalidates prior measurements
-    even when core runtime Python bytes are unchanged. External pull-request
-    intake is review-only and therefore has no executable CI workflow in the
-    release source set.
+    even when core runtime Python bytes are unchanged. Public CI workflow bytes
+    are part of release-source identity because fork/main quality policy is
+    release-relevant. External PR execution is GitHub-hosted, secret-free and
+    non-certifying; exact-main validation remains the certification authority.
     """
 
     root = Path(root).resolve()

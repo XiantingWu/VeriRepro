@@ -85,19 +85,19 @@ PASS / FAIL / PARTIAL + evidence bundle
 
 ## Measured release evidence
 
-The current `0.8.0` release-candidate source is being certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. Evidence recorded in `benchmarks/` from an earlier development line is historical/imported and is replaced by fresh Xianting-native certification (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
+The `0.8.0` release-candidate source is certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The previously recorded certification below is historical and is superseded by this P1 hardening until fresh Xianting-native certification is promoted (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
 | Gate | Current measured result |
 | --- | --- |
 | Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
 | Tests / coverage | 765 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
-| Release-source commit | `84fcc6f24610d13124fc204055166b2b069c8297` |
-| Release-source SHA-256 | `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2` |
-| Validation run | GitHub-hosted `VeriRepro validation` run `33276158764` |
+| Historical release-source commit | `84fcc6f24610d13124fc204055166b2b069c8297` |
+| Historical release-source SHA-256 | `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2` |
+| Historical validation run | GitHub-hosted `VeriRepro validation` run `33276158764` |
 | Real-paper discovery | 15/15 (found, top-1, evidence anchored) |
 | Environment planning | 3/3 bounded repository plans |
 | ReproBench | 1 success / 1 partial / 0 failures |
-| Evidence commit | `027fe3c` (evidence-only promotion, sole parent certified source) |
+| Historical evidence commit | `027fe3c` (evidence-only promotion, sole parent certified source) |
 | Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
 
 All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
@@ -235,9 +235,9 @@ python scripts/release_check.py
 python scripts/launch_surface_check.py
 ```
 
-External/fork pull requests run on **GitHub-hosted ephemeral runners** with read-only permissions and no repository secrets. VeriRepro never executes contributor-controlled code on maintainer-owned infrastructure. The exact canonical `main` SHA is certified through the public GitHub-hosted `VeriRepro validation` workflow, which publishes only sanitized evidence artifacts.
+External/fork pull requests receive **GitHub-hosted PR CI** on ephemeral runners with read-only permissions and no repository secrets. PR CI is quality/compatibility CI; manual GitHub-hosted validation certifies only the exact canonical `main` SHA. Validation publishes only sanitized evidence artifacts, which are promoted through an explicit evidence-only PR.
 
-GitHub-hosted CI is the sole automated quality/validation lane. The release-only exception is PyPI Trusted Publishing/OIDC delivery in `publish.yml`.
+GitHub-hosted CI is the sole automated quality/validation lane. PyPI Trusted Publishing/OIDC delivery in `publish.yml` is a separate release-only delivery boundary.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. For reproduction help, use [SUPPORT.md](SUPPORT.md). Security-sensitive findings belong in GitHub's private Security advisory flow, not a public issue.
 

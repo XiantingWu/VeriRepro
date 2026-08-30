@@ -4,6 +4,8 @@ Notable user-facing changes are recorded here. Internal CI incidents and one-off
 
 ## 0.8.0 — hardened runtime, verification, and release engineering
 
+0.4–0.7 were pre-public development milestones; 0.8.0 is the first planned stable public package publication.
+
 - add lock-aware environment realization for uv, Poetry, conda-lock, and Pipenv while reporting unlocked solve paths as potentially drift-prone;
 - add explicit GPU double authorization: repository request plus independent operator `--allow-gpu`; CUDA hints never grant devices;
 - add checksum-bound, concurrency-hardened host dataset caching with sanitized provenance and fail-safe lock contention;

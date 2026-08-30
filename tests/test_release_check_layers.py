@@ -102,7 +102,7 @@ def test_security_surface_accepts_canonical_private_advisory_route(tmp_path: Pat
         "- double opt-in GPU device access\n"
         "- Public pull requests and CI isolation\n"
         "- private vulnerability-reporting flow\n"
-        "- Do not execute external fork pull-request code on persistent self-hosted runners\n",
+        "- No self-hosted execution and no `pull_request_target` may be used for contributor code\n",
         encoding="utf-8",
     )
     (tmp_path / ".github/ISSUE_TEMPLATE/config.yml").write_text(
@@ -121,7 +121,7 @@ def test_security_surface_rejects_historical_incubator_in_security_md(tmp_path: 
         "double opt-in GPU device access\n"
         "Public pull requests and CI isolation\n"
         "private vulnerability-reporting flow\n"
-        "Do not execute external fork pull-request code on persistent self-hosted runners\n"
+        "No self-hosted execution and no `pull_request_target` may be used for contributor code\n"
         "report to Papers/Repository1-ReproAgent instead\n",
         encoding="utf-8",
     )

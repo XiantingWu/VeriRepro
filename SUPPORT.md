@@ -40,7 +40,7 @@ See `SECURITY.md` for scope and the documented residual risks.
 
 ## Contribution questions
 
-Before proposing code, read `CONTRIBUTING.md`. External pull requests are review-only and do not automatically execute contributor-controlled code. Maintainers promote reviewed changes into the trusted `integration/**` lane when they are ready for execution on project infrastructure.
+Before proposing code, read `CONTRIBUTING.md`. External PRs receive GitHub-hosted secret-free CI, but they do not receive certification authority. Only merged canonical `main` may be certified by the manual GitHub-hosted validation workflow. Sanitized evidence is promoted through an explicit evidence-only PR.
 
 ## What support cannot promise
 
