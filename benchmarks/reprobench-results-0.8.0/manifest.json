@@ -3,14 +3,14 @@
   "release": "0.8.0",
   "suite": "benchmarks/reprobench-seed-suite.json",
   "suite_sha256": "dcddb4e81b760392c8e14945e9fe5f6b23691c5b0342b7451e1661576eef36d6",
-  "source_tree_sha256": "ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2",
+  "source_tree_sha256": "4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8",
   "cases": [
     {
       "task_id": "governed-individuation-mechanism-v1",
       "task_file": "benchmarks/reprobench-seed/governed-individuation.json",
       "task_sha256": "eed91e4725b13fe3e07befb606df212e39d65a609c6aef1cad21045c4a122c04",
       "result_file": "results/governed-individuation-mechanism-v1.json",
-      "result_sha256": "a1ae14109f08a930f0f40b4470a9484bb58522a0475070fbc1e09c24fee350ed",
+      "result_sha256": "1363e3159dcf5e934e533412058980710b8fc2a7db2891604be41d76e299bd63",
       "repository_ref": "010f4d716db5fa0f1defbb2b5f4afa11ab566fe1",
       "scientific_references": [],
       "gate_passed": true,
@@ -21,7 +21,7 @@
       "task_file": "benchmarks/reprobench-seed/cohomology-wall.json",
       "task_sha256": "7500e6be55b589c22037d04d2a2779e6fb0c5cb79e1c423669665c00d15a5c83",
       "result_file": "results/cohomology-wall-smoke-v1.json",
-      "result_sha256": "b968fb24814797c693244620b93e16652768a3399be270d9cec80decd3dfc3c4",
+      "result_sha256": "2d6cc017e77519c96d1fe0b20ed3c40f52ba7d5ccb3c8dd1242f9a16929b17e0",
       "repository_ref": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
       "scientific_references": [
         {
@@ -34,11 +34,11 @@
     }
   ],
   "summary_file": "summary.json",
-  "summary_sha256": "b3ca4835bc71dbc16627630605a23b203390b5546fc859535e5faa556680dd2b",
+  "summary_sha256": "b4b15ce808952de0a1ba9789a7b3e279b617bacebdd3cf0f9889eab68909a35a",
   "gate_passed": true,
   "provenance": {
     "workflow": "VeriRepro validation",
-    "github_actions_run_id": "33276158764",
-    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
+    "github_actions_run_id": "33282504163",
+    "head_sha": "ace6683ff24399ff374eec5c05669b67783ffec9"
   }
 }
