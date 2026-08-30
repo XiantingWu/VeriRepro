@@ -15,7 +15,7 @@
     "report_schema_version": 1
   },
   "outcome": "partial",
-  "wall_clock_seconds": 27.213694,
+  "wall_clock_seconds": 28.75966,
   "execution_requested": true,
   "operator_interventions": [
     "repository_override",
