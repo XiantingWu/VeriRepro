@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "corpus": "benchmarks/real-paper-smoke.json",
+  "corpus_sha256": "c4b1f6004cfcce45b403e3e3d9b8db22b99629f2a5ca807abea15dd184178d09",
+  "corpus_revision_policy": "explicit-arxiv-vN",
+  "mode": {
+    "repository_inspection": true,
+    "max_cases": 3
+  },
+  "summary": {
+    "cases": 3,
+    "expected_repository_found": 3,
+    "top1": 3,
+    "evidence_anchored": 3,
+    "found_rate": 1.0,
+    "top1_rate": 1.0,
+    "evidence_anchor_rate": 1.0,
+    "source_evaluable": 3,
+    "algorithm_found_rate": 1.0,
+    "algorithm_top1_rate": 1.0,
+    "algorithm_evidence_anchor_rate": 1.0,
+    "mean_discovery_seconds": 2.6839999999999997,
+    "discovery_status": {
+      "ok": 3
+    },
+    "domains": {
+      "nlp-adaptation": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "nlp-pretraining": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      },
+      "vision-language": {
+        "cases": 1,
+        "evaluable": 1,
+        "found": 1,
+        "top1": 1,
+        "evidence_anchored": 1
+      }
+    },
+    "repository_inspection_status": {
+      "planned": 3
+    },
+    "execution_surface": {
+      "abstained": 3
+    }
+  },
+  "results": [
+    {
+      "id": "clip",
+      "source": "2103.00020v1",
+      "title": "Learning Transferable Visual Models From Natural Language Supervision",
+      "domain": "vision-language",
+      "expected_repository": "https://github.com/OpenAI/CLIP",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "e original ResNet-50 on ImageNet zero-shot without needing to use any of the 1.28 million training examples it was trained on. We release our code and pre-trained model weights at https://github.com/OpenAI/CLIP. 1. Introduction and Motivating Work Pre-training methods which learn directly from raw text have revolutionized NLP over the last few years (Dai & Le, 2015; Peters et al., 2018; H"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/OpenAI/CLIP"
+        }
+      ],
+      "discovery_seconds": 3.69,
+      "top_candidate": "https://github.com/OpenAI/CLIP",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/OpenAI/CLIP",
+          "score": 12,
+          "occurrences": 1,
+          "reasons": [
+            "our code",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/facebookresearch/detectron2",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ],
+      "repository_inspection": {
+        "status": "planned",
+        "duration_seconds": 1.027,
+        "commit_sha": "d05afc436d78f1c48dc0dbf8e5980a9d471f35f6",
+        "python_version": "3.11",
+        "python_source": "verirepro-default",
+        "dependency_strategy": "requirements",
+        "dependency_files": [
+          "requirements.txt",
+          "setup.py"
+        ],
+        "reproducibility_grade": "medium",
+        "gpu_likely": true,
+        "deterministic_entrypoint_hint": null,
+        "execution_surface": "abstained",
+        "warnings": [
+          "requirements.txt contains 6 unpinned direct requirement(s); exact rebuilds may drift.",
+          "No safe reproduction entrypoint was detected.",
+          "CUDA/GPU signals were detected. The generic VeriRepro Docker image remains CPU-oriented; use the plan as a diagnostic until GPU profiles are enabled."
+        ]
+      }
+    },
+    {
+      "id": "lora",
+      "source": "2106.09685v2",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "domain": "nlp-adaptation",
+      "expected_repository": "https://github.com/microsoft/LoRA",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "of LoRA. We release a package that facilitates the integration of LoRA with PyTorch models and provide our implementations and model checkpoints for RoBERTa, DeBERTa, and GPT-2 athttps://github.com/microsoft/LoRA. 1 I NTRODUCTION Pretrained Weights \ud835\udc4a \u2208 \u211d\ud835\udc51\u00d7\ud835\udc51 x h \ud835\udc35 = 0 \ud835\udc34 = \ud835\udca9(0, \ud835\udf0e2) \ud835\udc51 \ud835\udc5f Pretrained Weights \ud835\udc4a \u2208 \u211d\ud835\udc51\u00d7\ud835\udc51 x f(x) \ud835\udc51 Figure 1: Our reparametriza- tion. We only trainA andB. Many applicat"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/microsoft/LoRA"
+        }
+      ],
+      "discovery_seconds": 3.899,
+      "top_candidate": "https://github.com/microsoft/LoRA",
+      "candidate_count": 1,
+      "candidates": [
+        {
+          "url": "https://github.com/microsoft/LoRA",
+          "score": 7,
+          "occurrences": 1,
+          "reasons": [
+            "implementation",
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        }
+      ],
+      "repository_inspection": {
+        "status": "planned",
+        "duration_seconds": 1.986,
+        "commit_sha": "c4593f060e6a368d7bb5af5273b8e42810cdef90",
+        "python_version": "3.11",
+        "python_source": "verirepro-default",
+        "dependency_strategy": "setup",
+        "dependency_files": [
+          "setup.py"
+        ],
+        "reproducibility_grade": "medium",
+        "gpu_likely": true,
+        "deterministic_entrypoint_hint": null,
+        "execution_surface": "abstained",
+        "warnings": [
+          "No safe reproduction entrypoint was detected.",
+          "CUDA/GPU signals were detected. The generic VeriRepro Docker image remains CPU-oriented; use the plan as a diagnostic until GPU profiles are enabled."
+        ]
+      }
+    },
+    {
+      "id": "albert",
+      "source": "1909.11942v6",
+      "title": "ALBERT: A Lite BERT for Self-supervised Learning of Language Representations",
+      "domain": "nlp-pretraining",
+      "expected_repository": "https://github.com/google-research/ALBERT",
+      "discovery_status": "ok",
+      "found": true,
+      "rank": 1,
+      "evidence_anchored": true,
+      "expected_repository_evidence": [
+        {
+          "source": "page_text",
+          "page": 1,
+          "context": "es new state-of-the-art results on the GLUE, RACE, and SQuAD benchmarks while having fewer param- eters compared to BERT-large. The code and the pretrained models are available at https://github.com/google-research/ALBERT. 1 I NTRODUCTION Full network pre-training (Dai & Le, 2015; Radford et al., 2018; Devlin et al., 2019; Howard & Ruder, 2018) has led to a series of breakthroughs in language repres"
+        },
+        {
+          "source": "pdf_annotation",
+          "page": 1,
+          "context": "https://github.com/google-research/ALBERT"
+        }
+      ],
+      "discovery_seconds": 0.463,
+      "top_candidate": "https://github.com/google-research/ALBERT",
+      "candidate_count": 2,
+      "candidates": [
+        {
+          "url": "https://github.com/google-research/ALBERT",
+          "score": 3,
+          "occurrences": 1,
+          "reasons": [
+            "early-paper link"
+          ],
+          "evidence_count": 2
+        },
+        {
+          "url": "https://github.com/CLUEbenchmark/CLUE",
+          "score": 1,
+          "occurrences": 1,
+          "reasons": [
+            "PDF link annotation"
+          ],
+          "evidence_count": 1
+        }
+      ],
+      "repository_inspection": {
+        "status": "planned",
+        "duration_seconds": 0.56,
+        "commit_sha": "b772393d3dae115b493258ce8e37c17b2cc62100",
+        "python_version": "3.11",
+        "python_source": "verirepro-default",
+        "dependency_strategy": "requirements",
+        "dependency_files": [
+          "requirements.txt"
+        ],
+        "reproducibility_grade": "medium",
+        "gpu_likely": false,
+        "deterministic_entrypoint_hint": null,
+        "execution_surface": "abstained",
+        "warnings": [
+          "requirements.txt contains 1 unpinned direct requirement(s); exact rebuilds may drift.",
+          "No safe reproduction entrypoint was detected."
+        ]
+      }
+    }
+  ],
+  "measurement_provenance": {
+    "workflow": "VeriRepro validation",
+    "github_actions_run_id": "33338588016",
+    "head_sha": "572d51f6725d161efb937bf85f7181c2439e9989"
+  },
+  "release": "0.8.3",
+  "provenance": {
+    "github_actions_run_id": "33338588016",
+    "head_sha": "572d51f6725d161efb937bf85f7181c2439e9989"
+  }
+}
