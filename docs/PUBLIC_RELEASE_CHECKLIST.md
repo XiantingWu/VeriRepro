@@ -127,12 +127,12 @@ Status: **v0.8.2 production release complete; signed tag, GitHub Release, and Py
 
 ## 0.8.3 release preparation (metadata finalization)
 
-- [ ] README/package-status wording made release-state-neutral and stable
-- [ ] version bumped to 0.8.3 on all authoritative surfaces
-- [ ] v0.8.3 release-relevant source frozen (S5) and fingerprint computed (F5)
-- [ ] fresh GitHub-hosted validation completed (Validation5)
-- [ ] v0.8.3 evidence promoted from the exact sanitized artifact (E5)
-- [ ] v0.8.3 certification authority recorded
+- [x] README/package-status wording made release-state-neutral and stable
+- [x] version bumped to 0.8.3 on all authoritative surfaces
+- [x] v0.8.3 release-relevant source frozen (S5) and fingerprint computed (F5)
+- [x] fresh GitHub-hosted validation completed (Validation5)
+- [x] v0.8.3 evidence promoted from the exact sanitized artifact (E5)
+- [x] v0.8.3 certification authority recorded
 - [ ] signed annotated tag `v0.8.3` created and verified
 - [ ] GitHub Release `v0.8.3` published
 - [ ] PyPI Trusted Publishing publication for `verirepro==0.8.3`
