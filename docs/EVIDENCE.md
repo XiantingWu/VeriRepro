@@ -120,6 +120,13 @@ artifact after the exact canonical main source was frozen. No v0.8.1 evidence
 was reused as v0.8.2 evidence. Release delivery used the signed tag and
 protected PyPI Trusted Publishing path.
 
+## v0.8.3 candidate certification
+
+**NOT YET CERTIFIED.** The v0.8.3 metadata-finalization patch is prepared on
+`main`; fresh source-bound certification, evidence, and production authority
+will be recorded here after the release-relevant source is frozen and the
+sanitized validation artifact is promoted.
+
 ## Scientific limits
 
 - A 15-paper discovery corpus, 3-repository environment planning, and 2-case ReproBench seed exercise certify only the tested gates and inputs.

@@ -9,6 +9,49 @@ from .common import BASE_REQUIRED_FILES, is_at_least, version_tuple
 
 CANONICAL_REPOSITORY = "https://github.com/XiantingWu/VeriRepro"
 EXPECTED_REQUIRES_PYTHON = ">=3.11,<3.14"
+
+README_RELEASE_STATE_SENSITIVE_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(r"current published production release is", re.IGNORECASE),
+        "must not name a current published production release",
+    ),
+    (
+        re.compile(r"current production release is", re.IGNORECASE),
+        "must not name a current production release",
+    ),
+    (
+        re.compile(r"latest production release is", re.IGNORECASE),
+        "must not name a latest production release",
+    ),
+    (
+        re.compile(r"production release is\s+[`'\"v]*\d+\.\d+", re.IGNORECASE),
+        "must not embed a release-specific version in status prose",
+    ),
+    (
+        re.compile(r"current published version", re.IGNORECASE),
+        "must not embed a current published version",
+    ),
+    (
+        re.compile(r"\bcandidate\b", re.IGNORECASE),
+        "must not describe the package as a release candidate",
+    ),
+    (
+        re.compile(r"\bawaiting\s+PyPI\b", re.IGNORECASE),
+        "must not describe awaiting PyPI publication",
+    ),
+    (
+        re.compile(r"\bwaiting\s+for\s+PyPI\b", re.IGNORECASE),
+        "must not describe waiting for PyPI publication",
+    ),
+    (
+        re.compile(r"\bpublication\s+pending\b", re.IGNORECASE),
+        "must not describe pending publication",
+    ),
+    (
+        re.compile(r"install\s+from\s+repository\s+until\s+PyPI", re.IGNORECASE),
+        "must not direct repository installation until PyPI publication",
+    ),
+)
 EXPECTED_PROJECT_URLS = {
     "Homepage": CANONICAL_REPOSITORY,
     "Repository": CANONICAL_REPOSITORY,
@@ -216,3 +259,8 @@ def _check_public_documents(root: Path, version: str, errors: list[str]) -> None
         errors.append("README must clone the canonical standalone repository")
     if is_at_least(version, (0, 7, 0)) and "verirepro-reprobench" not in readme:
         errors.append("0.7+ README must document the ReproBench CLI")
+    for pattern, rationale in README_RELEASE_STATE_SENSITIVE_PATTERNS:
+        if pattern.search(readme):
+            errors.append(
+                f"README package-status wording must be release-state-neutral ({rationale})"
+            )
