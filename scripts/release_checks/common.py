@@ -35,13 +35,16 @@ BASE_REQUIRED_FILES = (
     "src/verirepro/__main__.py",
     "src/verirepro/reprobench.py",
     "src/verirepro/py.typed",
+    ".github/dependabot.yml",
     ".github/workflows/ci.yml",
+    ".github/workflows/dependency-review.yml",
     ".github/workflows/validation.yml",
     ".github/workflows/publish.yml",
 )
 
 PUBLIC_WORKFLOWS = (
     ".github/workflows/ci.yml",
+    ".github/workflows/dependency-review.yml",
     ".github/workflows/validation.yml",
     ".github/workflows/publish.yml",
 )

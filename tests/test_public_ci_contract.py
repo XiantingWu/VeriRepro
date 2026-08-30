@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import re
+import shutil
 from pathlib import Path
+
+from scripts.release_checks.workflow_surface import check_workflow_surface
 
 ROOT = Path(__file__).parents[1]
 WORKFLOWS = ROOT / ".github" / "workflows"
@@ -146,3 +149,43 @@ def test_publish_requires_cryptographic_tag_verification() -> None:
 def test_publish_rejects_signature_block_only_policy() -> None:
     publish = _workflow("publish.yml")
     assert "grep -Eq" not in publish
+
+
+def test_publish_requires_current_canonical_main_head_equality() -> None:
+    publish = _workflow("publish.yml")
+    assert 'TAG_COMMIT="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"' in publish
+    assert 'MAIN_COMMIT="$(git rev-parse origin/main)"' in publish
+    assert 'test "$TAG_COMMIT" = "$MAIN_COMMIT"' in publish
+
+
+def test_publish_rejects_ancestry_only_without_current_head_gate(tmp_path: Path) -> None:
+    workflow_dir = tmp_path / ".github/workflows"
+    workflow_dir.mkdir(parents=True)
+    for path in WORKFLOWS.glob("*.yml"):
+        shutil.copyfile(path, workflow_dir / path.name)
+    publish_path = workflow_dir / "publish.yml"
+    publish = publish_path.read_text(encoding="utf-8")
+    equality_gate = (
+        '          MAIN_COMMIT="$(git rev-parse origin/main)"\n'
+        '          test "$TAG_COMMIT" = "$MAIN_COMMIT" || {\n'
+        "            echo 'Stable release tag must identify the current canonical main head.' >&2\n"
+        "            exit 2\n"
+        "          }\n"
+    )
+    publish_path.write_text(publish.replace(equality_gate, ""), encoding="utf-8")
+
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+
+    assert any("current canonical main head" in item for item in errors)
+
+
+def test_dependency_review_is_pull_request_only_and_read_only() -> None:
+    workflow = _workflow("dependency-review.yml")
+    assert "pull_request:" in workflow
+    for forbidden in ("push:", "pull_request_target:", "workflow_dispatch:", "secrets."):
+        assert forbidden not in workflow
+    assert "permissions:\n  contents: read" in workflow
+    assert "timeout-minutes: 15" in workflow
+    assert "actions/dependency-review-action@" in workflow
+    assert "fail-on-severity: high" in workflow

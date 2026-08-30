@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.0)
 
-Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/PyPI publication requires separate explicit authorization.
+Status: **final pre-release hardening in progress.** The stable GitHub Release/PyPI publication remains separately unauthorized.
 
 ## Runner architecture
 
@@ -33,7 +33,9 @@ Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/
 
 - [x] `publish.yml` is GitHub-hosted, release-only, protected `pypi` Environment, `id-token: write`, PyPI Trusted Publishing/OIDC
 - [x] publish uses release tag checkout rather than mutable `target_commitish`
-- [x] annotated tag, tag/version equality, dereferenced tag/checkout equality, and main ancestry are required
+- [ ] stable release tag must equal the current canonical `main` head; ancestry remains defense in depth
+- [x] annotated tag, tag/version equality, dereferenced tag/checkout equality, and canonical-main ancestry are required
+- [ ] wheel and sdist each pass an independent clean-install smoke
 - [x] cryptographic tag verification uses `git verify-tag` with a repository-pinned public SSH allowed-signers policy
 - [x] no long-lived PyPI token; publish refuses pre-release events
 - [x] publish re-runs release/launch/history/source/evidence gates before building
@@ -51,25 +53,33 @@ Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/
 - [x] wrong signer rejected
 - [x] missing signer policy rejected
 - [x] production private key committed = 0
+- [ ] release signer policy accepts only `XiantingWu` `ssh-ed25519` authority, including controlled ED25519 rotation
 
 ## Governance / security
 
 - [x] main PR rule, strict required checks, and conversation resolution are active in the final ruleset; approvals required remain 0 for the single-maintainer stage
 - [x] private vulnerability reporting enabled; SECURITY.md route points to the canonical advisory flow
 - [x] issue forms (bug report, feature request, reproduction help) and Dependabot configured
+- [ ] Dependabot routine updates use explicit minor/patch allow rules without wildcard major ignores
+- [ ] Dependency Review runs on pull requests with a high-severity threshold and is a required status check
+- [ ] GitHub Secret Scanning enabled
+- [ ] GitHub Push Protection enabled
+- [ ] Dependabot dependency graph, alerts, and security updates enabled
+- [ ] CodeQL Default Setup enabled and successful
 - [x] CODEOWNERS assigns XiantingWu as owner for release-sensitive paths
 
 ## Evidence
 
-- [x] fresh certification completed on exact merged main `ace6683ff24399ff374eec5c05669b67783ffec9` in validation run `33282504163`
-- [x] fresh evidence is sanitized and promoted by explicit evidence-only PR as `820898feec6fc4f663c45bf0a42216c64d434bee`
 - [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
+- [ ] fresh certification will be completed once on the final hardening main
+- [ ] fresh evidence (sanitized) will be promoted by an explicit evidence-only PR
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
 ## Final quality target
 
-- [x] fresh validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
-- [x] build / Twine / clean-wheel install PASS recorded after hardening
+- [x] historical validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
+- [ ] current validation records the final test and coverage gates
+- [ ] build / Twine / independent clean-wheel and clean-sdist install PASS recorded after hardening
 - [x] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
 - [x] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
 - [x] full reachable Git history contains zero private runner / host identity metadata

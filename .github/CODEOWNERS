@@ -7,6 +7,7 @@
 /docs/RELEASE_SIGNING.md @XiantingWu
 /docs/PUBLISHING.md @XiantingWu
 /.github/release-signers @XiantingWu
+/.github/dependabot.yml @XiantingWu
 /.github/workflows/ @XiantingWu
 /scripts/release_check.py @XiantingWu
 /scripts/release_checks/ @XiantingWu

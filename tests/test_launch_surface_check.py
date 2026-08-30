@@ -123,3 +123,36 @@ def test_launch_surface_rejects_incubator_security_route(tmp_path: Path) -> None
 
     assert any("private-advisory" in error for error in errors)
     assert any("non-canonical GitHub repository" in error for error in errors)
+
+
+def test_launch_surface_requires_security_safe_dependabot_policy(tmp_path: Path) -> None:
+    root = _surface_copy(tmp_path)
+    dependabot = root / ".github/dependabot.yml"
+    dependabot.parent.mkdir(parents=True, exist_ok=True)
+    dependabot.write_text(
+        "version: 2\n"
+        "updates:\n"
+        '  - package-ecosystem: "pip"\n'
+        "    directory: /\n"
+        "    allow:\n"
+        '      - dependency-name: "*"\n'
+        "        update-types:\n"
+        '          - "version-update:semver-minor"\n'
+        '          - "version-update:semver-patch"\n'
+        "    ignore:\n"
+        '      - dependency-name: "*"\n'
+        "        update-types:\n"
+        '          - "version-update:semver-major"\n'
+        '  - package-ecosystem: "github-actions"\n'
+        "    directory: /\n"
+        "    allow:\n"
+        '      - dependency-name: "*"\n'
+        "        update-types:\n"
+        '          - "version-update:semver-minor"\n'
+        '          - "version-update:semver-patch"\n',
+        encoding="utf-8",
+    )
+
+    errors = check_launch_surface(root)
+
+    assert any("wildcard-ignore semver-major" in error for error in errors)

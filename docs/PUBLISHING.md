@@ -8,10 +8,10 @@ A release is allowed only when all of the following are true:
 
 1. `pyproject.toml`, `reproagent.__version__`, citation metadata, and the release tag carry the same version.
 2. `python scripts/launch_surface_check.py` passes and confirms canonical repository URLs, the private-advisory security route, dependency-update automation, and stable-only PyPI publication.
-3. The GitHub-hosted CI workflow passes Ruff, the configured mypy surface, branch-coverage measurement, tests, release/launch checks, distribution build, Twine validation, and clean-wheel installation on the exact candidate SHA.
+3. The GitHub-hosted CI workflow passes Ruff, the configured mypy surface, branch-coverage measurement, tests, release/launch checks, distribution build, Twine validation, and independent clean-wheel and clean-sdist installation on the exact candidate SHA.
 4. Measured coverage meets the release floor of at least 85% statement coverage and 75% branch coverage.
 5. `python scripts/release_check.py --require-release-evidence` passes on the exact release tree. For 0.8, this requires version-matched 15-paper discovery evidence, bounded 3-repository environment-planning evidence, and version-matched ReproBench evidence.
-6. `python scripts/release_source_check.py` confirms that release-relevant runtime/package/measurement/promotion/public-launch/release-policy bytes are identical to the source fingerprint recorded by the trusted validation run.
+6. `python scripts/release_source_check.py` confirms that release-relevant runtime/package/measurement/promotion/public-launch/release-policy, dependency-update, dependency-review, and workflow bytes are identical to the source fingerprint recorded by the trusted validation run.
 7. External/fork pull requests run only on GitHub-hosted ephemeral runners with read-only permissions and no secrets; maintainer-owned or persistent infrastructure never executes contributor-controlled code.
 8. The repository has a `pypi` GitHub Environment configured with protection rules and required manual approval.
 9. PyPI Trusted Publishing is configured for the exact repository, workflow, and environment.
@@ -73,6 +73,19 @@ Before public launch or stable publication:
 5. Keep real-paper/LiteLLM smoke isolated from external pull requests.
 6. Create a GitHub Environment named `pypi` and require manual approval for deployments to it.
 7. Configure PyPI Trusted Publishing for the exact repository, `publish.yml`, and `pypi` Environment.
+8. Keep Secret Scanning, Push Protection, the dependency graph, Dependabot security updates, and CodeQL Default Setup enabled through GitHub's security control plane.
+
+## Dependency update and PR review controls
+
+Routine Dependabot version updates are explicitly limited to minor and patch
+updates for both Python packages and GitHub Actions. This version-update policy
+does not suppress Dependabot security updates; major migrations require
+deliberate maintainer review.
+
+Every pull request also runs the read-only `Dependency Review` workflow on a
+GitHub-hosted runner. It fails on high-severity dependency findings, uses no
+secrets or write permissions, and is a required `main` status check after the
+workflow has first been verified on a pull request.
 
 If repository setup requires a release-relevant source change, stop and produce fresh trusted evidence from the changed source before release. Documentation-only changes remain outside the release-source fingerprint.
 
@@ -105,12 +118,13 @@ Before creating a stable release, confirm all of the following:
 - `.github/release-signers` exists.
 - `XiantingWu` is authorized by the public signer policy.
 - The public-key fingerprint matches the documented policy.
+- The dereferenced tag commit equals the current canonical `origin/main` head.
 - The release tag is annotated.
 - The release tag has a cryptographic signature.
 - `git verify-tag` passes against the repository-pinned signer policy.
 - The tag name matches the package version.
 - The tag commit matches the checked-out commit.
-- The tag is reachable from canonical `main`.
+- The tag is reachable from canonical `main` (retained as defense in depth).
 
 1. Update version and release metadata.
 2. Freeze release-relevant source before producing final evidence. The fingerprint covers runtime/package code, layered release policy, public launch policy, measurement/promotion code, Quality/validation/smoke workflows, and the publish workflow.
@@ -122,7 +136,7 @@ Before creating a stable release, confirm all of the following:
 8. Create a **non-prerelease** GitHub Release for that tag when publishing to stable PyPI.
 9. Approve the protected `pypi` deployment only after the release candidate and distributions have already been reviewed.
 
-The publish workflow checks out the release tag, refuses a tag that does not equal `v` plus the version in `pyproject.toml`, requires full Git history, an annotated tag object, cryptographic SSH verification against `.github/release-signers`, exact checkout/tag agreement, and reachability from canonical `main`; it then rechecks history/launch/release/source gates before building distributions and will not publish the PyPI job for a GitHub prerelease. The signer policy must be provisioned with public key material before a stable release tag is created.
+The publish workflow checks out the release tag, refuses a tag that does not equal `v` plus the version in `pyproject.toml`, requires full Git history, an annotated tag object, cryptographic SSH verification against `.github/release-signers`, exact checkout/tag agreement, equality with the current canonical `origin/main` head, and reachability from canonical `main`; it then rechecks history/launch/release/source gates before building distributions and will not publish the PyPI job for a GitHub prerelease. Keep `main` frozen from signed tag creation until the publish workflow completes. If `main` advances and the equality gate fails, reassess the new final head instead of bypassing or weakening the gate. The signer policy must be provisioned with public key material before a stable release tag is created.
 
 `.github/release-signers` is an OpenSSH allowed-signers policy containing public key lines such as `XiantingWu ssh-ed25519 AAAA...`. It must contain no private key, secret, or transport credential. The exact approved public signer and principal must be reviewed before the first stable tag.
 

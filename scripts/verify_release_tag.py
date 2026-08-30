@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import re
 import subprocess
 import sys
@@ -10,18 +11,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 _TAG_NAME = re.compile(r"^v\d+\.\d+\.\d+$")
-_SSH_KEY_TYPES = frozenset(
-    {
-        "ecdsa-sha2-nistp256",
-        "ecdsa-sha2-nistp384",
-        "ecdsa-sha2-nistp521",
-        "sk-ecdsa-sha2-nistp256@openssh.com",
-        "sk-ssh-ed25519@openssh.com",
-        "ssh-dss",
-        "ssh-ed25519",
-        "ssh-rsa",
-    }
-)
+_EXPECTED_PRINCIPAL = "XiantingWu"
+_EXPECTED_KEY_TYPE = "ssh-ed25519"
 
 
 def _allowed_signers_path(root: Path, requested: Path, errors: list[str]) -> Path | None:
@@ -53,6 +44,9 @@ def _check_signer_policy(
         errors.append(f"could not read release signer policy: {exc}")
         return False
 
+    if expected_principal != _EXPECTED_PRINCIPAL:
+        errors.append(f"production release signer principal must be {_EXPECTED_PRINCIPAL!r}")
+
     if "PRIVATE KEY" in contents:
         errors.append("release signer policy must contain public keys only")
 
@@ -63,11 +57,33 @@ def _check_signer_policy(
         if not line or line.startswith("#"):
             continue
         fields = line.split()
-        if len(fields) < 3 or fields[1] not in _SSH_KEY_TYPES:
-            errors.append("release signer policy contains an invalid SSH public-key entry")
+        if len(fields) < 3 or fields[1] != _EXPECTED_KEY_TYPE:
+            errors.append("release signer policy permits only ssh-ed25519 public-key entries")
             continue
+
+        principals = fields[0].split(",")
+        if not principals or any(principal != expected_principal for principal in principals):
+            errors.append("release signer policy contains an unauthorized release principal")
+
+        try:
+            blob = base64.b64decode(fields[2], validate=True)
+        except (ValueError, UnicodeEncodeError):
+            blob = b""
+        valid_blob = (
+            len(blob) == 51
+            and blob[:4] == (11).to_bytes(4, "big")
+            and blob[4:15] == _EXPECTED_KEY_TYPE.encode("ascii")
+            and blob[15:19] == (32).to_bytes(4, "big")
+        )
+        if not valid_blob:
+            errors.append("release signer policy contains a malformed SSH public key")
+
         entries += 1
-        if fields[0] == expected_principal:
+        if (
+            valid_blob
+            and principals
+            and all(principal == expected_principal for principal in principals)
+        ):
             expected_entries += 1
 
     if entries == 0:

@@ -24,6 +24,12 @@ The policy file contains public SSH key material only. The production private
 signing key never enters GitHub, the repository, a workflow, an artifact, or a
 release log.
 
+The production verifier accepts only the `XiantingWu` principal and
+`ssh-ed25519` public keys. A future rotation may list multiple valid
+`XiantingWu` ED25519 public keys during a controlled transition, but another
+principal, another SSH algorithm, malformed entries, or private-key material
+is rejected before cryptographic verification.
+
 ## Policy changes and rotation
 
 Signer changes require a normal pull request through protected `main`, with
@@ -43,5 +49,6 @@ protected-main review and CI path.
 Before a stable release is authorized, the tag must be annotated, signed by an
 authorized principal, verified cryptographically against
 `.github/release-signers`, match the package version, identify the checked-out
-commit, and be reachable from canonical `main`. No stable tag is authorized
-while the signer policy is missing or fails verification.
+commit, identify the current canonical `main` head, and be reachable from
+canonical `main`. No stable tag is authorized while the signer policy is
+missing or fails policy or cryptographic verification.

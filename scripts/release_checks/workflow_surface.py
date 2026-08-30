@@ -39,6 +39,7 @@ def check_workflow_surface(root: Path, errors: list[str]) -> None:
         _check_resource_bounds(text, label=label, errors=errors)
 
     _check_publish_workflow(root, errors)
+    _check_dependency_review_workflow(root, errors)
 
 
 def _check_runner_policy(text: str, *, label: str, errors: list[str]) -> None:
@@ -153,6 +154,15 @@ def _check_publish_workflow(root: Path, errors: list[str]) -> None:
     for fragment in required_fragments:
         if fragment not in publish:
             errors.append(f"publish workflow missing release safety requirement: {fragment!r}")
+    current_head_gate = (
+        'TAG_COMMIT="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"',
+        'MAIN_COMMIT="$(git rev-parse origin/main)"',
+        'test "$TAG_COMMIT" = "$MAIN_COMMIT"',
+    )
+    if not all(fragment in publish for fragment in current_head_gate):
+        errors.append(
+            "publish workflow must require the tag commit to equal the current canonical main head"
+        )
     for fragment in ("PYPI_API_TOKEN", "password:", "username:"):
         if fragment in publish:
             errors.append(
@@ -164,3 +174,30 @@ def _check_publish_workflow(root: Path, errors: list[str]) -> None:
         errors.append(
             "publish workflow must use cryptographic tag verification, not signature-block text"
         )
+
+
+def _check_dependency_review_workflow(root: Path, errors: list[str]) -> None:
+    path = root / ".github/workflows/dependency-review.yml"
+    if not path.is_file():
+        errors.append("missing public dependency-review workflow")
+        return
+    text = path.read_text(encoding="utf-8")
+    if "pull_request:" not in text:
+        errors.append("dependency-review workflow must trigger on pull_request")
+    for event in ("push:", "pull_request_target:", "workflow_dispatch:", "schedule:"):
+        if event in text:
+            errors.append(f"dependency-review workflow must not contain {event}")
+    for fragment in (
+        "name: Dependency Review",
+        "permissions:\n  contents: read",
+        "actions/dependency-review-action@",
+        "fail-on-severity: high",
+        "timeout-minutes:",
+    ):
+        if fragment not in text:
+            errors.append(f"dependency-review workflow missing safety requirement: {fragment!r}")
+    for fragment in ("contents: write", "actions: write", "id-token: write", "secrets."):
+        if fragment in text:
+            errors.append(
+                f"dependency-review workflow must not request privileged or secret access: {fragment!r}"
+            )

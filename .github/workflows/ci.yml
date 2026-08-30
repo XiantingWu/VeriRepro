@@ -52,9 +52,12 @@ jobs:
         run: python scripts/launch_surface_check.py
       - name: Build distributions
         run: |
+          set -euo pipefail
           rm -rf dist build
           python -m build
           python -m twine check dist/*
+          test "$(find dist -maxdepth 1 -type f -name '*.whl' | wc -l | tr -d ' ')" = "1"
+          test "$(find dist -maxdepth 1 -type f -name '*.tar.gz' | wc -l | tr -d ' ')" = "1"
       - name: Clean-wheel verification
         run: |
           set -euo pipefail
@@ -68,6 +71,26 @@ jobs:
           "$CHECK_VENV/bin/python" -m pip check
           "$CHECK_VENV/bin/verirepro" --version
           "$CHECK_VENV/bin/python" -m verirepro --version
+          "$CHECK_VENV/bin/verirepro-reprobench" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro-reprobench-summary" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro" doctor --json >/dev/null
+      - name: Clean-sdist verification
+        run: |
+          set -euo pipefail
+          CHECK_VENV="$RUNNER_TEMP/verirepro-ci-sdist-${GITHUB_RUN_ID}"
+          rm -rf "$CHECK_VENV"
+          trap 'rm -rf "$CHECK_VENV"' EXIT
+          python -m venv "$CHECK_VENV"
+          "$CHECK_VENV/bin/python" -m pip install 'pip==26.2.1'
+          SDIST="$(find dist -maxdepth 1 -type f -name 'verirepro-*.tar.gz' -print -quit)"
+          test -n "$SDIST"
+          "$CHECK_VENV/bin/python" -m pip install "$SDIST"
+          "$CHECK_VENV/bin/python" -m pip check
+          "$CHECK_VENV/bin/verirepro" --version
+          "$CHECK_VENV/bin/python" -m verirepro --version
+          "$CHECK_VENV/bin/verirepro-reprobench" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro-reprobench-summary" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro" doctor --json >/dev/null
       - name: CLI surface
         run: |
           verirepro --version
