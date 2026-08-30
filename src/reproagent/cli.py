@@ -235,9 +235,9 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
     try:
         config = LLMConfig.from_env()
         config_error = None
-    except LLMUnavailableError as exc:
+    except LLMUnavailableError:
         config = None
-        config_error = str(exc)
+        config_error = "LiteLLM configuration rejected"
 
     git_executable = shutil.which("git")
     docker_executable = shutil.which("docker")
@@ -263,7 +263,6 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
             "configured": config is not None,
             "endpoint_configured": bool(config.base_url) if config else False,
             "model": config.model if config else None,
-            "api_key_present": bool(config.api_key) if config else False,
             "config_error": config_error,
         },
         "scientific_contract": {
@@ -301,7 +300,6 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
         print(f"LiteLLM configured: {litellm['configured']}")
         print(f"LiteLLM endpoint configured: {litellm['endpoint_configured']}")
         print(f"LiteLLM model: {litellm['model'] or 'not set'}")
-        print(f"LiteLLM API key present: {litellm['api_key_present']}")
         if litellm["config_error"]:
             print(f"LiteLLM configuration error: {litellm['config_error']}")
         print(
