@@ -49,11 +49,11 @@
     "zipp": "4.1.0"
   },
   "provenance": {
-    "github_actions_run_id": "33282504163",
-    "head_sha": "ace6683ff24399ff374eec5c05669b67783ffec9",
+    "github_actions_run_id": "33316585656",
+    "head_sha": "cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef",
     "workflow": "VeriRepro validation"
   },
   "python": "3.11.16",
-  "release_source_sha256": "4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8",
+  "release_source_sha256": "1032069218c9bbecaf8ec7eda6de48bf704e9552487a26ce828a19c6084d6569",
   "schema_version": 1
 }
