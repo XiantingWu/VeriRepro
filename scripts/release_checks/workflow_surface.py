@@ -3,6 +3,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from .action_pin import (
+    PYPI_PUBLISH_ACTION,
+    PYPI_PUBLISH_ACTION_COMMIT_SHA,
+    PYPI_PUBLISH_ACTION_IMAGE,
+    PYPI_PUBLISH_ACTION_TAG_OBJECT_SHA,
+)
 from .common import workflow_runs_on_lines, workflow_uses_lines
 
 HOSTED_RUNNERS = ("ubuntu-latest", "macos-latest", "windows-latest")
@@ -40,6 +46,7 @@ def check_workflow_surface(root: Path, errors: list[str]) -> None:
 
     _check_publish_workflow(root, errors)
     _check_dependency_review_workflow(root, errors)
+    _check_validation_workflow(root, errors)
 
 
 def _check_runner_policy(text: str, *, label: str, errors: list[str]) -> None:
@@ -154,6 +161,7 @@ def _check_publish_workflow(root: Path, errors: list[str]) -> None:
     for fragment in required_fragments:
         if fragment not in publish:
             errors.append(f"publish workflow missing release safety requirement: {fragment!r}")
+    _check_pypi_action_pin(publish, errors)
     current_head_gate = (
         'TAG_COMMIT="$(git rev-parse "${GITHUB_REF_NAME}^{commit}")"',
         'MAIN_COMMIT="$(git rev-parse origin/main)"',
@@ -200,4 +208,33 @@ def _check_dependency_review_workflow(root: Path, errors: list[str]) -> None:
         if fragment in text:
             errors.append(
                 f"dependency-review workflow must not request privileged or secret access: {fragment!r}"
+            )
+
+
+def _check_pypi_action_pin(text: str, errors: list[str]) -> None:
+    expected = f"{PYPI_PUBLISH_ACTION}@{PYPI_PUBLISH_ACTION_COMMIT_SHA}"
+    if expected not in text:
+        errors.append(
+            "publish workflow must pin the PyPI action to its dereferenced release commit"
+        )
+    incorrect = f"{PYPI_PUBLISH_ACTION}@{PYPI_PUBLISH_ACTION_TAG_OBJECT_SHA}"
+    if incorrect in text:
+        errors.append("publish workflow must not use the annotated tag-object SHA as an action pin")
+
+
+def _check_validation_workflow(root: Path, errors: list[str]) -> None:
+    path = root / ".github/workflows/validation.yml"
+    if not path.is_file():
+        errors.append("missing public validation workflow")
+        return
+    text = path.read_text(encoding="utf-8")
+    for fragment in ("docker manifest inspect", PYPI_PUBLISH_ACTION_IMAGE):
+        if fragment not in text:
+            errors.append(
+                f"validation workflow must preflight the exact PyPI action runtime image: {fragment!r}"
+            )
+    for fragment in ("id-token: write", "PYPI_API_TOKEN", "password:", "username:"):
+        if fragment in text:
+            errors.append(
+                f"validation workflow image preflight must not request publishing credentials: {fragment!r}"
             )

@@ -2,6 +2,20 @@
 
 Notable user-facing changes are recorded here. Internal CI incidents and one-off maintainer infrastructure details are intentionally omitted from public release notes.
 
+## 0.8.1 — release-delivery correction
+
+- correct the PyPI Trusted Publishing action pin so the v1.14.2 annotated
+  upstream tag is pinned by its dereferenced release commit rather than its
+  tag-object SHA;
+- add regression coverage for annotated GitHub Action tag dereferencing;
+- add release validation of the exact PyPI action container image before a
+  candidate is certified;
+- no scientific runtime, reproduction semantics, or public API behavior is
+  intentionally changed by this patch;
+- the v0.8.0 GitHub release completed, but its first PyPI delivery did not
+  upload distributions because the publishing action used an annotated tag
+  object SHA without a corresponding runtime image.
+
 ## 0.8.0 — hardened runtime, verification, and release engineering
 
 0.4–0.7 were pre-public development milestones; 0.8.0 is the first planned stable public package publication.
