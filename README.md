@@ -85,19 +85,19 @@ PASS / FAIL / PARTIAL + evidence bundle
 
 ## Measured release evidence
 
-The `0.8.0` release-candidate source is certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The previously recorded certification below is historical and is superseded by this P1 hardening until fresh Xianting-native certification is promoted (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
+The `0.8.0` release-candidate source is currently certified on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The current Xianting-native authority is the exact-main validation run and its explicit evidence-only promotion recorded below; earlier source, fingerprint, and run records are historical and superseded (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
 
 | Gate | Current measured result |
 | --- | --- |
 | Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
-| Tests / coverage | 765 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
-| Historical release-source commit | `84fcc6f24610d13124fc204055166b2b069c8297` |
-| Historical release-source SHA-256 | `ef02b937193882f658a35d90da5a3dd60c212923c906ec4f7f1333b3dbee9ad2` |
-| Historical validation run | GitHub-hosted `VeriRepro validation` run `33276158764` |
+| Tests / coverage | 782 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
+| Current release-source commit | `ace6683ff24399ff374eec5c05669b67783ffec9` |
+| Current release-source SHA-256 | `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8` |
+| Current exact-main validation run | GitHub-hosted `VeriRepro validation` run `33282504163` |
 | Real-paper discovery | 15/15 (found, top-1, evidence anchored) |
 | Environment planning | 3/3 bounded repository plans |
 | ReproBench | 1 success / 1 partial / 0 failures |
-| Historical evidence commit | `027fe3c` (evidence-only promotion, sole parent certified source) |
+| Current evidence commit | `820898feec6fc4f663c45bf0a42216c64d434bee` (evidence-only promotion, direct parent current certified source) |
 | Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
 
 All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.

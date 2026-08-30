@@ -41,25 +41,25 @@ Status: **P1 hardening candidate, not yet released.** The stable GitHub Release/
 
 ## Governance / security
 
-- [ ] main PR rule, strict required checks, and conversation resolution are active in the final ruleset
+- [x] main PR rule, strict required checks, and conversation resolution are active in the final ruleset; approvals required remain 0 for the single-maintainer stage
 - [x] private vulnerability reporting enabled; SECURITY.md route points to the canonical advisory flow
 - [x] issue forms (bug report, feature request, reproduction help) and Dependabot configured
 - [x] CODEOWNERS assigns XiantingWu as owner for release-sensitive paths
 
 ## Evidence
 
-- [ ] fresh certification on exact merged main is pending after P1 hardening
-- [ ] fresh evidence is pending after the exact merged-main certification run
+- [x] fresh certification completed on exact merged main `ace6683ff24399ff374eec5c05669b67783ffec9` in validation run `33282504163`
+- [x] fresh evidence is sanitized and promoted by explicit evidence-only PR as `820898feec6fc4f663c45bf0a42216c64d434bee`
 - [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
 ## Final quality target
 
-- [ ] fresh test count and coverage recorded after hardening
-- [ ] build / Twine / clean-wheel install PASS recorded after hardening
-- [ ] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
-- [ ] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
-- [ ] full reachable Git history contains zero private runner / host identity metadata
+- [x] fresh validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
+- [x] build / Twine / clean-wheel install PASS recorded after hardening
+- [x] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
+- [x] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
+- [x] full reachable Git history contains zero private runner / host identity metadata
 
 ## Deferred (explicit authorization required)
 

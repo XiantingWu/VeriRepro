@@ -29,7 +29,18 @@ Discovery 15/15, planning 3/3, ReproBench 1 success / 1 partial / 0 failures —
 
 ## Current Xianting-native certification
 
-Fresh exact-main validation and explicit evidence-only promotion are pending for the P1 hardening source. Until that lifecycle completes, no earlier run or fingerprint is current authority.
+The current Xianting-native authority is complete:
+
+- Certified source: `ace6683ff24399ff374eec5c05669b67783ffec9`
+- Release-source SHA-256: `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8`
+- Validation run: GitHub-hosted `VeriRepro validation` run `33282504163`
+- Evidence commit: `820898feec6fc4f663c45bf0a42216c64d434bee`
+- Evidence topology: the evidence-only promotion commit is a direct child of the certified source.
+- Discovery: 15/15
+- Planning: 3/3
+- ReproBench: 1 success / 1 partial / 0 failures
+
+The validation run was dispatched against the exact canonical source, uploaded only the sanitized evidence artifact, and was followed by maintainer verification and an explicit evidence-only PR. The earlier Xianting-native source, fingerprint, run, and evidence commit above remain historical and superseded.
 
 ## Scientific limits
 
