@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "benchmark": "reprobench",
+  "result_schema_version": 1,
+  "inputs": [
+    {
+      "file": "cohomology-wall-smoke-v1.json",
+      "sha256": "c710306c8f2c854f8b0493ada3218b9fc7c0ad7b7f58910ab068ef10935ca1e6",
+      "task_id": "cohomology-wall-smoke-v1"
+    },
+    {
+      "file": "governed-individuation-mechanism-v1.json",
+      "sha256": "11d804f1ccd9541247395550c6b45fc27e471912bef7497aa51bb4aeeb1a5248",
+      "task_id": "governed-individuation-mechanism-v1"
+    }
+  ],
+  "summary": {
+    "cases": 2,
+    "outcomes": {
+      "partial": 1,
+      "success": 1
+    },
+    "success_rate": 0.5,
+    "partial_rate": 0.5,
+    "failure_rate": 0.0,
+    "zero_intervention_cases": 0,
+    "zero_intervention_rate": 0.0,
+    "interventions_total": 7,
+    "wall_clock_seconds_total": 43.914102,
+    "wall_clock_seconds_mean": 21.957051,
+    "wall_clock_seconds_median": 21.957051,
+    "environment_build": {
+      "statuses": {
+        "passed": 2
+      },
+      "attempted": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "experiment_execution": {
+      "statuses": {
+        "passed": 2
+      },
+      "attempted": 2,
+      "passed": 2,
+      "pass_rate": 1.0
+    },
+    "grounded_metrics": {
+      "tasks_with_comparisons": 0,
+      "comparisons": 0,
+      "passed": 0,
+      "pass_rate": null
+    },
+    "artifact_comparisons": {
+      "tasks_with_comparisons": 1,
+      "comparisons": 1,
+      "passed": 1,
+      "pass_rate": 1.0
+    },
+    "expected_artifacts": {
+      "tasks_with_expectations": 1,
+      "expected": 1,
+      "found": 1,
+      "found_rate": 1.0
+    },
+    "model_usage": {
+      "cases_with_cost": 0,
+      "cost_usd_total": null,
+      "cases_with_token_usage": 0,
+      "calls_with_telemetry": null,
+      "request_count": null,
+      "prompt_tokens": null,
+      "completion_tokens": null,
+      "total_tokens": null,
+      "cached_tokens": null,
+      "reasoning_tokens": null,
+      "duration_seconds": null
+    },
+    "failure_taxonomy": {
+      "insufficient_evidence_or_execution": 1
+    },
+    "domains": {
+      "agent-governance": {
+        "cases": 1,
+        "outcomes": {
+          "partial": 1
+        },
+        "success_rate": 0.0
+      },
+      "computational-algebraic-geometry": {
+        "cases": 1,
+        "outcomes": {
+          "success": 1
+        },
+        "success_rate": 1.0
+      }
+    },
+    "agents": {
+      "VeriRepro@0.8.3": 2
+    }
+  }
+}
