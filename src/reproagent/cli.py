@@ -36,7 +36,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="extract grounded paper facts and ambiguity audit without cloning/executing code",
     )
     analyze.add_argument("paper", help="arXiv ID/URL, DOI/URL, PDF URL, or local PDF")
-    analyze.add_argument("--model", dest="llm_model", help="override the configured LiteLLM model")
+    analyze.add_argument("--model", dest="llm_model", help="override the configured model")
     analyze.add_argument(
         "--workspace",
         type=Path,
@@ -81,8 +81,10 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument(
         "--no-execute", action="store_true", help="resolve and plan without Docker execution"
     )
-    run.add_argument("--no-llm", action="store_true", help="disable LiteLLM paper intelligence")
-    run.add_argument("--model", dest="llm_model", help="override the configured LiteLLM model")
+    run.add_argument(
+        "--no-llm", action="store_true", help="disable optional model-assisted paper intelligence"
+    )
+    run.add_argument("--model", dest="llm_model", help="override the configured model")
     run.add_argument(
         "--output-backend",
         choices=("persistent", "ephemeral"),
@@ -120,7 +122,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--json", action="store_true", help="print the final report as JSON")
 
     doctor = subparsers.add_parser(
-        "doctor", help="check local Git, Docker, and LiteLLM configuration"
+        "doctor", help="check local Git, Docker, and optional model-endpoint configuration"
     )
     doctor.add_argument("--json", action="store_true", help="print secretless diagnostics as JSON")
     doctor.add_argument(
@@ -131,7 +133,7 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.add_argument(
         "--require-llm",
         action="store_true",
-        help="treat LiteLLM configuration as required for readiness instead of optional",
+        help="treat model-endpoint configuration as required for readiness instead of optional",
     )
     return parser
 
@@ -197,9 +199,9 @@ def _analyze(args: argparse.Namespace) -> None:
         raise SystemExit(str(exc)) from None
     if intelligence is None:
         raise SystemExit(
-            "LiteLLM is not configured. Set VERIREPRO_LITELLM_BASE_URL and "
-            "VERIREPRO_LITELLM_MODEL (plus VERIREPRO_LITELLM_API_KEY when required), "
-            "or use the standard LITELLM_* aliases."
+            "Model-assisted analysis is not configured. Set VERIREPRO_LLM_BASE_URL and "
+            "VERIREPRO_LLM_MODEL (plus VERIREPRO_LLM_API_KEY when required), "
+            "or use --no-llm."
         )
     output = write_intelligence(intelligence, workspace / "paper-intelligence.json")
     if args.json:
@@ -237,7 +239,7 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
         config_error = None
     except LLMUnavailableError:
         config = None
-        config_error = "LiteLLM configuration rejected"
+        config_error = "LLM configuration rejected"
 
     git_executable = shutil.which("git")
     docker_executable = shutil.which("docker")
@@ -250,7 +252,7 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
     elif not docker_daemon_available:
         failed.append("docker_daemon")
     if require_llm and config is None:
-        failed.append("litellm")
+        failed.append("llm")
 
     return {
         "verirepro": {"version": __version__},
@@ -259,7 +261,7 @@ def _doctor_payload(*, require_llm: bool = False) -> dict[str, object]:
             "executable": docker_executable,
             "daemon_available": docker_daemon_available,
         },
-        "litellm": {
+        "llm": {
             "configured": config is not None,
             "endpoint_configured": bool(config.base_url) if config else False,
             "model": config.model if config else None,
@@ -291,14 +293,14 @@ def _doctor(as_json: bool, *, strict: bool = False, require_llm: bool = False) -
         verirepro = cast(dict[str, object], payload["verirepro"])
         git = cast(dict[str, object], payload["git"])
         docker = cast(dict[str, object], payload["docker"])
-        litellm = cast(dict[str, object], payload["litellm"])
+        llm_diag = cast(dict[str, object], payload["llm"])
         print(f"VeriRepro: {verirepro['version']}")
         print(f"Git: {git['executable'] or 'not found'}")
         print(f"Docker: {docker['executable'] or 'not found'}")
         print(f"Docker daemon: {docker['daemon_available']}")
-        print(f"LiteLLM configured: {litellm['configured']}")
-        print(f"LiteLLM endpoint configured: {litellm['endpoint_configured']}")
-        print(f"LiteLLM model: {litellm['model'] or 'not set'}")
+        print(f"LLM configured: {llm_diag['configured']}")
+        print(f"Model endpoint configured: {llm_diag['endpoint_configured']}")
+        print(f"Model: {llm_diag['model'] or 'not set'}")
         print(f"Ready: {ready}")
         if failed:
             print("Missing/failed requirement(s): " + ", ".join(str(item) for item in failed))

@@ -25,7 +25,7 @@ _PUBLIC_DOCS = (
     "docs/ENVIRONMENT_MANAGERS.md",
     "docs/GETTING_STARTED.md",
     "docs/GPU.md",
-    "docs/LITELLM.md",
+    "docs/MODEL_ENDPOINTS.md",
     "docs/MODEL_ARTIFACTS.md",
     "docs/OUTPUTS.md",
     "docs/PUBLISHING.md",

@@ -147,7 +147,7 @@ The final research-code runtime uses Docker with:
 - bounded stdout/stderr capture;
 - network disabled unless both repository request and user `--allow-network` authorization are present;
 - GPU unavailable unless both repository request and user `--allow-gpu` authorization are present;
-- no LiteLLM credentials inside the experiment container.
+- no model-provider credentials inside the experiment container.
 
 Host-side paper/dataset/model downloads have address, redirect, path, byte/count, and integrity controls. Repository acquisition is restricted to canonical HTTPS GitHub URLs with conservative refs and disabled Git `file`/`ext` transports.
 
@@ -192,14 +192,14 @@ Task JSON is untrusted: local/file/insecure-HTTP paper sources are rejected, pat
 
 See [docs/REPROBENCH.md](docs/REPROBENCH.md).
 
-## LiteLLM / OpenAI-compatible models
+## Optional model-assisted analysis
 
-Model-assisted analysis is optional. VeriRepro talks to an OpenAI-compatible endpoint and does not require a provider SDK.
+Model-assisted analysis is optional. VeriRepro communicates with a configured OpenAI-compatible HTTP endpoint through its provider-neutral client and does not require a model-provider SDK.
 
 ```bash
-export VERIREPRO_LITELLM_BASE_URL="https://your-litellm.example.com"
-export VERIREPRO_LITELLM_API_KEY="..."
-export VERIREPRO_LITELLM_MODEL="research-model"
+export VERIREPRO_LLM_BASE_URL="https://model-gateway.example.com"
+export VERIREPRO_LLM_API_KEY="..."
+export VERIREPRO_LLM_MODEL="research-model"
 ```
 
 Disable model reasoning while retaining deterministic stages:
@@ -288,7 +288,7 @@ Read [CONTRIBUTING.md](CONTRIBUTING.md) before sending a change. For reproductio
 - [Datasets](docs/DATASETS.md)
 - [Model artifacts](docs/MODEL_ARTIFACTS.md)
 - [Outputs](docs/OUTPUTS.md)
-- [LiteLLM](docs/LITELLM.md)
+- [Model endpoints](docs/MODEL_ENDPOINTS.md)
 
 ### ReproBench
 

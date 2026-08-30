@@ -39,7 +39,7 @@ class UnconfiguredLLMConfig:
 class BrokenLLMConfig:
     @classmethod
     def from_env(cls, *, model: str | None = None) -> ConfiguredLLMConfig:
-        raise LLMUnavailableError("LiteLLM endpoint misconfigured")
+        raise LLMUnavailableError("model endpoint misconfigured")
 
 
 class FakeIntelligence:
@@ -315,7 +315,7 @@ def test_analyze_llm_error_exits_nonzero_with_message(monkeypatch, capsys, tmp_p
     monkeypatch.setattr(cli, "write_discovery", lambda discovery, dest: Path(dest))
 
     def boom(paper, repositories, model=None):
-        raise LLMUnavailableError("no LiteLLM endpoint configured")
+        raise LLMUnavailableError("no model endpoint configured")
 
     monkeypatch.setattr(cli, "analyze_paper", boom)
 
@@ -325,11 +325,11 @@ def test_analyze_llm_error_exits_nonzero_with_message(monkeypatch, capsys, tmp_p
 
     assert code != 0
     assert isinstance(code, str)
-    assert "no LiteLLM endpoint configured" in code
+    assert "no model endpoint configured" in code
     assert err == ""
 
 
-def test_analyze_unconfigured_litellm_exits_nonzero_with_hint(
+def test_analyze_unconfigured_model_endpoint_exits_nonzero_with_hint(
     monkeypatch, capsys, tmp_path
 ) -> None:
     monkeypatch.setattr(cli, "resolve_paper", lambda raw, ws: SimpleNamespace(pdf_path="p.pdf"))
@@ -345,8 +345,8 @@ def test_analyze_unconfigured_litellm_exits_nonzero_with_hint(
 
     assert code != 0
     assert isinstance(code, str)
-    assert "LiteLLM is not configured" in code
-    assert "VERIREPRO_LITELLM_BASE_URL" in code
+    assert "Model-assisted analysis is not configured" in code
+    assert "VERIREPRO_LLM_BASE_URL" in code
     assert err == ""
 
 
@@ -582,8 +582,8 @@ def test_doctor_ready_human_output_exits_zero(monkeypatch, capsys) -> None:
     assert "Git: /usr/bin/git" in out
     assert "Docker: /usr/bin/docker" in out
     assert "Docker daemon: True" in out
-    assert "LiteLLM configured: True" in out
-    assert "LiteLLM model: gpt-test" in out
+    assert "LLM configured: True" in out
+    assert "Model: gpt-test" in out
     assert "Ready: True" in out
     assert "Missing/failed requirement(s):" not in out
 
@@ -611,7 +611,7 @@ def test_doctor_strict_exits_two_when_docker_daemon_is_down(monkeypatch, capsys)
     assert "Missing/failed requirement(s): docker_daemon" in out
 
 
-def test_doctor_require_llm_reports_missing_litellm_without_strict_exit(
+def test_doctor_require_llm_reports_missing_model_endpoint_without_strict_exit(
     monkeypatch, capsys
 ) -> None:
     patch_which(monkeypatch, {"git": "/usr/bin/git", "docker": "/usr/bin/docker"})
@@ -621,10 +621,10 @@ def test_doctor_require_llm_reports_missing_litellm_without_strict_exit(
     code, out, _ = run_cli(monkeypatch, capsys, "doctor", "--require-llm")
 
     assert code == 0
-    assert "LiteLLM configured: False" in out
-    assert "LiteLLM model: not set" in out
+    assert "LLM configured: False" in out
+    assert "Model: not set" in out
     assert "Ready: False" in out
-    assert "Missing/failed requirement(s): litellm" in out
+    assert "Missing/failed requirement(s): llm" in out
 
 
 def test_doctor_json_payload_reflects_failures_and_strict_exit(monkeypatch, capsys) -> None:
@@ -639,15 +639,15 @@ def test_doctor_json_payload_reflects_failures_and_strict_exit(monkeypatch, caps
     assert payload["readiness"] == {
         "ready": False,
         "require_llm": True,
-        "failed": ["docker", "litellm"],
+        "failed": ["docker", "llm"],
     }
     assert payload["git"] == {"executable": "/usr/bin/git"}
     assert payload["docker"] == {"executable": None, "daemon_available": False}
-    assert payload["litellm"]["configured"] is False
+    assert payload["llm"]["configured"] is False
     assert payload["scientific_contract"]["repository_contract_trusted"] is False
 
 
-def test_doctor_suppresses_litellm_configuration_error_details(monkeypatch, capsys) -> None:
+def test_doctor_suppresses_model_configuration_error_details(monkeypatch, capsys) -> None:
     patch_which(monkeypatch, {"git": "/usr/bin/git", "docker": "/usr/bin/docker"})
     monkeypatch.setattr(cli, "docker_available", lambda: True)
     monkeypatch.setattr(cli, "LLMConfig", BrokenLLMConfig)

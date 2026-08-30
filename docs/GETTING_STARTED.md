@@ -32,7 +32,7 @@ This resolves the paper, discovers repository evidence, inspects the repository,
 
 ## 3. Run strict preflight before executing experiments
 
-For a normal CPU reproduction that will execute third-party experiment code, Git and a live Docker daemon are required. LiteLLM is optional.
+For a normal CPU reproduction that will execute third-party experiment code, Git and a live Docker daemon are required. Model-assisted analysis is optional.
 
 ```bash
 verirepro doctor --strict
@@ -44,7 +44,7 @@ The command exits with status `0` only when the required local prerequisites are
 verirepro doctor --strict --json
 ```
 
-The JSON intentionally reports only whether a LiteLLM endpoint/key is configured; it never prints endpoint URLs or credential values.
+The JSON reports only whether an optional model endpoint and model are configured; it never prints endpoint URLs or credential values.
 
 If the workflow you intend to run requires model-assisted paper analysis, make that requirement explicit:
 

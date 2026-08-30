@@ -14,19 +14,24 @@ from reproagent.llm import (
 )
 
 _LLM_ENV_VARS = (
+    "VERIREPRO_LLM_BASE_URL",
     "VERIREPRO_LITELLM_BASE_URL",
     "REPROAGENT_LITELLM_BASE_URL",
     "LITELLM_BASE_URL",
     "OPENAI_BASE_URL",
+    "VERIREPRO_LLM_API_KEY",
     "VERIREPRO_LITELLM_API_KEY",
     "REPROAGENT_LITELLM_API_KEY",
     "LITELLM_API_KEY",
     "OPENAI_API_KEY",
+    "VERIREPRO_LLM_MODEL",
     "VERIREPRO_LITELLM_MODEL",
     "REPROAGENT_LITELLM_MODEL",
     "LITELLM_MODEL",
+    "VERIREPRO_LLM_TIMEOUT",
     "VERIREPRO_LITELLM_TIMEOUT",
     "REPROAGENT_LITELLM_TIMEOUT",
+    "VERIREPRO_LLM_REASONING_EFFORT",
     "VERIREPRO_LITELLM_REASONING_EFFORT",
     "REPROAGENT_LITELLM_REASONING_EFFORT",
 )
@@ -129,6 +134,27 @@ def test_chat_completions_url_normalization(base_url: str, expected: str) -> Non
     assert LLMConfig(base_url=base_url, api_key="k", model="m").chat_completions_url == expected
 
 
+def test_from_env_prefers_verirepro_llm_namespace(
+    clean_llm_env: pytest.MonkeyPatch,
+) -> None:
+    clean_llm_env.setenv("VERIREPRO_LLM_BASE_URL", "https://preferred.example")
+    clean_llm_env.setenv("VERIREPRO_LITELLM_BASE_URL", "https://veri.example")
+    clean_llm_env.setenv("LITELLM_BASE_URL", "https://generic.example")
+    clean_llm_env.setenv("OPENAI_BASE_URL", "https://openai.example")
+    clean_llm_env.setenv("VERIREPRO_LLM_API_KEY", "preferred-key")
+    clean_llm_env.setenv("VERIREPRO_LITELLM_API_KEY", "veri-key")
+    clean_llm_env.setenv("LITELLM_API_KEY", "generic-key")
+    clean_llm_env.setenv("VERIREPRO_LLM_MODEL", "preferred-model")
+    clean_llm_env.setenv("VERIREPRO_LITELLM_MODEL", "veri-model")
+
+    assert LLMConfig.from_env() == LLMConfig(
+        base_url="https://preferred.example",
+        api_key="preferred-key",
+        model="preferred-model",
+        timeout=120,
+    )
+
+
 def test_from_env_prefers_verirepro_namespace(clean_llm_env: pytest.MonkeyPatch) -> None:
     clean_llm_env.setenv("VERIREPRO_LITELLM_BASE_URL", "https://veri.example")
     clean_llm_env.setenv("LITELLM_BASE_URL", "https://generic.example")
@@ -186,6 +212,37 @@ def test_from_env_resolves_model_alias_precedence(clean_llm_env: pytest.MonkeyPa
     assert LLMConfig.from_env().model == "legacy-model"
     clean_llm_env.setenv("VERIREPRO_LITELLM_MODEL", "veri-model")
     assert LLMConfig.from_env().model == "veri-model"
+    clean_llm_env.setenv("VERIREPRO_LLM_MODEL", "preferred-model")
+    assert LLMConfig.from_env().model == "preferred-model"
+
+
+def test_from_env_timeout_prefers_verirepro_llm_namespace(
+    clean_llm_env: pytest.MonkeyPatch,
+) -> None:
+    clean_llm_env.setenv("LITELLM_BASE_URL", "https://generic.example")
+    clean_llm_env.setenv("LITELLM_MODEL", "m")
+    clean_llm_env.setenv("REPROAGENT_LITELLM_TIMEOUT", "7")
+    clean_llm_env.setenv("VERIREPRO_LITELLM_TIMEOUT", "9")
+    clean_llm_env.setenv("VERIREPRO_LLM_TIMEOUT", "11")
+    assert LLMConfig.from_env().timeout == 11
+
+
+def test_from_env_timeout_falls_back_to_legacy_aliases(
+    clean_llm_env: pytest.MonkeyPatch,
+) -> None:
+    clean_llm_env.setenv("LITELLM_BASE_URL", "https://generic.example")
+    clean_llm_env.setenv("LITELLM_MODEL", "m")
+    clean_llm_env.setenv("REPROAGENT_LITELLM_TIMEOUT", "7")
+    assert LLMConfig.from_env().timeout == 7
+
+
+def test_from_env_api_key_isolation_for_openai_path(
+    clean_llm_env: pytest.MonkeyPatch,
+) -> None:
+    clean_llm_env.setenv("LITELLM_BASE_URL", "https://gateway.example")
+    clean_llm_env.setenv("LITELLM_MODEL", "m")
+    clean_llm_env.setenv("OPENAI_API_KEY", "unrelated-oai-key")
+    assert LLMConfig.from_env().api_key == ""
 
 
 @pytest.mark.parametrize(
@@ -328,6 +385,20 @@ def test_complete_json_adds_reasoning_effort_only_when_configured(
     configured_client.complete_json(system="s", user="u")
     assert payloads[0]["reasoning_effort"] == "high"
 
+    clean_llm_env.setenv("VERIREPRO_LLM_REASONING_EFFORT", "low")
+    preferred_client = _client()
+    payloads = _stub_post(preferred_client, FakeResponse(body=_chat_body()))
+    preferred_client.complete_json(system="s", user="u")
+    assert payloads[0]["reasoning_effort"] == "low"
+
+    clean_llm_env.setenv("REPROAGENT_LITELLM_REASONING_EFFORT", "medium")
+    clean_llm_env.delenv("VERIREPRO_LLM_REASONING_EFFORT")
+    clean_llm_env.delenv("VERIREPRO_LITELLM_REASONING_EFFORT")
+    legacy_client = _client()
+    payloads = _stub_post(legacy_client, FakeResponse(body=_chat_body()))
+    legacy_client.complete_json(system="s", user="u")
+    assert payloads[0]["reasoning_effort"] == "medium"
+
 
 @pytest.mark.parametrize("status_code", [400, 404, 422])
 def test_complete_json_retries_once_without_response_format(status_code: int) -> None:
@@ -351,7 +422,7 @@ def test_complete_json_http_error_becomes_redacted_typed_error() -> None:
     client = _client()
     _stub_post(client, FakeResponse(status_code=500))
 
-    with pytest.raises(LLMUnavailableError, match=r"LiteLLM request failed \(HTTPError\)"):
+    with pytest.raises(LLMUnavailableError, match=r"Model endpoint request failed \(HTTPError\)"):
         client.complete_json(system="s", user="u")
 
     assert client.last_usage is not None

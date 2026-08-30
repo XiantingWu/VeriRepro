@@ -250,14 +250,14 @@ def run_corpus(
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Measure evidence-grounded LiteLLM paper analysis and safe repository command planning. "
-            "This smoke test never executes generated commands."
+            "Measure evidence-grounded optional model-assisted paper analysis and safe "
+            "repository command planning. This smoke test never executes generated commands."
         )
     )
     parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--max-cases", type=int, default=3)
-    parser.add_argument("--model", default=None, help="override the configured LiteLLM model alias")
+    parser.add_argument("--model", default=None, help="override the configured model")
     parser.add_argument(
         "--allow-blocking-failures",
         action="store_true",
@@ -268,8 +268,8 @@ def main() -> int:
     config = LLMConfig.from_env(model=args.model)
     if config is None:
         parser.error(
-            "LiteLLM is not configured; set VERIREPRO_LITELLM_BASE_URL and "
-            "VERIREPRO_LITELLM_MODEL (plus VERIREPRO_LITELLM_API_KEY when required)"
+            "Model endpoint is not configured; set VERIREPRO_LLM_BASE_URL and "
+            "VERIREPRO_LLM_MODEL (plus VERIREPRO_LLM_API_KEY when required)"
         )
 
     payload = run_corpus(
