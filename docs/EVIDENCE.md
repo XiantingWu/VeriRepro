@@ -1,6 +1,6 @@
 # Release evidence
 
-This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed certification and production authority is released v0.8.2; v0.8.1 remains the previous production release authority.
+This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed production authority is released v0.8.2; v0.8.1 remains the previous production release authority. The v0.8.3 metadata-finalization patch is certified as a candidate with release delivery in progress.
 
 ## Evidence policy
 
@@ -120,12 +120,28 @@ artifact after the exact canonical main source was frozen. No v0.8.1 evidence
 was reused as v0.8.2 evidence. Release delivery used the signed tag and
 protected PyPI Trusted Publishing path.
 
-## v0.8.3 candidate certification
+## v0.8.3 certification authority (candidate)
 
-**NOT YET CERTIFIED.** The v0.8.3 metadata-finalization patch is prepared on
-`main`; fresh source-bound certification, evidence, and production authority
-will be recorded here after the release-relevant source is frozen and the
-sanitized validation artifact is promoted.
+The 0.8.3 metadata-finalization patch received fresh source-bound certification
+on the exact canonical main source. Status: **CERTIFIED CANDIDATE** — signed
+tag, GitHub Release, and PyPI publication are not yet complete.
+
+- Certified source (S5): `572d51f6725d161efb937bf85f7181c2439e9989`
+- Release-source SHA-256 (F5): `d0cc3c6791cc6c62a0dd379f6010cdf27f0c113c7c5693bef8ef943c13950b28`
+- Validation run (Validation5): GitHub-hosted `VeriRepro validation` run `33338588016`
+- Evidence commit (E5): `932c88313f887b0786fb8e636bbd69259bc096bf`
+- Evidence topology: the evidence-only promotion is a protected-main commit
+  directly based on S5.
+- Discovery: 15/15 expected repositories, 15/15 top-1, 15/15 evidence anchored
+- Planning: 3/3 expected repositories, 3/3 top-1, 3/3 evidence anchored
+- ReproBench: 1 success / 1 partial / 0 failures
+- Certification status: **CERTIFIED CANDIDATE**
+- GitHub Release `v0.8.3`: NOT YET PUBLISHED
+- PyPI `verirepro==0.8.3`: NOT YET PUBLISHED
+
+The validation run tested the exact S5 source and recorded F5 in the sanitized
+artifact. The artifact was reviewed and promoted through an explicit
+evidence-only PR. No v0.8.2 evidence was reused as v0.8.3 evidence.
 
 ## Scientific limits
 
