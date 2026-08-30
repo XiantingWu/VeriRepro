@@ -73,7 +73,7 @@ Status: **pre-release engineering freeze complete.** Stable GitHub Release/PyPI 
 - [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
 - [x] fresh certification completed once on exact final hardening main `cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef` in validation run `33316585656`
 - [x] fresh evidence (sanitized) promoted by explicit evidence-only PR as `e262560c4be81b8de1f890ca0effc315b3d6b3f0`
-- [x] S1 `ace6683ff24399ff374eec5c05669b67783ffec9`, F1 `4cc5f2d80af9f08f0fe8f2e21af586fffad98f5c939af1b4b8`, old validation, and E1 are labelled historical
+- [x] S1 `ace6683ff24399ff374eec5c05669b67783ffec9`, F1 `4cc5f2d80af9f08a5720cfce273c0f0fe8f2e21af586fffad98f5c939af1b4b8`, old validation, and E1 are labelled historical
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
 ## Final quality target
