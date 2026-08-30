@@ -19,7 +19,7 @@
     "algorithm_found_rate": 1.0,
     "algorithm_top1_rate": 1.0,
     "algorithm_evidence_anchor_rate": 1.0,
-    "mean_discovery_seconds": 1.8928,
+    "mean_discovery_seconds": 2.2897333333333334,
     "discovery_status": {
       "ok": 15
     },
@@ -142,7 +142,7 @@
           "context": "https://github.com/OpenAI/CLIP"
         }
       ],
-      "discovery_seconds": 2.99,
+      "discovery_seconds": 4.973,
       "top_candidate": "https://github.com/OpenAI/CLIP",
       "candidate_count": 2,
       "candidates": [
@@ -189,7 +189,7 @@
           "context": "https://github.com/microsoft/LoRA"
         }
       ],
-      "discovery_seconds": 2.797,
+      "discovery_seconds": 4.859,
       "top_candidate": "https://github.com/microsoft/LoRA",
       "candidate_count": 1,
       "candidates": [
@@ -227,7 +227,7 @@
           "context": "https://github.com/google-research/ALBERT"
         }
       ],
-      "discovery_seconds": 0.481,
+      "discovery_seconds": 0.566,
       "top_candidate": "https://github.com/google-research/ALBERT",
       "candidate_count": 2,
       "candidates": [
@@ -273,7 +273,7 @@
           "context": "https://github.com/openai/guided-diffusion"
         }
       ],
-      "discovery_seconds": 5.044,
+      "discovery_seconds": 1.629,
       "top_candidate": "https://github.com/openai/guided-diffusion",
       "candidate_count": 3,
       "candidates": [
@@ -320,7 +320,7 @@
           "context": "https://github.com/openai/improved-diffusion"
         }
       ],
-      "discovery_seconds": 1.815,
+      "discovery_seconds": 1.054,
       "top_candidate": "https://github.com/openai/improved-diffusion",
       "candidate_count": 1,
       "candidates": [
@@ -368,7 +368,7 @@
           "context": "https://github.com/facebookresearch/detr"
         }
       ],
-      "discovery_seconds": 0.881,
+      "discovery_seconds": 0.719,
       "top_candidate": "https://github.com/facebookresearch/detr",
       "candidate_count": 2,
       "candidates": [
@@ -410,7 +410,7 @@
           "context": "https://github.com/kimiyoung/transformer-xl"
         }
       ],
-      "discovery_seconds": 0.462,
+      "discovery_seconds": 0.844,
       "top_candidate": "https://github.com/kimiyoung/transformer-xl",
       "candidate_count": 1,
       "candidates": [
@@ -443,7 +443,7 @@
           "context": "https://github.com/google-research/bert"
         }
       ],
-      "discovery_seconds": 0.415,
+      "discovery_seconds": 0.893,
       "top_candidate": "https://github.com/google-research/bert",
       "candidate_count": 1,
       "candidates": [
@@ -476,7 +476,7 @@
           "context": "https://github.com/microsoft/Swin-Transformer"
         }
       ],
-      "discovery_seconds": 0.662,
+      "discovery_seconds": 0.806,
       "top_candidate": "https://github.com/microsoft/Swin-Transformer",
       "candidate_count": 3,
       "candidates": [
@@ -542,7 +542,7 @@
           "context": "https://github.com/SwinTransformer/Transformer-SSL"
         }
       ],
-      "discovery_seconds": 0.583,
+      "discovery_seconds": 0.483,
       "top_candidate": "https://github.com/SwinTransformer/Transformer-SSL",
       "candidate_count": 3,
       "candidates": [
@@ -615,7 +615,7 @@
           "context": "https://github.com/dynamicslab/pysindy/tree/master/example"
         }
       ],
-      "discovery_seconds": 0.355,
+      "discovery_seconds": 0.483,
       "top_candidate": "https://github.com/dynamicslab/pysindy",
       "candidate_count": 2,
       "candidates": [
@@ -655,7 +655,7 @@
           "context": "https://github.com/google/jax-md/"
         }
       ],
-      "discovery_seconds": 8.912,
+      "discovery_seconds": 12.431,
       "top_candidate": "https://github.com/google/jax-md",
       "candidate_count": 3,
       "candidates": [
@@ -702,7 +702,7 @@
           "context": "dap- tive activation function can be used to solve different PDE systems in an interpretable way. Its effectiveness is demonstrated on a series of benchmarks. Code is available at https://github.com/LeapLabTHU/AdaAFforPINNs. AMS subject classifications: 65M99, 68T07 Key words: partial differential equations, deep learning, adaptive activation functions, physics- informed neural networks. 1 Introductio"
         }
       ],
-      "discovery_seconds": 1.303,
+      "discovery_seconds": 1.821,
       "top_candidate": "https://github.com/LeapLabTHU/AdaAFforPINNs",
       "candidate_count": 1,
       "candidates": [
@@ -741,7 +741,7 @@
           "context": "https://github.com/cagalvisf/Quantum_HSGPQ"
         }
       ],
-      "discovery_seconds": 0.614,
+      "discovery_seconds": 0.978,
       "top_candidate": "https://github.com/cagalvisf/Quantum_HSGPQ",
       "candidate_count": 1,
       "candidates": [
@@ -789,7 +789,7 @@
           "context": "https://github.com/ChriPiv/tndecoder3d"
         }
       ],
-      "discovery_seconds": 1.078,
+      "discovery_seconds": 1.807,
       "top_candidate": "https://github.com/ChriPiv/tndecoder3d",
       "candidate_count": 2,
       "candidates": [
@@ -818,12 +818,12 @@
   ],
   "measurement_provenance": {
     "workflow": "VeriRepro validation",
-    "github_actions_run_id": "33276158764",
-    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
+    "github_actions_run_id": "33282504163",
+    "head_sha": "ace6683ff24399ff374eec5c05669b67783ffec9"
   },
   "release": "0.8.0",
   "provenance": {
-    "github_actions_run_id": "33276158764",
-    "head_sha": "84fcc6f24610d13124fc204055166b2b069c8297"
+    "github_actions_run_id": "33282504163",
+    "head_sha": "ace6683ff24399ff374eec5c05669b67783ffec9"
   }
 }

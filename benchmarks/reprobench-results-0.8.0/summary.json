@@ -5,12 +5,12 @@
   "inputs": [
     {
       "file": "cohomology-wall-smoke-v1.json",
-      "sha256": "b968fb24814797c693244620b93e16652768a3399be270d9cec80decd3dfc3c4",
+      "sha256": "2d6cc017e77519c96d1fe0b20ed3c40f52ba7d5ccb3c8dd1242f9a16929b17e0",
       "task_id": "cohomology-wall-smoke-v1"
     },
     {
       "file": "governed-individuation-mechanism-v1.json",
-      "sha256": "a1ae14109f08a930f0f40b4470a9484bb58522a0475070fbc1e09c24fee350ed",
+      "sha256": "1363e3159dcf5e934e533412058980710b8fc2a7db2891604be41d76e299bd63",
       "task_id": "governed-individuation-mechanism-v1"
     }
   ],
@@ -26,9 +26,9 @@
     "zero_intervention_cases": 0,
     "zero_intervention_rate": 0.0,
     "interventions_total": 7,
-    "wall_clock_seconds_total": 33.924047,
-    "wall_clock_seconds_mean": 16.962024,
-    "wall_clock_seconds_median": 16.962024,
+    "wall_clock_seconds_total": 44.421716,
+    "wall_clock_seconds_mean": 22.210858,
+    "wall_clock_seconds_median": 22.210858,
     "environment_build": {
       "statuses": {
         "passed": 2
