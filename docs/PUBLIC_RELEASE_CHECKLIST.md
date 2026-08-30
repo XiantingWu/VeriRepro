@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.2)
 
-Status: **v0.8.1 production release complete; v0.8.2 preparation is active and is not yet certified or published.**
+Status: **v0.8.1 production release complete; v0.8.2 is a certified candidate awaiting signed-tag, GitHub Release, and PyPI delivery.**
 
 ## Runner architecture
 
@@ -106,9 +106,17 @@ Status: **v0.8.1 production release complete; v0.8.2 preparation is active and i
 - [x] GitHub Release `v0.8.0` preserved as published non-prerelease
 - [x] PyPI `verirepro==0.8.0` was not published; no upload was attempted after the deterministic publisher-image failure
 
-## Active v0.8.2 release preparation
+## Current v0.8.2 certified candidate
 
-- [ ] fresh exact-main certification (`Validation4`) and sanitized evidence (`E4`)
+- [x] fresh exact-main certification (`Validation4`) on `S4`: run `33333603696`
+- [x] release-source fingerprint `F4`: `95904277df77db6e97e83cafe57a351a100c4b3084453c7083edf6cd0baeb324`
+- [x] sanitized evidence promoted as `E4`: `028bb7e98b1985f647e46e2e4e349a23ff78bb6b`
+- [x] 803 tests with 86.4% statement coverage and 79.9% branch coverage
+- [x] discovery 15/15 and bounded planning 3/3
+- [x] ReproBench gate: 1 success / 1 partial / 0 failures
+
+## Pending v0.8.2 delivery
+
 - [ ] signed annotated tag `v0.8.2`
 - [ ] GitHub Release `v0.8.2`
 - [ ] PyPI Trusted Publishing publication for `verirepro==0.8.2`

@@ -1,6 +1,6 @@
 # Release evidence
 
-This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed authority is the released v0.8.1 chain; the active v0.8.2 candidate is not yet certified.
+This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed certification authority is the v0.8.2 candidate; the latest completed production publication is v0.8.1.
 
 ## Evidence policy
 
@@ -72,7 +72,7 @@ completed, and v0.8.0 was never published to PyPI.
 ## Released v0.8.1 certification authority
 
 The released v0.8.1 authority was produced after the PyPI publisher delivery
-repair and is the latest completed certification authority:
+repair and remains the production evidence authority for that release:
 
 - Certified source (S3): `0a0385ab655e4c58a3db527287dc888dacd14f94`
 - Release-source SHA-256 (F3): `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613`
@@ -96,19 +96,27 @@ evidence-only PR. S3/F3, validation run `33324289201`, and E3 are the latest
 completed authority;
 S2/F2, validation run `33316585656`, and E2 are historical v0.8.0 authority.
 
-## Active v0.8.2 candidate authority
+## Current v0.8.2 certified candidate authority
 
-The 0.8.2 candidate exists to synchronize public release truth and correct
-PyPI-facing metadata through a new immutable package version. It has not yet
-completed fresh source-bound certification:
+The 0.8.2 candidate synchronizes public release truth and corrects
+PyPI-facing metadata through a new immutable package version. Fresh
+source-bound certification completed on the exact canonical main source:
 
-- Certification status: **NOT YET CERTIFIED**
-- S4, F4, Validation4, and E4: not yet assigned
+- Certified source (S4): `96fc9305c07ecacaa9d13c3e159c4650575d2339`
+- Release-source SHA-256 (F4): `95904277df77db6e97e83cafe57a351a100c4b3084453c7083edf6cd0baeb324`
+- Validation run (Validation4): GitHub-hosted `VeriRepro validation` run `33333603696`
+- Evidence commit (E4): `028bb7e98b1985f647e46e2e4e349a23ff78bb6b`
+- Discovery: 15/15 expected repositories, 15/15 top-1, 15/15 evidence anchored
+- Planning: 3/3 expected repositories, 3/3 top-1, 3/3 evidence anchored
+- ReproBench: 1 success / 1 partial / 0 failures
+- Certification status: **CERTIFIED CANDIDATE**
+- GitHub Release `v0.8.2`: not yet published
 - PyPI `verirepro==0.8.2`: not yet published
 
-No v0.8.1 evidence is reused as v0.8.2 evidence. The 0.8.2 authority will be
-promoted only from a sanitized Validation4 artifact after the exact canonical
-main source is frozen.
+The evidence-only promotion was generated from the sanitized Validation4
+artifact after the exact canonical main source was frozen. No v0.8.1 evidence
+was reused as v0.8.2 evidence. Release delivery must still use the signed tag
+and protected PyPI Trusted Publishing path.
 
 ## Scientific limits
 
