@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "release": "0.8.1",
+  "suite": "benchmarks/reprobench-seed-suite.json",
+  "suite_sha256": "dcddb4e81b760392c8e14945e9fe5f6b23691c5b0342b7451e1661576eef36d6",
+  "source_tree_sha256": "45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613",
+  "cases": [
+    {
+      "task_id": "governed-individuation-mechanism-v1",
+      "task_file": "benchmarks/reprobench-seed/governed-individuation.json",
+      "task_sha256": "eed91e4725b13fe3e07befb606df212e39d65a609c6aef1cad21045c4a122c04",
+      "result_file": "results/governed-individuation-mechanism-v1.json",
+      "result_sha256": "fe756b72e54aeca29ce6c5550d9eaf4d012e0e69ced2c23d70a8212a48ee4f71",
+      "repository_ref": "010f4d716db5fa0f1defbb2b5f4afa11ab566fe1",
+      "scientific_references": [],
+      "gate_passed": true,
+      "gate_failures": []
+    },
+    {
+      "task_id": "cohomology-wall-smoke-v1",
+      "task_file": "benchmarks/reprobench-seed/cohomology-wall.json",
+      "task_sha256": "7500e6be55b589c22037d04d2a2779e6fb0c5cb79e1c423669665c00d15a5c83",
+      "result_file": "results/cohomology-wall-smoke-v1.json",
+      "result_sha256": "d245c4b4e021b3554cec252e570a27cb83bf86bf82bd93dad79340abe09c305d",
+      "repository_ref": "a29fbbc9b4b8f6260cee90e5cd77f90c6ef3c704",
+      "scientific_references": [
+        {
+          "file": "benchmarks/reprobench-reference/cohomology-wall-section7.csv",
+          "sha256": "6dcc2e37da3111db49ada6592e5ec92d76e7ce9d86ee14e57a7a950143ab2588"
+        }
+      ],
+      "gate_passed": true,
+      "gate_failures": []
+    }
+  ],
+  "summary_file": "summary.json",
+  "summary_sha256": "ed420c57818102f41cb60d95f729ba037ad42bcf70b20ddb9abb823ed27e090d",
+  "gate_passed": true,
+  "provenance": {
+    "workflow": "VeriRepro validation",
+    "github_actions_run_id": "33324289201",
+    "head_sha": "0a0385ab655e4c58a3db527287dc888dacd14f94"
+  }
+}
