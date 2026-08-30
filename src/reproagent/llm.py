@@ -27,19 +27,19 @@ def _first_env(*names: str, default: str = "") -> str:
     return default
 
 
-_MIN_LITELLM_TIMEOUT = 1
-_MAX_LITELLM_TIMEOUT = 3600
+_MIN_LLM_TIMEOUT = 1
+_MAX_LLM_TIMEOUT = 3600
 
 
-def _parse_litellm_timeout(value: str) -> int:
+def _parse_llm_timeout(value: str) -> int:
     try:
         timeout = int(value)
     except ValueError:
         raise LLMUnavailableError(
-            "LiteLLM timeout must be an integer in [1, 3600] seconds"
+            "Model endpoint timeout must be an integer in [1, 3600] seconds"
         ) from None
-    if not _MIN_LITELLM_TIMEOUT <= timeout <= _MAX_LITELLM_TIMEOUT:
-        raise LLMUnavailableError("LiteLLM timeout must be an integer in [1, 3600] seconds")
+    if not _MIN_LLM_TIMEOUT <= timeout <= _MAX_LLM_TIMEOUT:
+        raise LLMUnavailableError("Model endpoint timeout must be an integer in [1, 3600] seconds")
     return timeout
 
 
@@ -52,14 +52,18 @@ class LLMConfig:
 
     @classmethod
     def from_env(cls, *, model: str | None = None) -> LLMConfig | None:
+        # The VERIREPRO_LLM_* namespace is preferred; the remaining names are
+        # legacy 0.x environment aliases retained for compatibility.
+        preferred_base = _first_env("VERIREPRO_LLM_BASE_URL")
         veri_base = _first_env("VERIREPRO_LITELLM_BASE_URL")
         legacy_base = _first_env("REPROAGENT_LITELLM_BASE_URL")
         litellm_base = _first_env("LITELLM_BASE_URL")
         openai_base = _first_env("OPENAI_BASE_URL")
 
-        if veri_base:
-            base_url = veri_base
+        if preferred_base or veri_base:
+            base_url = preferred_base or veri_base
             api_key = _first_env(
+                "VERIREPRO_LLM_API_KEY",
                 "VERIREPRO_LITELLM_API_KEY",
                 "REPROAGENT_LITELLM_API_KEY",
                 "LITELLM_API_KEY",
@@ -67,6 +71,7 @@ class LLMConfig:
         elif legacy_base:
             base_url = legacy_base
             api_key = _first_env(
+                "VERIREPRO_LLM_API_KEY",
                 "REPROAGENT_LITELLM_API_KEY",
                 "VERIREPRO_LITELLM_API_KEY",
                 "LITELLM_API_KEY",
@@ -74,6 +79,7 @@ class LLMConfig:
         elif litellm_base:
             base_url = litellm_base
             api_key = _first_env(
+                "VERIREPRO_LLM_API_KEY",
                 "LITELLM_API_KEY",
                 "VERIREPRO_LITELLM_API_KEY",
                 "REPROAGENT_LITELLM_API_KEY",
@@ -87,6 +93,7 @@ class LLMConfig:
         resolved_model = (
             model
             or _first_env(
+                "VERIREPRO_LLM_MODEL",
                 "VERIREPRO_LITELLM_MODEL",
                 "REPROAGENT_LITELLM_MODEL",
                 "LITELLM_MODEL",
@@ -94,8 +101,9 @@ class LLMConfig:
         ).strip()
         if not resolved_model:
             return None
-        timeout = _parse_litellm_timeout(
+        timeout = _parse_llm_timeout(
             _first_env(
+                "VERIREPRO_LLM_TIMEOUT",
                 "VERIREPRO_LITELLM_TIMEOUT",
                 "REPROAGENT_LITELLM_TIMEOUT",
                 default="120",
@@ -215,7 +223,7 @@ class OpenAICompatibleClient:
                 continue
             if isinstance(parsed, dict):
                 return parsed
-        raise LLMUnavailableError("LiteLLM did not return a JSON object")
+        raise LLMUnavailableError("Model endpoint did not return a JSON object")
 
     def _record_usage(
         self,
@@ -267,6 +275,7 @@ class OpenAICompatibleClient:
             "response_format": {"type": "json_object"},
         }
         reasoning_effort = _first_env(
+            "VERIREPRO_LLM_REASONING_EFFORT",
             "VERIREPRO_LITELLM_REASONING_EFFORT",
             "REPROAGENT_LITELLM_REASONING_EFFORT",
         )
@@ -305,7 +314,7 @@ class OpenAICompatibleClient:
             # Reports and support diagnostics must not persist configured private
             # gateway details, so retain only the exception class. Suppress the
             # chained requests exception as well so a CLI traceback cannot reveal it.
-            raise LLMUnavailableError(f"LiteLLM request failed ({error_name})") from None
+            raise LLMUnavailableError(f"Model endpoint request failed ({error_name})") from None
 
         try:
             body = response.json()
@@ -318,10 +327,12 @@ class OpenAICompatibleClient:
             )
             content = body["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as exc:
-            raise LLMUnavailableError("LiteLLM returned an unexpected response shape") from exc
+            raise LLMUnavailableError(
+                "Model endpoint returned an unexpected response shape"
+            ) from exc
 
         if isinstance(content, dict):
             return content
         if not isinstance(content, str):
-            raise LLMUnavailableError("LiteLLM response content was not text or JSON")
+            raise LLMUnavailableError("Model endpoint response content was not text or JSON")
         return self._parse_json_object(content)

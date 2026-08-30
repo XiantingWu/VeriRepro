@@ -117,7 +117,7 @@ The adapter records, when available:
 - expected artifacts found/missing/rate;
 - total adapter wall-clock time;
 - operator intervention count;
-- provider-reported model request/token/runtime/cost telemetry when LiteLLM is actually used.
+- provider-reported model request/token/runtime/cost telemetry when model-assisted analysis is used and the configured endpoint exposes those fields.
 
 The adapter deliberately does **not** copy free-form VeriRepro stage details or workspace/report paths into benchmark results. Stage evidence is reduced to bounded machine-readable status; host-specific diagnostics stay in the local VeriRepro report.
 

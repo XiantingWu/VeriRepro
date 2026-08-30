@@ -43,7 +43,7 @@ LLM output is a proposal, not scientific ground truth and not an execution capab
 - shell chaining, redirects, command substitution, control/newline separators, network utilities, package managers, invented entrypoints, undocumented flags, and ungrounded commands are rejected;
 - missing reproduction-critical fields remain visible instead of being filled with model guesses.
 
-LiteLLM may return usage telemetry. VeriRepro can record bounded request/response model identifiers, request count, latency, token counts, and provider-reported cost for benchmarking. That telemetry does not grant scientific authority and excludes API keys, private endpoint configuration, prompts, and response content from release evidence.
+An OpenAI-compatible model endpoint may return usage telemetry. VeriRepro can record bounded request/response model identifiers, request count, latency, token counts, and provider-reported cost for benchmarking. That telemetry does not grant scientific authority and excludes API keys, private endpoint configuration, prompts, and response content from release evidence.
 
 ## Third-party repository acquisition and host inspection
 
@@ -141,7 +141,7 @@ The final research-code container runs with a stronger boundary than the build s
 - init process, PID limit, CPU limit, and memory limit;
 - experiment networking disabled unless both the repository requests it and the user independently authorizes `--allow-network`;
 - GPU devices unavailable unless both the repository requests them and the user independently authorizes `--allow-gpu`;
-- LiteLLM credentials excluded from the experiment container;
+- model-provider credentials excluded from the experiment container;
 - unique container names and bounded timeout cleanup.
 
 `gpu_likely` or other environment detection is diagnostic only and cannot grant GPU device access.
@@ -207,9 +207,7 @@ The evidence lifecycle is:
 
 ## Secrets
 
-LiteLLM credentials remain in host-side orchestration and are not injected into third-party experiment containers, reports, command-line arguments, or release evidence.
-
-VeriRepro supports `VERIREPRO_LITELLM_*`, standard `LITELLM_*`, and legacy `REPROAGENT_LITELLM_*` variables. A separately configured LiteLLM base URL does not accidentally inherit an unrelated `OPENAI_API_KEY`.
+Model-provider credentials remain in host-side orchestration and are not injected into third-party experiment containers, reports, command-line arguments, or release evidence. Namespace-aware API-key selection prevents an unrelated `OPENAI_API_KEY` from being forwarded to a separately configured model endpoint.
 
 For gated/private Hugging Face files, `HF_TOKEN` or `HUGGING_FACE_HUB_TOKEN` is used only for the initial Hugging Face request host. If the request redirects to another host, sensitive authorization headers are stripped before following the redirect.
 

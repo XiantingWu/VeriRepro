@@ -108,7 +108,7 @@ benchmarks/environment-planning-results-0.8.0.json
 
 from the same trusted release measurement identity as the 0.8 discovery and ReproBench evidence.
 
-## Optional LiteLLM planning measurement
+## Optional model-assisted planning measurement
 
 `scripts/run_llm_planning_smoke.py` measures the model-assisted planning layer separately. It:
 

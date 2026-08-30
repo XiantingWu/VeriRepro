@@ -2,6 +2,15 @@
 
 Notable user-facing changes are recorded here. Internal CI incidents and one-off maintainer infrastructure details are intentionally omitted from public release notes.
 
+## Unreleased
+
+- make the current model-assisted analysis surface provider-neutral;
+- introduce preferred `VERIREPRO_LLM_*` environment variables;
+- retain legacy 0.x environment-variable compatibility internally;
+- rename user-facing diagnostics from provider-specific terminology to `llm`;
+- rename model-endpoint documentation accordingly;
+- no intentional model HTTP protocol or scientific-verdict semantics change.
+
 ## 0.8.3 — metadata finalization and current-main certification
 
 - replace version-sensitive PyPI long-description status wording with release-stable wording;

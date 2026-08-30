@@ -70,7 +70,7 @@ Before public launch or stable publication:
 2. Protect `main` with a ruleset: block force-push and deletion, require successful CI status checks and conversation resolution.
 3. Keep every CI/validation job on GitHub-hosted runners; no workflow may use self-hosted runners, private runner labels, or runner groups.
 4. Keep GitHub private vulnerability reporting enabled so the configured Security advisory link remains usable.
-5. Keep real-paper/LiteLLM smoke isolated from external pull requests.
+5. Keep real-paper/model-assisted smoke isolated from external pull requests.
 6. Create a GitHub Environment named `pypi` and require manual approval for deployments to it.
 7. Configure PyPI Trusted Publishing for the exact repository, `publish.yml`, and `pypi` Environment.
 8. Keep Secret Scanning, Push Protection, the dependency graph, Dependabot security updates, and CodeQL Default Setup enabled through GitHub's security control plane.

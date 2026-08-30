@@ -1,14 +1,31 @@
 from __future__ import annotations
 
+import argparse
 import shutil
 from pathlib import Path
 
+from reproagent import cli as cli_module
 from scripts.release_checks.public_contract_surface import (
     PUBLIC_CONTRACT_FILES,
     check_public_contract_surface,
 )
 
 ROOT = Path(__file__).parents[1]
+
+_PROVIDER_BRAND_TOKEN = "litellm"
+_PROVIDER_NEUTRAL_SURFACE_FILES = (
+    "README.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "ROADMAP.md",
+    "docs/GETTING_STARTED.md",
+    "docs/MODEL_ENDPOINTS.md",
+    "docs/ARCHITECTURE.md",
+    "docs/TRUST_MODEL.md",
+    "docs/REPROBENCH.md",
+    "docs/PUBLISHING.md",
+    "docs/REAL_PAPER_SMOKE.md",
+)
 
 
 def _contract_copy(tmp_path: Path) -> Path:
@@ -83,3 +100,26 @@ def test_public_contract_rejects_missing_github_hosted_pr_ci_claim(tmp_path: Pat
     check_public_contract_surface(root, errors)
 
     assert any("GitHub-hosted PR CI" in error for error in errors)
+
+
+def _parser_help_surface() -> str:
+    parser = cli_module.build_parser()
+    rendered = parser.format_help()
+    for action in parser._actions:
+        if isinstance(action, argparse._SubParsersAction):
+            for subparser in action.choices.values():
+                rendered += subparser.format_help()
+    return rendered
+
+
+def test_current_public_surface_is_provider_neutral() -> None:
+    for relative in _PROVIDER_NEUTRAL_SURFACE_FILES:
+        text = (ROOT / relative).read_text(encoding="utf-8")
+        assert _PROVIDER_BRAND_TOKEN not in text.casefold(), (
+            f"{relative} leaks provider-specific branding"
+        )
+
+    assert _PROVIDER_BRAND_TOKEN not in _parser_help_surface().casefold()
+
+    cli_source = (ROOT / "src/reproagent/cli.py").read_text(encoding="utf-8")
+    assert _PROVIDER_BRAND_TOKEN not in cli_source.casefold()

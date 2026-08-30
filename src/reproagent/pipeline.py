@@ -155,9 +155,9 @@ def reproduce(
                     StageResult(
                         "Paper intelligence",
                         "skipped",
-                        "LiteLLM is not configured; set VERIREPRO_LITELLM_BASE_URL and "
-                        "VERIREPRO_LITELLM_MODEL (plus VERIREPRO_LITELLM_API_KEY when required), "
-                        "or use the standard LITELLM_* aliases",
+                        "Model-assisted analysis is not configured; set VERIREPRO_LLM_BASE_URL and "
+                        "VERIREPRO_LLM_MODEL (plus VERIREPRO_LLM_API_KEY when required), "
+                        "or use --no-llm",
                     )
                 )
             else:
@@ -340,7 +340,7 @@ def reproduce(
                     StageResult(
                         "Repository execution planned",
                         "skipped",
-                        "no eligible repository entrypoints or LiteLLM configuration",
+                        "no eligible repository entrypoints or model-endpoint configuration",
                     )
                 )
         except LLMUnavailableError as exc:

@@ -7,7 +7,7 @@ VeriRepro 0.8 is an evidence-first orchestration layer for computational paper r
 1. **Source resolution** — normalize arXiv IDs/URLs, DOI/doi.org URLs, PDF URLs, and local PDFs. Remote PDFs use HTTPS-by-default, public-address/redirect validation, a host-owned byte ceiling, and atomic materialization.
 2. **Page-preserving extraction** — extract PDF text per page so claims can be checked against explicit page boundaries.
 3. **Deterministic artifact discovery** — discover GitHub and dataset links directly from paper text/PDF annotations and rank repositories using bounded evidence proximity rather than raw occurrence order.
-4. **Paper intelligence** — optionally ask a configured OpenAI-compatible/LiteLLM endpoint for structured experiment facts, metrics, repositories, and ambiguities.
+4. **Paper intelligence** — optionally ask a configured OpenAI-compatible model endpoint for structured experiment facts, metrics, repositories, and ambiguities.
 5. **Evidence verification** — verify model-proposed quotes against the claimed PDF page. Claims become `verified`, `approximate`, or `unverified`.
 6. **Ambiguity audit** — preserve missing reproduction-critical details instead of filling them with model guesses.
 7. **Repository acquisition** — accept canonical HTTPS GitHub repository URLs, validate refs, disable Git `file`/`ext` transports and Git LFS smudge, and perform shallow no-tag operations.
@@ -82,7 +82,7 @@ The final research-code container uses:
 - host-bounded stdout/stderr capture;
 - network disabled unless both repository request and user `--allow-network` authorization are present;
 - GPU devices unavailable unless both repository request and user `--allow-gpu` authorization are present;
-- no LiteLLM credentials inside the container.
+- no model-provider credentials inside the experiment container.
 
 Docker is an isolation layer, not a formal sandbox proof. Intentionally hostile code should additionally use an ephemeral VM, rootless runtime, or hardened sandbox.
 
@@ -98,7 +98,7 @@ Result JSON removes free-form stage details and host workspace paths before aggr
 
 ### Secrets
 
-LiteLLM credentials remain host-side and are not injected into experiment containers. Hugging Face authorization is scoped to the initial Hugging Face host and stripped on cross-host redirects. Release evidence excludes endpoint URLs, credentials, prompts, responses, private host paths, and raw experiment workspaces.
+Model-provider credentials remain host-side and are not injected into experiment containers. Hugging Face authorization is scoped to the initial Hugging Face host and stripped on cross-host redirects. Release evidence excludes endpoint URLs, credentials, prompts, responses, private host paths, and raw experiment workspaces.
 
 ## Machine-readable contracts
 

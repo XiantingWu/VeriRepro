@@ -27,8 +27,8 @@ VeriRepro processes untrusted remote paper URLs, PDFs, model output, third-party
 - bounded host capture of Docker build stdout/stderr (8 MiB per stream by default, configurable only by the host with `VERIREPRO_MAX_DOCKER_BUILD_LOG_BYTES`), retaining the final diagnostic tail instead of buffering arbitrary third-party build output in Python memory;
 - double opt-in experiment networking: a repository may request network access, but the user must separately authorize `--allow-network`;
 - double opt-in GPU device access: a repository may request GPU access, but the user must separately authorize `--allow-gpu`; CUDA/GPU detection never grants devices by itself;
-- separation of LiteLLM credentials from experiment containers;
-- namespace-aware API-key selection so an unrelated `OPENAI_API_KEY` is not forwarded to a separately configured LiteLLM gateway;
+- separation of model-provider credentials from experiment containers;
+- namespace-aware API-key selection so an unrelated `OPENAI_API_KEY` is not forwarded to a separately configured model endpoint;
 - artifact-path confinement for repository references and generated outputs;
 - host-side output indexing that refuses symlinks and applies host-owned entry-count, file-count, per-file-byte, and cumulative-read budgets before hashing untrusted outputs;
 - host-side Figure/Table/file verification budgets: bounded comparison bytes, bounded table bytes/cell counts, and bounded image pixels; safety-budget violations become explicit failed stages instead of uncaught host exceptions;

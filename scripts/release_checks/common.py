@@ -18,7 +18,7 @@ BASE_REQUIRED_FILES = (
     "docs/ARCHITECTURE.md",
     "docs/CANONICAL_IDENTITY.md",
     "docs/TRUST_MODEL.md",
-    "docs/LITELLM.md",
+    "docs/MODEL_ENDPOINTS.md",
     "docs/DATASETS.md",
     "docs/SCHEMAS.md",
     "docs/REAL_PAPER_SMOKE.md",
