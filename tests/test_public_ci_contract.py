@@ -4,6 +4,12 @@ import re
 import shutil
 from pathlib import Path
 
+from scripts.release_checks.action_pin import (
+    PYPI_PUBLISH_ACTION,
+    PYPI_PUBLISH_ACTION_COMMIT_SHA,
+    PYPI_PUBLISH_ACTION_IMAGE,
+    PYPI_PUBLISH_ACTION_TAG_OBJECT_SHA,
+)
 from scripts.release_checks.workflow_surface import check_workflow_surface
 
 ROOT = Path(__file__).parents[1]
@@ -149,6 +155,37 @@ def test_publish_requires_cryptographic_tag_verification() -> None:
 def test_publish_rejects_signature_block_only_policy() -> None:
     publish = _workflow("publish.yml")
     assert "grep -Eq" not in publish
+
+
+def test_publish_uses_dereferenced_pypi_action_commit() -> None:
+    publish = _workflow("publish.yml")
+    assert f"{PYPI_PUBLISH_ACTION}@{PYPI_PUBLISH_ACTION_COMMIT_SHA}" in publish
+    assert f"{PYPI_PUBLISH_ACTION}@{PYPI_PUBLISH_ACTION_TAG_OBJECT_SHA}" not in publish
+
+
+def test_publish_annotated_tag_object_sha_is_rejected(tmp_path: Path) -> None:
+    workflow_dir = tmp_path / ".github/workflows"
+    workflow_dir.mkdir(parents=True)
+    for path in WORKFLOWS.glob("*.yml"):
+        shutil.copyfile(path, workflow_dir / path.name)
+    publish_path = workflow_dir / "publish.yml"
+    publish = publish_path.read_text(encoding="utf-8")
+    publish_path.write_text(
+        publish.replace(PYPI_PUBLISH_ACTION_COMMIT_SHA, PYPI_PUBLISH_ACTION_TAG_OBJECT_SHA),
+        encoding="utf-8",
+    )
+
+    errors: list[str] = []
+    check_workflow_surface(tmp_path, errors)
+
+    assert any("tag-object SHA" in item for item in errors)
+
+
+def test_validation_preflights_exact_pypi_action_runtime_image() -> None:
+    validation = _workflow("validation.yml")
+    assert "docker manifest inspect" in validation
+    assert PYPI_PUBLISH_ACTION_IMAGE in validation
+    assert "id-token: write" not in validation
 
 
 def test_publish_requires_current_canonical_main_head_equality() -> None:
