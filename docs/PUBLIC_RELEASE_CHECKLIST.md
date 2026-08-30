@@ -1,6 +1,6 @@
-# Public Release Checklist (0.8.2)
+# Public Release Checklist (0.8.2 / 0.8.3)
 
-Status: **v0.8.2 production release complete; signed tag, GitHub Release, and PyPI publication are verified.**
+Status: **v0.8.2 production release complete; signed tag, GitHub Release, and PyPI publication are verified. v0.8.3 metadata finalization is in release preparation.**
 
 ## Runner architecture
 
@@ -41,7 +41,7 @@ Status: **v0.8.2 production release complete; signed tag, GitHub Release, and Py
 - [x] publish re-runs release/launch/history/source/evidence gates before building
 - [x] release signer policy public key is provisioned; no stable tag may be created before the policy is verified
 - [x] v1.14.2 PyPI publisher action is pinned to its dereferenced release commit; the annotated tag-object SHA is not used
-- [x] exact PyPI publisher runtime-image manifest preflight passes for the v0.8.1 release
+- [x] exact PyPI publisher runtime-image manifest preflight is part of the certified release-validation path
 
 ## Release signer
 
@@ -124,6 +124,21 @@ Status: **v0.8.2 production release complete; signed tag, GitHub Release, and Py
 - [x] signed annotated tag `v0.8.2`
 - [x] GitHub Release `v0.8.2`
 - [x] PyPI Trusted Publishing publication for `verirepro==0.8.2`
+
+## 0.8.3 release preparation (metadata finalization)
+
+- [ ] README/package-status wording made release-state-neutral and stable
+- [ ] version bumped to 0.8.3 on all authoritative surfaces
+- [ ] v0.8.3 release-relevant source frozen (S5) and fingerprint computed (F5)
+- [ ] fresh GitHub-hosted validation completed (Validation5)
+- [ ] v0.8.3 evidence promoted from the exact sanitized artifact (E5)
+- [ ] v0.8.3 certification authority recorded
+- [ ] signed annotated tag `v0.8.3` created and verified
+- [ ] GitHub Release `v0.8.3` published
+- [ ] PyPI Trusted Publishing publication for `verirepro==0.8.3`
+- [ ] fresh clean external PyPI install verified
+- [ ] PyPI live long-description release-stability verification
+- [ ] Immutable Release verification
 
 ## Deferred cross-account smoke
 

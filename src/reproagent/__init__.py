@@ -9,4 +9,4 @@ from .core import ReproductionPlan, build_reproduction_plan
 from .pipeline import reproduce
 
 __all__ = ["ReproductionPlan", "build_reproduction_plan", "reproduce"]
-__version__ = "0.8.2"
+__version__ = "0.8.3"

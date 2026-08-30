@@ -2,6 +2,14 @@
 
 Notable user-facing changes are recorded here. Internal CI incidents and one-off maintainer infrastructure details are intentionally omitted from public release notes.
 
+## 0.8.3 — metadata finalization and current-main certification
+
+- replace version-sensitive PyPI long-description status wording with release-stable wording;
+- supersede the stale long-description wording embedded in PyPI 0.8.2 without modifying that historical distribution;
+- include the already-merged repository-maintenance hardening present on current main;
+- no intentional scientific reproduction semantics change unless the release diff proves otherwise;
+- receive fresh source-bound validation and evidence before publication.
+
 ## 0.8.2 — public release truth and metadata correction
 
 - synchronize public release-status documentation;

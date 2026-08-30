@@ -12,7 +12,7 @@ Give VeriRepro an arXiv paper, DOI, PDF URL, or local PDF. It builds an inspecta
 
 VeriRepro is designed for the gap between “the code ran” and “the scientific result was actually reproduced.” Unsupported model output is never promoted into scientific evidence, repository-authored expected values do not self-certify a paper, and a successful process exit does not automatically become a scientific `PASS`.
 
-**Status:** VeriRepro is a public-beta Python package distributed through PyPI and released from the canonical [XiantingWu/VeriRepro](https://github.com/XiantingWu/VeriRepro) repository. The current published production release is `0.8.2`, certified from an immutable source-bound release chain. The preferred package, CLI, and Python namespace are `verirepro`; the legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series. The authoritative repository/package identity is defined in [docs/CANONICAL_IDENTITY.md](docs/CANONICAL_IDENTITY.md); similarly named copies are not release authorities by name alone.
+**Status:** VeriRepro is a public-beta Python package distributed through PyPI and released from the canonical [XiantingWu/VeriRepro](https://github.com/XiantingWu/VeriRepro) repository. `python -m pip install verirepro` installs the current published package. Version-specific certification and release authorities are recorded in [docs/EVIDENCE.md](docs/EVIDENCE.md) and GitHub Releases, not in this package description. The preferred package, CLI, and Python namespace are `verirepro`; the legacy `reproagent` CLI/import remain compatibility aliases during the 0.x series. The authoritative repository/package identity is defined in [docs/CANONICAL_IDENTITY.md](docs/CANONICAL_IDENTITY.md); similarly named copies are not release authorities by name alone.
 
 ## Why VeriRepro
 
@@ -34,11 +34,13 @@ verirepro plan 2103.00020v1
 verirepro reproduce 2103.00020v1 --no-execute --no-llm
 ```
 
-To install the exact release prepared by this repository, use:
+To install a deterministic version pin instead, use a version-neutral form:
 
 ```bash
-python -m pip install "verirepro==0.8.2"
+python -m pip install "verirepro==<version>"
 ```
+
+Specific release pins are recorded in each GitHub Release's notes; the PyPI metadata of a released version is immutable and never changes after publication.
 
 Before allowing third-party experiment code to execute, run:
 
@@ -87,27 +89,19 @@ metrics + Figure/Table/file evidence
 PASS / FAIL / PARTIAL + evidence bundle
 ```
 
-## Measured release evidence
+## Release certification evidence
 
-The current Xianting-native authority is the released `v0.8.2` source, measured on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. The release is source-bound to exact canonical `main` and its signed tag (see [docs/EVIDENCE.md](docs/EVIDENCE.md)).
+Certification is measured on **GitHub-hosted runners only**. This public repository never uses maintainer-owned self-hosted runners, private runner labels, or runner groups for CI, validation, certification, or publishing. Releases are source-bound to the exact canonical `main` source and its signed annotated tag; no private certification chain is ever claimed as this repository's own.
 
-| Gate | Current measured result |
+| Mechanism | Policy |
 | --- | --- |
-| Public CI/validation runner | GitHub-hosted (`ubuntu-latest`) |
-| Tests / coverage | 803 tests; 86.4% statement / 79.9% branch on the 3.11 lane |
-| Released source commit (S4) | `96fc9305c07ecacaa9d13c3e159c4650575d2339` |
-| Released source SHA-256 (F4) | `95904277df77db6e97e83cafe57a351a100c4b3084453c7083edf6cd0baeb324` |
-| Exact-main validation run (Validation4) | GitHub-hosted `VeriRepro validation` run `33333603696` |
-| Real-paper discovery | 15/15 (found, top-1, evidence anchored) |
-| Environment planning | 3/3 bounded repository plans |
-| ReproBench | 1 success / 1 partial / 0 failures |
-| Released evidence commit (E4) | `028bb7e98b1985f647e46e2e4e349a23ff78bb6b` (evidence-only promotion, direct parent certified source) |
-| v0.8.2 GitHub Release | PUBLISHED |
-| v0.8.2 production PyPI publication | SUCCESS; publish run `33334230170` |
-| v0.8.2 certification authority | CERTIFIED and PUBLISHED |
-| Certification environment | exact committed dependency snapshot; resolved on GitHub-hosted `ubuntu-latest` |
+| CI / validation / certification runners | GitHub-hosted (`ubuntu-latest`) only |
+| Certification path | exact canonical `main` → fresh validation → sanitized artifact → explicit evidence-only promotion |
+| Release-source fingerprint | SHA-256 over release-relevant sources (`scripts/release_source_check.py`) |
+| Publisher delivery | protected `pypi` environment; OIDC Trusted Publishing only |
+| Evidence records | [docs/EVIDENCE.md](docs/EVIDENCE.md) and the matching GitHub Release |
 
-All CI and validation runs execute on GitHub-hosted ephemeral runners; logs are safe by design and are retained as public quality evidence. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
+The exact certified source identity, release-source fingerprint, validation run, and evidence commit for each release are recorded in [docs/EVIDENCE.md](docs/EVIDENCE.md) and the matching GitHub Release, rather than embedded as release-state prose in this package description. Run IDs inside sanitized evidence remain provenance-correlation fields. Public verification relies on the committed, SHA-256-bound files under `benchmarks/`, not on machine identity.
 
 These are bounded release measurements, not a claim that arbitrary papers are zero-config reproducible. The 15-paper gate measures discovery/evidence and bounded planning; it does not claim that all 15 papers were fully reproduced. The governance seed intentionally remains `PARTIAL` because no independent scientific comparison is authorized for it; successful process execution is not promoted into scientific truth. See [docs/EVIDENCE.md](docs/EVIDENCE.md) for provenance, scope, and limits.
 

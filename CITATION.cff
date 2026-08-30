@@ -4,7 +4,7 @@ title: "VeriRepro: Evidence-grounded computational paper reproduction"
 type: software
 authors:
   - name: "VeriRepro contributors"
-version: 0.8.2
+version: 0.8.3
 license: Apache-2.0
 repository-code: "https://github.com/XiantingWu/VeriRepro"
 url: "https://github.com/XiantingWu/VeriRepro"

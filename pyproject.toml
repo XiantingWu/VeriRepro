@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "verirepro"
-version = "0.8.2"
+version = "0.8.3"
 description = "Evidence-grounded agent for verifiable computational paper reproduction"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
