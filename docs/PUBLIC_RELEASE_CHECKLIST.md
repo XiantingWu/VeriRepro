@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.0)
 
-Status: **final pre-release hardening in progress.** The stable GitHub Release/PyPI publication remains separately unauthorized.
+Status: **pre-release engineering freeze complete.** Stable GitHub Release/PyPI publication remains separately unauthorized.
 
 ## Runner architecture
 
@@ -8,7 +8,7 @@ Status: **final pre-release hardening in progress.** The stable GitHub Release/P
 - [x] zero workflow references private runner labels, runner groups, or private manager infrastructure
 - [x] public CI history is retained as quality evidence; no raw self-hosted logs exist by construction
 - [x] self-hosted execution authority is none
-- [ ] live fork smoke: static contract PASS; live behavioral smoke is not yet verified
+- [ ] live fork smoke: static contract PASS; live behavioral smoke is deferred until an independent authorized public fork identity is available
 
 ## CI
 
@@ -33,9 +33,9 @@ Status: **final pre-release hardening in progress.** The stable GitHub Release/P
 
 - [x] `publish.yml` is GitHub-hosted, release-only, protected `pypi` Environment, `id-token: write`, PyPI Trusted Publishing/OIDC
 - [x] publish uses release tag checkout rather than mutable `target_commitish`
-- [ ] stable release tag must equal the current canonical `main` head; ancestry remains defense in depth
+- [x] stable release tag must equal the current canonical `main` head; ancestry remains defense in depth
 - [x] annotated tag, tag/version equality, dereferenced tag/checkout equality, and canonical-main ancestry are required
-- [ ] wheel and sdist each pass an independent clean-install smoke
+- [x] wheel and sdist each pass an independent clean-install smoke
 - [x] cryptographic tag verification uses `git verify-tag` with a repository-pinned public SSH allowed-signers policy
 - [x] no long-lived PyPI token; publish refuses pre-release events
 - [x] publish re-runs release/launch/history/source/evidence gates before building
@@ -53,40 +53,42 @@ Status: **final pre-release hardening in progress.** The stable GitHub Release/P
 - [x] wrong signer rejected
 - [x] missing signer policy rejected
 - [x] production private key committed = 0
-- [ ] release signer policy accepts only `XiantingWu` `ssh-ed25519` authority, including controlled ED25519 rotation
+- [x] release signer policy accepts only `XiantingWu` `ssh-ed25519` authority, including controlled ED25519 rotation
 
 ## Governance / security
 
 - [x] main PR rule, strict required checks, and conversation resolution are active in the final ruleset; approvals required remain 0 for the single-maintainer stage
 - [x] private vulnerability reporting enabled; SECURITY.md route points to the canonical advisory flow
 - [x] issue forms (bug report, feature request, reproduction help) and Dependabot configured
-- [ ] Dependabot routine updates use explicit minor/patch allow rules without wildcard major ignores
-- [ ] Dependency Review runs on pull requests with a high-severity threshold and is a required status check
-- [ ] GitHub Secret Scanning enabled
-- [ ] GitHub Push Protection enabled
-- [ ] Dependabot dependency graph, alerts, and security updates enabled
-- [ ] CodeQL Default Setup enabled and successful
+- [x] Dependabot routine updates use explicit minor/patch allow rules without wildcard major ignores; security updates remain eligible
+- [x] Dependency Review runs on pull requests with a high-severity threshold and is a required status check
+- [x] GitHub Secret Scanning enabled
+- [x] GitHub Push Protection enabled
+- [x] Dependabot dependency graph, alerts, and security updates enabled
+- [x] CodeQL Default Setup enabled and successful on GitHub-hosted analysis
 - [x] CODEOWNERS assigns XiantingWu as owner for release-sensitive paths
 
 ## Evidence
 
 - [x] previous source/fingerprint/run are labelled historical after release-relevant hardening
-- [ ] fresh certification will be completed once on the final hardening main
-- [ ] fresh evidence (sanitized) will be promoted by an explicit evidence-only PR
+- [x] fresh certification completed once on exact final hardening main `cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef` in validation run `33316585656`
+- [x] fresh evidence (sanitized) promoted by explicit evidence-only PR as `e262560c4be81b8de1f890ca0effc315b3d6b3f0`
+- [x] S1 `ace6683ff24399ff374eec5c05669b67783ffec9`, F1 `4cc5f2d80af9f08f0fe8f2e21af586fffad98f5c939af1b4b8`, old validation, and E1 are labelled historical
 - [x] `docs/EVIDENCE.md` distinguishes historical from current evidence and records scientific limits
 
 ## Final quality target
 
 - [x] historical validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
-- [ ] current validation records the final test and coverage gates
-- [ ] build / Twine / independent clean-wheel and clean-sdist install PASS recorded after hardening
+- [x] current validation recorded 792 tests with 86.4% statement coverage and 79.9% branch coverage
+- [x] build / Twine / independent clean-wheel and clean-sdist install PASS recorded after hardening
 - [x] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
 - [x] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
 - [x] full reachable Git history contains zero private runner / host identity metadata
+- [x] TruffleHog verified secrets = 0; unknown/unreviewed candidates = 0; three synthetic fixture candidates reviewed separately
 
 ## Deferred (explicit authorization required)
 
 - [ ] signed annotated tag `v0.8.0`
 - [ ] GitHub Release
 - [ ] PyPI Trusted Publishing publication
-- [ ] live fork PR smoke on a second account (static contract PASS; live smoke not yet executed)
+- [ ] live fork PR smoke on a second account (static contract PASS; deferred pending an independent authorized public fork identity)
