@@ -24,7 +24,9 @@ _RELEASE_SOURCE_FILES = (
     "scripts/stamp_release_measurement.py",
     "scripts/run_reprobench_seed.py",
     "src/verirepro/py.typed",
+    ".github/dependabot.yml",
     ".github/workflows/ci.yml",
+    ".github/workflows/dependency-review.yml",
     ".github/workflows/validation.yml",
     ".github/workflows/publish.yml",
 )
@@ -56,8 +58,8 @@ def release_source_files(root: Path) -> tuple[Path, ...]:
     explanatory text improved without invalidating measured runtime results.
     Measurement, evidence-promotion, public-launch policy, final release-policy,
     coverage enforcement, exact maintainer certification dependency constraints,
-    package typing markers, and trusted certification/evidence-production plus
-    publish workflows are part of the
+    package typing markers, dependency-update policy, dependency-review policy,
+    and trusted certification/evidence-production plus publish workflows are part of the
     fingerprint because changing those semantics invalidates prior measurements
     even when core runtime Python bytes are unchanged. Public CI workflow bytes
     are part of release-source identity because fork/main quality policy is

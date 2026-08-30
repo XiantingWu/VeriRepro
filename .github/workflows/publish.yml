@@ -37,7 +37,7 @@ jobs:
             echo "Release tag ${GITHUB_REF_NAME} does not match pyproject version v${VERSION}" >&2
             exit 2
           }
-      - name: Require cryptographically signed annotated tag on canonical main history
+      - name: Require cryptographically signed annotated tag at current canonical main head
         run: |
           set -euo pipefail
           git fetch --force origin main
@@ -53,6 +53,11 @@ jobs:
           HEAD_COMMIT="$(git rev-parse HEAD)"
           test "$TAG_COMMIT" = "$HEAD_COMMIT" || {
             echo 'Release checkout does not match the dereferenced tag commit.' >&2
+            exit 2
+          }
+          MAIN_COMMIT="$(git rev-parse origin/main)"
+          test "$TAG_COMMIT" = "$MAIN_COMMIT" || {
+            echo 'Stable release tag must identify the current canonical main head.' >&2
             exit 2
           }
           git merge-base --is-ancestor "$TAG_COMMIT" origin/main || {
@@ -98,6 +103,26 @@ jobs:
           "$CHECK_VENV/bin/python" -m pip check
           "$CHECK_VENV/bin/verirepro" --version
           "$CHECK_VENV/bin/python" -m verirepro --version
+          "$CHECK_VENV/bin/verirepro-reprobench" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro-reprobench-summary" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro" doctor --json >/dev/null
+      - name: Install built sdist in an independent isolated environment
+        run: |
+          set -euo pipefail
+          CHECK_VENV="$RUNNER_TEMP/verirepro-publish-sdist-${GITHUB_RUN_ID}"
+          rm -rf "$CHECK_VENV"
+          trap 'rm -rf "$CHECK_VENV"' EXIT
+          python -m venv "$CHECK_VENV"
+          "$CHECK_VENV/bin/python" -m pip install -c "$PIP_CONSTRAINT" 'pip==26.2.1'
+          SDIST="$(find dist -maxdepth 1 -type f -name 'verirepro-*.tar.gz' -print -quit)"
+          test -n "$SDIST"
+          "$CHECK_VENV/bin/python" -m pip install -c "$PIP_CONSTRAINT" "$SDIST"
+          "$CHECK_VENV/bin/python" -m pip check
+          "$CHECK_VENV/bin/verirepro" --version
+          "$CHECK_VENV/bin/python" -m verirepro --version
+          "$CHECK_VENV/bin/verirepro-reprobench" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro-reprobench-summary" --help >/dev/null
+          "$CHECK_VENV/bin/verirepro" doctor --json >/dev/null
       - name: Upload distributions
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

@@ -137,14 +137,34 @@ def check_launch_surface(root: Path = ROOT) -> list[str]:
             )
 
     dependabot_path = root / ".github/dependabot.yml"
-    if dependabot_path.is_file():
+    if not dependabot_path.is_file():
+        errors.append("Dependabot policy must be provisioned")
+    else:
         dependabot = dependabot_path.read_text(encoding="utf-8")
-        if 'package-ecosystem: "pip"' not in dependabot:
-            errors.append("Dependabot must monitor Python package dependencies")
-        if 'package-ecosystem: "github-actions"' not in dependabot:
-            errors.append("Dependabot must monitor pinned GitHub Actions dependencies")
+        _check_dependabot_policy(dependabot, errors)
 
     return errors
+
+
+def _check_dependabot_policy(text: str, errors: list[str]) -> None:
+    blocks = re.split(r"(?=^  - package-ecosystem:)", text, flags=re.MULTILINE)
+    for ecosystem, label in (
+        ('package-ecosystem: "pip"', "Python package"),
+        ('package-ecosystem: "github-actions"', "GitHub Actions"),
+    ):
+        block = next((item for item in blocks if ecosystem in item), "")
+        if not block:
+            errors.append(f"Dependabot must monitor {label} dependencies")
+            continue
+        if "allow:" not in block:
+            errors.append(f"Dependabot {label} policy must explicitly allow routine updates")
+        for update_type in ("semver-minor", "semver-patch"):
+            if f'"version-update:{update_type}"' not in block:
+                errors.append(f"Dependabot {label} policy must allow version-update:{update_type}")
+        if re.search(r"(?ms)^\s+ignore:\s*$.*?version-update:semver-major", block):
+            errors.append(
+                f"Dependabot {label} policy must not wildcard-ignore semver-major updates"
+            )
 
 
 def main() -> int:
