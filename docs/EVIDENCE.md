@@ -1,6 +1,6 @@
 # Release evidence
 
-This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed production authority is released v0.8.2; v0.8.1 remains the previous production release authority. The v0.8.3 metadata-finalization patch is certified as a candidate with release delivery in progress.
+This page is the human-readable index for VeriRepro `0.8` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove. The latest completed production authority is released v0.8.3; v0.8.2 remains the previous production release authority.
 
 ## Evidence policy
 
@@ -120,11 +120,11 @@ artifact after the exact canonical main source was frozen. No v0.8.1 evidence
 was reused as v0.8.2 evidence. Release delivery used the signed tag and
 protected PyPI Trusted Publishing path.
 
-## v0.8.3 certification authority (candidate)
+## Released v0.8.3 certification authority
 
 The 0.8.3 metadata-finalization patch received fresh source-bound certification
-on the exact canonical main source. Status: **CERTIFIED CANDIDATE** — signed
-tag, GitHub Release, and PyPI publication are not yet complete.
+on the exact canonical main source and is fully released. Status:
+**CERTIFIED and PUBLISHED**.
 
 - Certified source (S5): `572d51f6725d161efb937bf85f7181c2439e9989`
 - Release-source SHA-256 (F5): `d0cc3c6791cc6c62a0dd379f6010cdf27f0c113c7c5693bef8ef943c13950b28`
@@ -135,9 +135,13 @@ tag, GitHub Release, and PyPI publication are not yet complete.
 - Discovery: 15/15 expected repositories, 15/15 top-1, 15/15 evidence anchored
 - Planning: 3/3 expected repositories, 3/3 top-1, 3/3 evidence anchored
 - ReproBench: 1 success / 1 partial / 0 failures
-- Certification status: **CERTIFIED CANDIDATE**
-- GitHub Release `v0.8.3`: NOT YET PUBLISHED
-- PyPI `verirepro==0.8.3`: NOT YET PUBLISHED
+- Certification status: **CERTIFIED and PUBLISHED**
+- GitHub Release `v0.8.3`: PUBLISHED (immutable=true)
+- PyPI `verirepro==0.8.3`: PUBLISHED
+- Publish run `33339248479`: SUCCESS through protected Trusted Publishing
+- Fresh clean external PyPI install: PASS
+- PyPI live long-description release-stability verification: PASS
+- PyPI 0.8.2: PRESERVED unchanged as historical immutable distribution
 
 The validation run tested the exact S5 source and recorded F5 in the sanitized
 artifact. The artifact was reviewed and promoted through an explicit

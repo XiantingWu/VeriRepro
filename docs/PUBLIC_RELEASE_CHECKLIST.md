@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.2 / 0.8.3)
 
-Status: **v0.8.2 production release complete; signed tag, GitHub Release, and PyPI publication are verified. v0.8.3 metadata finalization is in release preparation.**
+Status: **v0.8.3 production release complete; signed tag, GitHub Release, PyPI publication, and release-stable long-description verification are complete.**
 
 ## Runner architecture
 
@@ -133,12 +133,12 @@ Status: **v0.8.2 production release complete; signed tag, GitHub Release, and Py
 - [x] fresh GitHub-hosted validation completed (Validation5)
 - [x] v0.8.3 evidence promoted from the exact sanitized artifact (E5)
 - [x] v0.8.3 certification authority recorded
-- [ ] signed annotated tag `v0.8.3` created and verified
-- [ ] GitHub Release `v0.8.3` published
-- [ ] PyPI Trusted Publishing publication for `verirepro==0.8.3`
-- [ ] fresh clean external PyPI install verified
-- [ ] PyPI live long-description release-stability verification
-- [ ] Immutable Release verification
+- [x] signed annotated tag `v0.8.3` created and verified
+- [x] GitHub Release `v0.8.3` published
+- [x] PyPI Trusted Publishing publication for `verirepro==0.8.3`
+- [x] fresh clean external PyPI install verified
+- [x] PyPI live long-description release-stability verification
+- [x] Immutable Release verification
 
 ## Deferred cross-account smoke
 
