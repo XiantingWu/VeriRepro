@@ -1,6 +1,6 @@
 # Public Release Checklist (0.8.1)
 
-Status: **release-delivery repair candidate; not yet released.**
+Status: **pre-release engineering freeze complete; v0.8.1 publication remains separately unauthorized.**
 
 ## Runner architecture
 
@@ -41,7 +41,7 @@ Status: **release-delivery repair candidate; not yet released.**
 - [x] publish re-runs release/launch/history/source/evidence gates before building
 - [x] release signer policy public key is provisioned; no stable tag may be created before the policy is verified
 - [x] v1.14.2 PyPI publisher action is pinned to its dereferenced release commit; the annotated tag-object SHA is not used
-- [ ] exact PyPI publisher runtime-image manifest preflight passes for the 0.8.1 candidate
+- [x] exact PyPI publisher runtime-image manifest preflight passes for the 0.8.1 candidate
 
 ## Release signer
 
@@ -80,17 +80,18 @@ Status: **release-delivery repair candidate; not yet released.**
 
 ## Active v0.8.1 candidate
 
-- [ ] source-hardening main `S3` frozen after the repair PR
-- [ ] release-source fingerprint `F3` computed and different from historical F2
-- [ ] fresh certification (`Validation3`) completed on exact `S3`
-- [ ] fresh evidence (`E3`) sanitized and promoted by an evidence-only PR
-- [ ] `docs/EVIDENCE.md` updated with S3/F3/Validation3/E3 authority
+- [x] source-hardening main `S3` frozen after the repair PR: `0a0385ab655e4c58a3db527287dc888dacd14f94`
+- [x] release-source fingerprint `F3` computed and different from historical F2: `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613`
+- [x] fresh certification (`Validation3`) completed on exact `S3`: run `33324289201`
+- [x] fresh evidence (`E3`) sanitized and promoted by an evidence-only PR: `68d50603e8a30b87bcb333cc510a3f85ea6926ce`
+- [x] `docs/EVIDENCE.md` updated with S3/F3/Validation3/E3 authority
 
 ## Final quality target
 
 - [x] historical validation recorded 782 tests with 86.4% statement coverage and 79.9% branch coverage
 - [x] v0.8.0 historical validation recorded 792 tests with 86.4% statement coverage and 79.9% branch coverage
-- [ ] 0.8.1 build / Twine / independent clean-wheel and clean-sdist install PASS recorded after repair
+- [x] 0.8.1 validation recorded 803 tests with 86.4% statement coverage and 79.9% branch coverage
+- [x] 0.8.1 build / Twine / independent clean-wheel and clean-sdist install PASS recorded after repair
 - [x] native history scan, Gitleaks, and TruffleHog PASS recorded at final audit
 - [x] public launch surface, anonymous clone, and quick start PASS re-verified at final audit
 - [x] full reachable Git history contains zero private runner / host identity metadata

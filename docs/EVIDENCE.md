@@ -1,6 +1,6 @@
 # Release evidence
 
-This page is the human-readable index for VeriRepro `0.8.0` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove.
+This page is the human-readable index for VeriRepro `0.8.1` evidence. It records what was actually measured, which source identity produced the measurements, and what the measurements do **not** prove.
 
 ## Evidence policy
 
@@ -47,10 +47,11 @@ Discovery 15/15, planning 3/3, and ReproBench 1 success / 1 partial / 0
 failures were measured at the previous source identity. They are historical,
 not the current certification authority.
 
-## Current Xianting-native certification
+## Current Xianting-native certification (v0.8.0, historical)
 
-The current Xianting-native authority is complete after the final release
-supply-chain hardening round:
+The v0.8.0 Xianting-native authority is complete after the final release
+supply-chain hardening round and remains an immutable historical record. It
+was superseded by the v0.8.1 delivery-correction certification:
 
 - Certified source (S2): `cd0c962cbf72ebcecea7f5e6af56b98c4d5576ef`
 - Release-source SHA-256 (F2): `1032069218c9bbecaf8ec7eda6de48bf704e9552487a26ce828a19c6084d6569`
@@ -64,9 +65,31 @@ supply-chain hardening round:
 
 The validation run tested the exact S2 source and recorded F2 in the sanitized
 artifact. The artifact was reviewed and promoted through an explicit
-evidence-only PR. The former S1/F1, validation run `33282504163`, and E1 are
-retained as historical provenance; S2/F2, validation run `33316585656`, and E2
-are current.
+evidence-only PR. S2/F2, validation run `33316585656`, and E2 are the
+historical v0.8.0 authority; the v0.8.0 PyPI delivery itself was not
+completed, and v0.8.0 was never published to PyPI.
+
+## Current Xianting-native certification (v0.8.1 candidate)
+
+The current v0.8.1 candidate authority was produced after the PyPI publisher
+delivery repair and is the only current certification authority:
+
+- Certified source (S3): `0a0385ab655e4c58a3db527287dc888dacd14f94`
+- Release-source SHA-256 (F3): `45355990bec900d1efa2faf782eb3099d40927a7a65adf84291c1037a9627613`
+- Validation run: GitHub-hosted `VeriRepro validation` run `33324289201`
+- Evidence commit (E3): `68d50603e8a30b87bcb333cc510a3f85ea6926ce`
+- Evidence topology: the evidence-only promotion is a protected-main commit
+  directly based on S3.
+- Discovery: 15/15 expected repositories, 15/15 top-1, 15/15 evidence anchored
+- Planning: 3/3 expected repositories, 3/3 top-1, 3/3 evidence anchored
+- ReproBench: 1 success / 1 partial / 0 failures
+- Exact PyPI publisher runtime image preflight: PASS
+  (`ghcr.io/pypa/gh-action-pypi-publish:dc37677b2e1c63e2034f94d8a5b11f265b73ba33`)
+
+The validation run tested the exact S3 source and recorded F3 in the sanitized
+artifact. The artifact was reviewed and promoted through an explicit
+evidence-only PR. S3/F3, validation run `33324289201`, and E3 are current;
+S2/F2, validation run `33316585656`, and E2 are historical v0.8.0 authority.
 
 ## Scientific limits
 
