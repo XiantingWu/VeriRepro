@@ -13,7 +13,7 @@ docutils==0.23
 hatchling==1.32.0
 id==1.6.1
 idna==3.19
-importlib-metadata==9.0.0 ; python_version < "3.12"
+importlib-metadata==9.0.1 ; python_version < "3.12"
 iniconfig==2.3.0
 jaraco.classes==3.4.0
 jaraco.context==6.1.2
