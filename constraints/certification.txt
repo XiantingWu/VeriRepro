@@ -28,7 +28,7 @@ mypy-extensions==1.1.0
 nh3==0.3.7
 packaging==26.3
 pathspec==1.1.1
-pillow==12.3.0
+pillow==13.0.0
 pip==26.2.1
 pluggy==1.6.0
 pygments==2.21.0
